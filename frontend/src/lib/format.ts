@@ -32,7 +32,20 @@ export function formatDateLong(value: string | Date): string {
   });
 }
 
-const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const SHORT_MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 /** 24 Sep — tables and lists. (ICU's en-IN gives "Sept"; the design uses three letters.) */
 export function formatDateShort(value: string | Date): string {
@@ -52,46 +65,54 @@ export function dateTile(value: string | Date): { day: string; month: string } {
   return { day, month };
 }
 
-/** The fee fields every course carries (see PROJECT_GUIDE §10). */
+/** The fee fields every course carries (the API's Course, see PROJECT_GUIDE §10). */
 export interface CourseFee {
-  monthlyFee: number;
+  monthly_fee: number;
   months: number;
-  durationLabel: string;
-  /** Only the Professional Diploma in Multimedia: ₹4,000 + ₹3,000 × 17. */
-  special?: { firstFee: number; restFee: number; restCount: number } | null;
+  duration_label: string;
+  /** Only the Professional Diploma in Multimedia: ₹4,000 for month one, then ₹3,000 × 17. */
+  first_month_fee?: number | null;
 }
 
+const hasFirstMonthFee = (
+  fee: CourseFee,
+): fee is CourseFee & { first_month_fee: number } =>
+  fee.first_month_fee !== null && fee.first_month_fee !== undefined;
+
+/** Every month added up; the one-time registration fee is separate. */
 export function courseTotal(fee: CourseFee): number {
-  return fee.special
-    ? fee.special.firstFee + fee.special.restFee * fee.special.restCount
-    : fee.monthlyFee * fee.months;
+  return hasFirstMonthFee(fee)
+    ? fee.first_month_fee + fee.monthly_fee * (fee.months - 1)
+    : fee.monthly_fee * fee.months;
 }
 
 /** The headline figure and its unit: "₹800" + "/month", or "₹4,000" + "at admission". */
 export function feeHeadline(fee: CourseFee): { amount: string; unit: string } {
-  return fee.special
-    ? { amount: inr(fee.special.firstFee), unit: "at admission" }
-    : { amount: inr(fee.monthlyFee), unit: "/month" };
+  return hasFirstMonthFee(fee)
+    ? { amount: inr(fee.first_month_fee), unit: "at admission" }
+    : { amount: inr(fee.monthly_fee), unit: "/month" };
 }
 
 /** "₹800 per month · 6 Months", or "₹4,000 + ₹3,000 × 17 · 18 Months". */
 export function feeLong(fee: CourseFee): string {
-  const terms = fee.special
-    ? `${inr(fee.special.firstFee)} + ${inr(fee.special.restFee)} × ${fee.special.restCount}`
-    : `${inr(fee.monthlyFee)} per month`;
-  return `${terms} · ${fee.durationLabel}`;
+  const terms = hasFirstMonthFee(fee)
+    ? `${inr(fee.first_month_fee)} + ${inr(fee.monthly_fee)} × ${fee.months - 1}`
+    : `${inr(fee.monthly_fee)} per month`;
+  return `${terms} · ${fee.duration_label}`;
 }
 
 /** Secondary line under a fee: never a total on its own. */
 export function feeSubline(fee: CourseFee, registrationFee = 250): string {
   const total = inr(courseTotal(fee));
-  return fee.special
-    ? `+ ${inr(fee.special.restFee)} × ${fee.special.restCount} months · ${total} total`
+  return hasFirstMonthFee(fee)
+    ? `+ ${inr(fee.monthly_fee)} × ${fee.months - 1} months · ${total} total`
     : `${total} total · ${inr(registrationFee)} registration`;
 }
 
 /** Two initials for avatars: "Aarav Mehta" → "AM". */
 export function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
-  return ((parts[0]?.[0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+  return (
+    (parts[0]?.[0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")
+  ).toUpperCase();
 }

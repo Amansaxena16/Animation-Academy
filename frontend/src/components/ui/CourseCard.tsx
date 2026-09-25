@@ -3,9 +3,9 @@ import { Clock, Layers } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/lib/cn";
-import { feeHeadline, feeLong, feeSubline, type CourseFee } from "@/lib/format";
+import { feeHeadline, feeSubline, type CourseFee } from "@/lib/format";
 import { levelTone } from "@/lib/status";
-import type { CourseSummary } from "@/types/course";
+import type { Course } from "@/types/course";
 
 import { Badge } from "./Badge";
 import { ButtonLink } from "./Button";
@@ -13,47 +13,71 @@ import { Card } from "./Card";
 import { CourseArt } from "./CourseArt";
 
 /** "₹800/month" with the total and registration in secondary text. Never a total alone. */
-export function Price({ fee, registrationFee, large }: { fee: CourseFee; registrationFee?: number; large?: boolean }) {
+export function Price({
+  fee,
+  registrationFee,
+  large,
+}: {
+  fee: CourseFee;
+  registrationFee?: number;
+  large?: boolean;
+}) {
   const { amount, unit } = feeHeadline(fee);
   return (
     <div className="min-w-0">
       <span
         className={cn(
-          "inline-flex items-baseline gap-[3px] font-display font-bold text-brand-ink",
+          "font-display text-brand-ink inline-flex items-baseline gap-[3px] font-bold",
           large ? "text-[26px] leading-[30px]" : "text-xl leading-6",
         )}
       >
         {amount}
-        <em className="font-sans text-[13px] leading-[18px] font-medium text-ink-muted not-italic">{unit}</em>
+        <em className="text-ink-muted font-sans text-[13px] leading-[18px] font-medium not-italic">
+          {unit}
+        </em>
       </span>
-      <div className="text-[13px] leading-[18px] text-ink-muted">{feeSubline(fee, registrationFee)}</div>
+      <div className="text-ink-muted text-[13px] leading-[18px]">
+        {feeSubline(fee, registrationFee)}
+      </div>
     </div>
   );
 }
 
 /** A standalone fee panel for the course page. */
-export function FeeBox({ fee, registrationFee }: { fee: CourseFee; registrationFee?: number }) {
+export function FeeBox({
+  fee,
+  registrationFee,
+}: {
+  fee: CourseFee;
+  registrationFee?: number;
+}) {
   return (
-    <div className="flex flex-col gap-1 rounded-md bg-brand-soft px-4 py-3.5">
+    <div className="bg-brand-soft flex flex-col gap-1 rounded-md px-4 py-3.5">
       <span className="type-overline text-brand-ink">Fees</span>
       <Price fee={fee} registrationFee={registrationFee} large />
-      <span className="text-[13px] text-ink-muted">{feeLong(fee)}</span>
+      <span className="text-ink-muted text-[13px]">
+        Course length: {fee.duration_label}
+      </span>
     </div>
   );
 }
 
 interface CourseCardProps {
-  course: CourseSummary;
+  course: Course;
   registrationFee?: number;
   /** Where Enroll Now goes; the admission form by default. */
   enrollHref?: string;
 }
 
-export function CourseCard({ course, registrationFee, enrollHref }: CourseCardProps) {
+export function CourseCard({
+  course,
+  registrationFee,
+  enrollHref,
+}: CourseCardProps) {
   const href = `/courses/${course.slug}`;
   return (
     <Card hover className="group relative flex h-full flex-col overflow-hidden">
-      <div className="relative aspect-[16/10] overflow-hidden bg-navy">
+      <div className="bg-navy relative aspect-[16/10] overflow-hidden">
         {course.image ? (
           <img
             src={course.image}
@@ -74,36 +98,51 @@ export function CourseCard({ course, registrationFee, enrollHref }: CourseCardPr
       </div>
       <div className="flex flex-1 flex-col gap-2.5 px-5 pt-[18px] pb-5">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[11px] leading-4 font-bold tracking-[0.08em] text-accent-ink uppercase">
-            {course.kind} · {course.durationLabel}
+          <span className="text-accent-ink text-[11px] leading-4 font-bold tracking-[0.08em] uppercase">
+            {course.kind} · {course.duration_label}
           </span>
           <Badge tone={levelTone[course.level]}>{course.level}</Badge>
         </div>
-        <h3 className="m-0 font-display text-[17px] leading-6 font-semibold text-ink">
-          <Link href={href} className="text-inherit no-underline after:absolute after:inset-0 hover:text-brand-ink focus-visible:outline-none">
+        <h3 className="font-display text-ink m-0 text-[17px] leading-6 font-semibold">
+          <Link
+            href={href}
+            className="hover:text-brand-ink text-inherit no-underline after:absolute after:inset-0 focus-visible:outline-none"
+          >
             {course.name}
           </Link>
         </h3>
-        <p className="m-0 line-clamp-2 text-sm leading-[22px] text-ink-muted">{course.description}</p>
-        <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-[13px] text-ink-muted [&_svg]:size-[15px]">
+        <p className="text-ink-muted m-0 line-clamp-2 text-sm leading-[22px]">
+          {course.description}
+        </p>
+        <div className="text-ink-muted flex flex-wrap gap-x-3.5 gap-y-1.5 text-[13px] [&_svg]:size-[15px]">
           <span className="inline-flex items-center gap-[5px]">
             <Clock aria-hidden />
-            {course.durationLabel}
+            {course.duration_label}
           </span>
           <span className="inline-flex items-center gap-[5px]">
             <Layers aria-hidden />
             {course.category}
           </span>
         </div>
-        <div className="mt-auto border-t border-line pt-3.5">
+        <div className="border-line mt-auto border-t pt-3.5">
           <Price fee={course} registrationFee={registrationFee} />
         </div>
         {/* relative + z-10 keeps the buttons above the card-wide title link */}
         <div className="relative z-10 flex gap-2">
-          <ButtonLink href={href} variant="secondary" size="sm" className="flex-1">
+          <ButtonLink
+            href={href}
+            variant="secondary"
+            size="sm"
+            className="flex-1"
+          >
             View Details
           </ButtonLink>
-          <ButtonLink href={enrollHref ?? `/admission?course=${course.slug}`} variant="accent" size="sm" className="flex-1">
+          <ButtonLink
+            href={enrollHref ?? `/admission?course=${course.slug}`}
+            variant="accent"
+            size="sm"
+            className="flex-1"
+          >
             Enroll Now
           </ButtonLink>
         </div>

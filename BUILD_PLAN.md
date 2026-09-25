@@ -242,7 +242,32 @@ A `/dev/components` page shows every component in light and dark for visual chec
 
 ---
 
-## Phase 3 — Courses catalogue
+## Phase 3 — Courses catalogue ✅ done (25 Sep 2026)
+
+**How it was built** (differences from the plan below are marked ⚠):
+- **Model:** `website.Course`.
+  - ⚠ The PDM's special fee is **one field, `first_month_fee`** (4000), with `monthly_fee` 3000 over 18 months, instead of three fields. `total_fee` = first + monthly × (months − 1).
+  - Category and level are choices.
+  - The syllabus JSON is validated on save, including through Django admin.
+- **Seed:** `python manage.py seed_courses` loads `website/fixtures/courses.json` (9 courses, idempotent, runs `full_clean`).
+- **API:**
+  - `GET /courses/` is **unpaginated** (the catalogue is small), ordered by `order` by default.
+  - Filters: `q` (name, description **and syllabus text**, so "tally" finds PGDCA too), `category`, `level`, ⚠ `min_fee` / `max_fee` (monthly fee), `featured`, `ordering`.
+  - `GET /courses/categories/` returns every category with its published count.
+  - `GET /courses/{slug}/` adds the syllabus.
+  - These endpoints skip authentication, so a stale token never causes a 401.
+- **Tests:** 21 new, 51 in total.
+- **Frontend:**
+  - Course types come from the generated schema (`src/types/course.ts`); the fee helpers use the API's field names.
+  - `src/lib/courses.ts` fetches with `next: { revalidate: 300, tags: ["courses"] }`.
+  - Pages call `connection()`, so they render per request (no API needed at build time) while the API data is cached.
+  - `/courses`: instant client-side filtering (search, category chips with counts, level, monthly-fee band), kept in the URL so it can be shared. ⚠ The on-page search covers name, description, category and kind; the API's `q` also covers the syllabus.
+  - `/courses/[slug]`: header, then a sticky fee card, then Overview / Syllabus tabs (both panels are in the HTML for SEO; units of 4, or the PDM's semesters), "How the fees work", and related courses. Metadata is set per course.
+  - Unknown slugs return a real **404**. ⚠ There is no `loading.tsx`: it made 404s stream with status 200.
+  - `app/(public)/error.tsx` (Next 16 `retry()`) handles an unreachable API.
+  - `API_INTERNAL_URL` (optional) lets the Next.js server reach Django privately.
+- **Verified in Chrome:** the list, search with URL sync, shared filter links, the PDM and DCA detail pages, the tabs, the sticky fee card, related courses, and the unknown slug → 404. The phone layout was not re-checked visually in this phase, because Chrome ignored the window resize.
+
 
 ### 3.1 Model (`website`)
 - `Course`: every field from PROJECT_GUIDE §10, including:
@@ -263,7 +288,7 @@ A `/dev/components` page shows every component in light and dark for visual chec
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| GET | `/api/v1/courses/` | public | Published courses. Filters: `q` (name, description), `category`, `level`, `price` (min/max), `featured=true`. Ordering: `order`, `fee`, `name` |
+| GET | `/api/v1/courses/` | public | Published courses. Filters: `q` (name, description, syllabus), `category`, `level`, `min_fee` / `max_fee`, `featured=true`. Ordering: `order`, `monthly_fee`, `name`, `months` |
 | GET | `/api/v1/courses/categories/` | public | The category choices, for the filter chips |
 | GET | `/api/v1/courses/{slug}/` | public | Detail with the syllabus, fee breakdown and computed total |
 

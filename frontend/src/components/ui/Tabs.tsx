@@ -15,7 +15,9 @@ export interface TabItem<K extends string = string> {
 const tabClass = (active: boolean) =>
   cn(
     "-mb-px whitespace-nowrap border-b-2 px-3.5 py-3 text-sm leading-5 font-semibold no-underline",
-    active ? "border-brand text-brand-ink" : "border-transparent text-ink-muted hover:text-ink",
+    active
+      ? "border-brand text-brand-ink"
+      : "border-transparent text-ink-muted hover:text-ink",
   );
 
 /** Page sections. Scrolls horizontally on mobile. */
@@ -31,16 +33,30 @@ export function Tabs<K extends string>({
   className?: string;
 }) {
   return (
-    <div role="tablist" className={cn("flex gap-1 overflow-x-auto border-b border-line [scrollbar-width:none]", className)}>
+    <div
+      role="tablist"
+      className={cn(
+        "border-line flex [scrollbar-width:none] gap-1 overflow-x-auto border-b",
+        className,
+      )}
+    >
       {items.map((t) => {
         const label = (
           <>
             {t.label}
-            {t.count !== undefined && <span className="ml-1.5 text-ink-muted">{t.count}</span>}
+            {t.count !== undefined && (
+              <span className="text-ink-muted ml-1.5">{t.count}</span>
+            )}
           </>
         );
         return t.href ? (
-          <Link key={t.key} href={t.href} role="tab" aria-selected={active === t.key} className={tabClass(active === t.key)}>
+          <Link
+            key={t.key}
+            href={t.href}
+            role="tab"
+            aria-selected={active === t.key}
+            className={tabClass(active === t.key)}
+          >
             {label}
           </Link>
         ) : (
@@ -74,7 +90,11 @@ export function SegmentedControl<K extends string>({
   label: string;
 }) {
   return (
-    <div role="group" aria-label={label} className="inline-flex w-fit gap-1 self-start rounded-md bg-surface-sunken p-1">
+    <div
+      role="group"
+      aria-label={label}
+      className="bg-surface-sunken inline-flex w-fit gap-1 self-start rounded-md p-1"
+    >
       {items.map((t) => (
         <button
           key={t.key}
@@ -83,7 +103,9 @@ export function SegmentedControl<K extends string>({
           onClick={() => onChange(t.key)}
           className={cn(
             "rounded-[7px] px-3 py-1.5 text-[13px] leading-5 font-semibold",
-            active === t.key ? "bg-surface-raised text-ink shadow-sm" : "text-ink-muted hover:text-ink",
+            active === t.key
+              ? "bg-surface-raised text-ink shadow-sm"
+              : "text-ink-muted hover:text-ink",
           )}
         >
           {t.label}

@@ -16,11 +16,13 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center gap-2 px-6 py-12 text-center">
-      <div className="mb-2 grid size-[72px] place-items-center rounded-full bg-surface-sunken text-ink-muted [&_svg]:size-[30px]">
+      <div className="bg-surface-sunken text-ink-muted mb-2 grid size-[72px] place-items-center rounded-full [&_svg]:size-[30px]">
         {icon}
       </div>
-      <h4 className="m-0 font-display text-[17px] leading-6 font-semibold">{title}</h4>
-      <p className="m-0 mb-2 max-w-[340px] text-sm text-ink-muted">{text}</p>
+      <h4 className="font-display m-0 text-[17px] leading-6 font-semibold">
+        {title}
+      </h4>
+      <p className="text-ink-muted m-0 mb-2 max-w-[340px] text-sm">{text}</p>
       {action}
     </div>
   );

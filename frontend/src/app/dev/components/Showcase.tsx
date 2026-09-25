@@ -1,6 +1,15 @@
 "use client";
 
-import { Award, BookOpen, Download, Pencil, Search, Trash2, TrendingUp, Users } from "lucide-react";
+import {
+  Award,
+  BookOpen,
+  Download,
+  Pencil,
+  Search,
+  Trash2,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { useState } from "react";
 
 import {
@@ -37,33 +46,49 @@ import {
 } from "@/components/ui";
 import { enrollmentTone } from "@/lib/status";
 import { useApplyTheme } from "@/lib/theme";
-import type { CourseSummary } from "@/types/course";
+import type { Course } from "@/types/course";
 
-const COURSES: CourseSummary[] = [
+const COURSE_DEFAULTS = {
+  featured: true,
+  image: null,
+  schedule: "",
+  next_batch_start: "",
+  tag: "",
+};
+const COURSES: Course[] = [
   {
+    ...COURSE_DEFAULTS,
     slug: "dca-acc",
     name: "DCA — Accounting",
     kind: "Diploma",
     category: "Accounting",
     level: "Beginner",
-    description: "Computer fundamentals, MS Office and Tally Prime with GST, including GSTR1 and GSTR 3B return filing.",
+    description:
+      "Computer fundamentals, MS Office and Tally Prime with GST, including GSTR1 and GSTR 3B return filing.",
     tag: "Most enrolled",
-    monthlyFee: 800,
+    monthly_fee: 800,
+    first_month_fee: null,
+    total_fee: 4800,
     months: 6,
-    durationLabel: "6 Months",
+    duration_label: "6 Months",
   },
   {
+    ...COURSE_DEFAULTS,
     slug: "dwd",
     name: "DWD — Web Designing",
     kind: "Diploma",
     category: "Web Designing",
     level: "Advanced",
-    description: "Photoshop, Flash and Dreamweaver through to HTML, CSS, PHP, MySQl and JavaScript (jQuery).",
-    monthlyFee: 1000,
+    description:
+      "Photoshop, Flash and Dreamweaver through to HTML, CSS, PHP, MySQl and JavaScript (jQuery).",
+    monthly_fee: 1000,
+    first_month_fee: null,
+    total_fee: 6000,
     months: 6,
-    durationLabel: "6 Months",
+    duration_label: "6 Months",
   },
   {
+    ...COURSE_DEFAULTS,
     slug: "pdm",
     name: "Professional Diploma in Multimedia",
     kind: "Professional Diploma",
@@ -72,23 +97,48 @@ const COURSES: CourseSummary[] = [
     description:
       "Five semesters from graphic design and 2D animation through A/V editing, 3D modeling in Maya and ZBrush, to compositing in After Effect.",
     tag: "Flagship",
-    monthlyFee: 0,
+    monthly_fee: 3000,
+    first_month_fee: 4000,
+    total_fee: 55000,
     months: 18,
-    durationLabel: "18 Months",
-    special: { firstFee: 4000, restFee: 3000, restCount: 17 },
+    duration_label: "18 Months",
   },
 ];
 
 const ROWS = [
-  { code: "EN-2107", name: "Aarav Mehta", student: "AA-STU-1042", course: "Desk Top Publishing", status: "Active" },
-  { code: "EN-2150", name: "Nisha Bhatt", student: "AA-STU-1118", course: "Professional Diploma in Multimedia", status: "Pending" },
-  { code: "EN-2058", name: "Sneha Kapoor", student: "AA-STU-1038", course: "DCA — Accounting", status: "Completed" },
+  {
+    code: "EN-2107",
+    name: "Aarav Mehta",
+    student: "AA-STU-1042",
+    course: "Desk Top Publishing",
+    status: "Active",
+  },
+  {
+    code: "EN-2150",
+    name: "Nisha Bhatt",
+    student: "AA-STU-1118",
+    course: "Professional Diploma in Multimedia",
+    status: "Pending",
+  },
+  {
+    code: "EN-2058",
+    name: "Sneha Kapoor",
+    student: "AA-STU-1038",
+    course: "DCA — Accounting",
+    status: "Completed",
+  },
 ];
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="m-0 border-b border-line pb-2 type-h2">{title}</h2>
+      <h2 className="border-line type-h2 m-0 border-b pb-2">{title}</h2>
       {children}
     </section>
   );
@@ -105,12 +155,14 @@ export function Showcase() {
   useApplyTheme(theme);
 
   return (
-    <div className="min-h-screen bg-surface text-ink">
+    <div className="bg-surface text-ink min-h-screen">
       <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-10 md:px-6">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <span className="type-overline text-accent-ink">Development only</span>
-            <h1 className="m-0 type-display">Components</h1>
+            <span className="type-overline text-accent-ink">
+              Development only
+            </span>
+            <h1 className="type-display m-0">Components</h1>
           </div>
           <SegmentedControl
             label="Theme"
@@ -130,22 +182,34 @@ export function Showcase() {
             <Logo size="sm" href={null} />
             <Logo markOnly href={null} />
           </div>
-          <div className="flex flex-wrap items-center gap-8 rounded-lg bg-navy p-6">
+          <div className="bg-navy flex flex-wrap items-center gap-8 rounded-lg p-6">
             <Logo tone="inverse" href={null} />
           </div>
         </Section>
 
         <Section title="Type">
           <div className="flex flex-col gap-2">
-            <span className="type-display-xl">Learn the tools. Build the work.</span>
-            <span className="type-display">Professional Diploma in Multimedia</span>
+            <span className="type-display-xl">
+              Learn the tools. Build the work.
+            </span>
+            <span className="type-display">
+              Professional Diploma in Multimedia
+            </span>
             <span className="type-h1">DCA — Accounting</span>
             <span className="type-h2">Our courses</span>
             <span className="type-h3">Sem-IV 3D Modeling</span>
-            <span className="w-fit rounded-pill bg-navy px-3 py-1 type-pill text-on-navy">DWD — Web Designing</span>
-            <span className="type-body-lg">A certified multimedia institute in Nehru Nagar, Kanpur.</span>
-            <span className="type-body">Tally Prime with GST, including GSTR1 and GSTR 3B return filing.</span>
-            <span className="type-overline text-accent-ink">ISO 9001:2000 certified</span>
+            <span className="rounded-pill bg-navy type-pill text-on-navy w-fit px-3 py-1">
+              DWD — Web Designing
+            </span>
+            <span className="type-body-lg">
+              A certified multimedia institute in Nehru Nagar, Kanpur.
+            </span>
+            <span className="type-body">
+              Tally Prime with GST, including GSTR1 and GSTR 3B return filing.
+            </span>
+            <span className="type-overline text-accent-ink">
+              ISO 9001:2000 certified
+            </span>
             <span className="type-mono">AA-2026-000123</span>
             <span className="type-certificate-name">Aarav Mehta</span>
           </div>
@@ -176,7 +240,7 @@ export function Showcase() {
             <Button size="icon" variant="secondary" aria-label="Search">
               <Search />
             </Button>
-            <div className="rounded-md bg-navy p-3">
+            <div className="bg-navy rounded-md p-3">
               <Button variant="inverse">On Navy</Button>
             </div>
           </div>
@@ -217,20 +281,47 @@ export function Showcase() {
 
         <Section title="Stat cards">
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <StatCard icon={<Users />} value="1,248" label="Total students" delta={{ value: "12%" }} />
-            <StatCard icon={<Award />} tone="amber" value="1,032" label="Certificates issued" />
-            <StatCard icon={<BookOpen />} tone="blue" value="9" label="Courses offered" />
-            <StatCard icon={<TrendingUp />} tone="green" value="84" label="Admissions in September" />
+            <StatCard
+              icon={<Users />}
+              value="1,248"
+              label="Total students"
+              delta={{ value: "12%" }}
+            />
+            <StatCard
+              icon={<Award />}
+              tone="amber"
+              value="1,032"
+              label="Certificates issued"
+            />
+            <StatCard
+              icon={<BookOpen />}
+              tone="blue"
+              value="9"
+              label="Courses offered"
+            />
+            <StatCard
+              icon={<TrendingUp />}
+              tone="green"
+              value="84"
+              label="Admissions in September"
+            />
           </div>
         </Section>
 
         <Section title="Forms">
-          <Stepper steps={["Account", "Personal", "Education", "Course"]} current={2} />
+          <Stepper
+            steps={["Account", "Personal", "Education", "Course"]}
+            current={2}
+          />
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Full name (in capitals)" required>
               {(p) => <Input {...p} defaultValue="AARAV MEHTA" />}
             </Field>
-            <Field label="Email" required error="Enter a valid email, e.g. name@example.com">
+            <Field
+              label="Email"
+              required
+              error="Enter a valid email, e.g. name@example.com"
+            >
               {(p) => <Input {...p} defaultValue="aarav.mehta@gmail" />}
             </Field>
             <Field label="Mobile" valid help="Looks good">
@@ -239,27 +330,47 @@ export function Showcase() {
             <Field label="Employment status">
               {(p) => (
                 <Select {...p} defaultValue="Student">
-                  {["Student", "Unemployed", "Employed", "Self-employed", "Part-time"].map((o) => (
+                  {[
+                    "Student",
+                    "Unemployed",
+                    "Employed",
+                    "Self-employed",
+                    "Part-time",
+                  ].map((o) => (
                     <option key={o}>{o}</option>
                   ))}
                 </Select>
               )}
             </Field>
             <Field label="Search courses" className="sm:col-span-2">
-              {(p) => <Input {...p} icon={<Search />} placeholder="Try “Tally” or “CorelDraw”" />}
+              {(p) => (
+                <Input
+                  {...p}
+                  icon={<Search />}
+                  placeholder="Try “Tally” or “CorelDraw”"
+                />
+              )}
             </Field>
-            <Field label="Address" help="House number, street and area." className="sm:col-span-2">
+            <Field
+              label="Address"
+              help="House number, street and area."
+              className="sm:col-span-2"
+            >
               {(p) => <Textarea {...p} />}
             </Field>
             <RadioCard name="course" defaultChecked>
               <b>DCA — Accounting</b>
               <br />
-              <span className="text-[13px] text-ink-muted">6 Months · ₹800/month</span>
+              <span className="text-ink-muted text-[13px]">
+                6 Months · ₹800/month
+              </span>
             </RadioCard>
             <RadioCard name="course">
               <b>Desk Top Publishing</b>
               <br />
-              <span className="text-[13px] text-ink-muted">6 Months · ₹800/month</span>
+              <span className="text-ink-muted text-[13px]">
+                6 Months · ₹800/month
+              </span>
             </RadioCard>
             <Checkbox label="I understand that no refund is allowed after confirmation of admission." />
             <PhotoUpload value={photo} onChange={setPhoto} />
@@ -267,7 +378,13 @@ export function Showcase() {
         </Section>
 
         <Section title="Tabs, breadcrumbs, alerts">
-          <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Courses", href: "/courses" }, { label: "DCA — Accounting" }]} />
+          <Breadcrumbs
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Courses", href: "/courses" },
+              { label: "DCA — Accounting" },
+            ]}
+          />
           <Tabs
             items={[
               { key: "overview", label: "Overview" },
@@ -288,16 +405,39 @@ export function Showcase() {
             onChange={setSeg}
           />
           <div className="grid gap-3">
-            <Alert title="Admission requested">DCA — Accounting is awaiting confirmation.</Alert>
-            <Alert tone="success" title="Admission confirmed">Aarav Mehta is now active in DCA — Accounting.</Alert>
+            <Alert title="Admission requested">
+              DCA — Accounting is awaiting confirmation.
+            </Alert>
+            <Alert tone="success" title="Admission confirmed">
+              Aarav Mehta is now active in DCA — Accounting.
+            </Alert>
             <Alert tone="warning">Registration closes on 5 October.</Alert>
-            <Alert tone="danger" title="Check the form">Add your name and a valid email so we can reply.</Alert>
+            <Alert tone="danger" title="Check the form">
+              Add your name and a valid email so we can reply.
+            </Alert>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button variant="secondary" onClick={() => toast({ title: "Profile saved", text: "Your details are up to date." })}>
+            <Button
+              variant="secondary"
+              onClick={() =>
+                toast({
+                  title: "Profile saved",
+                  text: "Your details are up to date.",
+                })
+              }
+            >
               Show Success Toast
             </Button>
-            <Button variant="secondary" onClick={() => toast({ title: "Upload failed", text: "The photo must be 2 MB or smaller.", tone: "danger" })}>
+            <Button
+              variant="secondary"
+              onClick={() =>
+                toast({
+                  title: "Upload failed",
+                  text: "The photo must be 2 MB or smaller.",
+                  tone: "danger",
+                })
+              }
+            >
               Show Error Toast
             </Button>
             <Button variant="danger" onClick={() => setModal(true)}>
@@ -308,7 +448,10 @@ export function Showcase() {
 
         <Section title="Table and pager">
           <Card className="overflow-hidden">
-            <CardHeader title="Enrollments" actions={<Button size="sm">Export</Button>} />
+            <CardHeader
+              title="Enrollments"
+              actions={<Button size="sm">Export</Button>}
+            />
             <Table
               caption="Enrollments"
               rows={ROWS}
@@ -317,10 +460,20 @@ export function Showcase() {
                 {
                   key: "student",
                   header: "Student",
-                  render: (r) => <CellUser avatar={<Avatar name={r.name} size="sm" />} name={r.name} sub={r.student} />,
+                  render: (r) => (
+                    <CellUser
+                      avatar={<Avatar name={r.name} size="sm" />}
+                      name={r.name}
+                      sub={r.student}
+                    />
+                  ),
                 },
                 { key: "course", header: "Course", render: (r) => r.course },
-                { key: "code", header: "Enrollment", render: (r) => <span className="type-mono">{r.code}</span> },
+                {
+                  key: "code",
+                  header: "Enrollment",
+                  render: (r) => <span className="type-mono">{r.code}</span>,
+                },
                 {
                   key: "status",
                   header: "Status",
@@ -336,10 +489,19 @@ export function Showcase() {
                   actions: true,
                   render: (r) => (
                     <>
-                      <Button size="icon" variant="ghost" aria-label={`Edit ${r.name}`}>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        aria-label={`Edit ${r.name}`}
+                      >
                         <Pencil />
                       </Button>
-                      <Button size="icon" variant="ghost" aria-label={`Remove ${r.name}`} className="text-danger-ink">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        aria-label={`Remove ${r.name}`}
+                        className="text-danger-ink"
+                      >
                         <Trash2 />
                       </Button>
                     </>
@@ -356,13 +518,31 @@ export function Showcase() {
             <Card>
               <CardBody>
                 <Announcement
-                  item={{ id: 1, date: "2026-10-02", category: "Holiday", title: "Institute closed for Gandhi Jayanti", text: "All batches resume on Friday, 3 October at regular timings." }}
+                  item={{
+                    id: 1,
+                    date: "2026-10-02",
+                    category: "Holiday",
+                    title: "Institute closed for Gandhi Jayanti",
+                    text: "All batches resume on Friday, 3 October at regular timings.",
+                  }}
                 />
                 <Announcement
-                  item={{ id: 2, date: "2026-09-28", category: "Course Update", title: "New batch: Professional Diploma in Multimedia", text: "Sem-I Graphic Designing starts 12 October. 20 seats; registration closes 5 October." }}
+                  item={{
+                    id: 2,
+                    date: "2026-09-28",
+                    category: "Course Update",
+                    title: "New batch: Professional Diploma in Multimedia",
+                    text: "Sem-I Graphic Designing starts 12 October. 20 seats; registration closes 5 October.",
+                  }}
                 />
                 <Announcement
-                  item={{ id: 3, date: "2026-10-06", category: "Exam", title: "CCC practical assessment", text: "Course on Computer Concepts assessment in Lab 2. Bring your admit card." }}
+                  item={{
+                    id: 3,
+                    date: "2026-10-06",
+                    category: "Exam",
+                    title: "CCC practical assessment",
+                    text: "Course on Computer Concepts assessment in Lab 2. Bring your admit card.",
+                  }}
                 />
               </CardBody>
             </Card>
@@ -393,7 +573,11 @@ export function Showcase() {
         onCancel={() => setModal(false)}
         onConfirm={() => {
           setModal(false);
-          toast({ title: "Student removed", text: "Aarav Mehta has been deactivated.", tone: "info" });
+          toast({
+            title: "Student removed",
+            text: "Aarav Mehta has been deactivated.",
+            tone: "info",
+          });
         }}
       />
     </div>

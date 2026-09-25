@@ -295,7 +295,7 @@ Submitting creates a **Student (Pending)** and an **Enrollment (Pending)**. The 
 | App | Model | Fields |
 |---|---|---|
 | `accounts` | **User** (custom, email login) | email (unique), password, full_name, role (`student` / `admin`), is_active |
-| `website` | **Course** | slug, name, kind (Diploma/Certificate/PG Diploma/Professional Diploma), category (choices: Programming, Accounting, Design, Web Designing, Computer Basics, Multimedia), level (Beginner/Intermediate/Advanced), duration_label ("6 Months"), months, monthly_fee, special fee (first_fee, rest_fee, rest_count; nullable, PDM only), description, **syllabus (JSON)**, image, featured, tag, status (Published/Draft), schedule ("Mon–Fri, 10–11 AM"), next_batch_start, sort order |
+| `website` | **Course** | slug, name, kind (Diploma/Certificate/PG Diploma/Professional Diploma), category (choices: Programming, Accounting, Design, Web Designing, Computer Basics, Multimedia), level (Beginner/Intermediate/Advanced), duration_label ("6 Months"), months, monthly_fee, first_month_fee (nullable; only the PDM: ₹4,000, then monthly_fee ₹3,000 for the other 17 months), description, **syllabus (JSON)**, image, featured, tag, status (Published/Draft), schedule ("Mon–Fri, 10–11 AM"), next_batch_start, sort order |
 | `students` | **Student** (1:1 User) | code `AA-STU-NNNN`, name, father_name, mobile, phone, dob, gender, address, pincode, city, state (default Uttar Pradesh), country (India), photo, employment (Student/Unemployed/Employed/Self-employed/Part-time), **qualifications (JSON)**, status (Pending/Active/Inactive/Graduated), joined date |
 | `students` | **Enrollment** | code `EN-NNNN`, student FK, course FK, applied date, status (Pending/Active/Completed/Cancelled), approved_at, completed_at, note, **certificate_code** `AA-YYYY-NNNNNN` (unique, blank until issued), **certificate_issued_on**, **certificate_issued_by** |
 | `website` | **SiteSettings** (singleton) | hero headline, hero sub, stat1–4, show_stats, about, phone, email, address, registration_fee (250), allow_registration, maintenance_mode, director_name |
@@ -324,7 +324,7 @@ Submitting creates a **Student (Pending)** and an **Enrollment (Pending)**. The 
 
 **Computed:**
 - `total = monthly_fee × months`
-- For PDM: `total = first + rest × n` = 4000 + 3000 × 17 = **₹55,000**
+- With a first-month fee: `total = first_month_fee + monthly_fee × (months − 1)`. For the PDM that is 4000 + 3000 × 17 = **₹55,000**
 
 **Removed during planning, and why:**
 - **CourseCategory:** 6 fixed categories work as choices.

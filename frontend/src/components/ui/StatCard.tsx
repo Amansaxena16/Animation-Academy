@@ -23,11 +23,24 @@ interface StatCardProps {
 }
 
 /** One KPI per card. */
-export function StatCard({ icon, tone = "brand", value, label, delta }: StatCardProps) {
+export function StatCard({
+  icon,
+  tone = "brand",
+  value,
+  label,
+  delta,
+}: StatCardProps) {
   return (
     <Card className="flex flex-col gap-3.5 p-5">
       <div className="flex items-center justify-between">
-        <span className={cn("grid size-10 place-items-center rounded-md [&_svg]:size-5", TONES[tone])}>{icon}</span>
+        <span
+          className={cn(
+            "grid size-10 place-items-center rounded-md [&_svg]:size-5",
+            TONES[tone],
+          )}
+        >
+          {icon}
+        </span>
         {delta && (
           <span
             className={cn(
@@ -35,14 +48,18 @@ export function StatCard({ icon, tone = "brand", value, label, delta }: StatCard
               delta.down ? "text-danger-ink" : "text-success-ink",
             )}
           >
-            {delta.down ? <TrendingDown className="size-3.5" /> : <TrendingUp className="size-3.5" />}
+            {delta.down ? (
+              <TrendingDown className="size-3.5" />
+            ) : (
+              <TrendingUp className="size-3.5" />
+            )}
             {delta.value}
           </span>
         )}
       </div>
       <div>
         <div className="type-stat text-ink">{value}</div>
-        <div className="mt-0.5 text-[13px] text-ink-muted">{label}</div>
+        <div className="text-ink-muted mt-0.5 text-[13px]">{label}</div>
       </div>
     </Card>
   );

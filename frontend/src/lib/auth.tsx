@@ -1,9 +1,24 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-import { api, onSessionEnded, refreshSession, setAccessToken, type AuthPayload, type SessionUser } from "./api";
+import {
+  api,
+  onSessionEnded,
+  refreshSession,
+  setAccessToken,
+  type AuthPayload,
+  type SessionUser,
+} from "./api";
 
 type Status = "idle" | "loading" | "authenticated" | "anonymous";
 
@@ -37,7 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const payload = await api<AuthPayload>("/auth/login/", { method: "POST", body: { email, password }, auth: false });
+    const payload = await api<AuthPayload>("/auth/login/", {
+      method: "POST",
+      body: { email, password },
+      auth: false,
+    });
     setAccessToken(payload.access);
     setUser(payload.user);
     setStatus("authenticated");

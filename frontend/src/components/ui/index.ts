@@ -8,7 +8,15 @@ export { Card, CardBody, CardHeader } from "./Card";
 export { CourseArt } from "./CourseArt";
 export { CourseCard, FeeBox, Price } from "./CourseCard";
 export { EmptyState, Skeleton } from "./EmptyState";
-export { Checkbox, Field, Input, PhotoUpload, RadioCard, Select, Textarea } from "./Form";
+export {
+  Checkbox,
+  Field,
+  Input,
+  PhotoUpload,
+  RadioCard,
+  Select,
+  Textarea,
+} from "./Form";
 export { Logo } from "./Logo";
 export { ConfirmModal } from "./Modal";
 export { BottomNav, Sidebar, type NavItem } from "./Sidebar";

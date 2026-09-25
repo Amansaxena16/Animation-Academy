@@ -22,14 +22,27 @@ export interface NavItem {
 
 /** Active when the path is the item or below it; the section root matches exactly. */
 export function isActive(pathname: string, href: string, rootHref: string) {
-  return href === rootHref ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+  return href === rootHref
+    ? pathname === href
+    : pathname === href || pathname.startsWith(`${href}/`);
 }
 
 /** Dashboard navigation ≥1024px (a drawer below): navy ground, ivory logo, amber bar on the active item. */
-export function Sidebar({ items, rootHref, onNavigate }: { items: NavItem[]; rootHref: string; onNavigate?: () => void }) {
+export function Sidebar({
+  items,
+  rootHref,
+  onNavigate,
+}: {
+  items: NavItem[];
+  rootHref: string;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Dashboard" className="flex h-full w-[260px] flex-col gap-1 bg-navy px-3.5 py-5 text-on-navy">
+    <nav
+      aria-label="Dashboard"
+      className="bg-navy text-on-navy flex h-full w-[260px] flex-col gap-1 px-3.5 py-5"
+    >
       <div className="px-2.5 pt-1 pb-5">
         <Logo size="sm" tone="inverse" href={rootHref} />
       </div>
@@ -53,10 +66,13 @@ export function Sidebar({ items, rootHref, onNavigate }: { items: NavItem[]; roo
                   : "text-white/78 hover:bg-white/7 hover:text-white",
               )}
             >
-              <item.icon aria-hidden className="size-[19px] shrink-0 opacity-90" />
+              <item.icon
+                aria-hidden
+                className="size-[19px] shrink-0 opacity-90"
+              />
               {item.label}
               {item.count ? (
-                <span className="ml-auto rounded-pill bg-accent px-[7px] py-px text-[11px] font-bold text-on-accent">
+                <span className="rounded-pill bg-accent text-on-accent ml-auto px-[7px] py-px text-[11px] font-bold">
                   {item.count}
                   <span className="sr-only"> pending</span>
                 </span>
@@ -70,13 +86,19 @@ export function Sidebar({ items, rootHref, onNavigate }: { items: NavItem[]; roo
 }
 
 /** Mobile (<720px) role navigation: icon + label, 48px targets, safe-area padding. */
-export function BottomNav({ items, rootHref }: { items: NavItem[]; rootHref: string }) {
+export function BottomNav({
+  items,
+  rootHref,
+}: {
+  items: NavItem[];
+  rootHref: string;
+}) {
   const pathname = usePathname();
   const shown = items.filter((i) => i.mobile).slice(0, 5);
   return (
     <nav
       aria-label="Dashboard"
-      className="fixed inset-x-0 bottom-0 z-60 flex border-t border-line bg-surface-raised px-1.5 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] md:hidden"
+      className="border-line bg-surface-raised fixed inset-x-0 bottom-0 z-60 flex border-t px-1.5 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))] md:hidden"
     >
       {shown.map((item) => {
         const active = isActive(pathname, item.href, rootHref);

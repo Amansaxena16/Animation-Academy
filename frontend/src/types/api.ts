@@ -88,6 +88,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/courses/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Published courses. The catalogue is small, so it's one unpaginated list. */
+        get: operations["courses_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/courses/{slug}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Public endpoints: no authentication, so a stale token can never turn them into a 401. */
+        get: operations["courses_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/courses/categories/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Every category, with how many published courses it has (for the filter chips). */
+        get: operations["courses_categories_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -97,10 +148,100 @@ export interface components {
             access: string;
             user: components["schemas"]["User"];
         };
+        Category: {
+            value: string;
+            label: string;
+            /** @description Published courses in this category. */
+            count: number;
+        };
+        /**
+         * @description * `Programming` - Programming
+         *     * `Accounting` - Accounting
+         *     * `Design` - Design
+         *     * `Web Designing` - Web Designing
+         *     * `Computer Basics` - Computer Basics
+         *     * `Multimedia` - Multimedia
+         * @enum {string}
+         */
+        CategoryEnum: "Programming" | "Accounting" | "Design" | "Web Designing" | "Computer Basics" | "Multimedia";
         ChangePasswordRequest: {
             old_password: string;
             new_password: string;
         };
+        /** @description Card fields for the catalogue. Fees are rupees; `total_fee` excludes registration. */
+        CourseDetail: {
+            readonly slug: string;
+            /** @description Exactly as the prospectus prints it. */
+            readonly name: string;
+            readonly kind: components["schemas"]["KindEnum"];
+            readonly category: components["schemas"]["CategoryEnum"];
+            readonly level: components["schemas"]["LevelEnum"];
+            /** @description As printed: "6 Months", "1 Year". */
+            readonly duration_label: string;
+            readonly months: number;
+            /** @description Rupees per month. */
+            readonly monthly_fee: number;
+            /** @description Only if the first month costs more (PDM: ₹4,000, then ₹3,000 × 17). */
+            readonly first_month_fee: number | null;
+            readonly total_fee: number;
+            /** @description One or two sentences for course cards. */
+            readonly description: string;
+            /** Format: uri */
+            readonly image: string | null;
+            /** @description Show on the home page. */
+            readonly featured: boolean;
+            /** @description "Most enrolled", "Flagship"… */
+            readonly tag: string;
+            /** @description "Mon–Fri, 10–11 AM" */
+            readonly schedule: string;
+            /** @description Text, so "Every Monday" works too. */
+            readonly next_batch_start: string;
+            readonly syllabus: components["schemas"]["SyllabusGroup"][];
+        };
+        /** @description Card fields for the catalogue. Fees are rupees; `total_fee` excludes registration. */
+        CourseList: {
+            readonly slug: string;
+            /** @description Exactly as the prospectus prints it. */
+            readonly name: string;
+            readonly kind: components["schemas"]["KindEnum"];
+            readonly category: components["schemas"]["CategoryEnum"];
+            readonly level: components["schemas"]["LevelEnum"];
+            /** @description As printed: "6 Months", "1 Year". */
+            readonly duration_label: string;
+            readonly months: number;
+            /** @description Rupees per month. */
+            readonly monthly_fee: number;
+            /** @description Only if the first month costs more (PDM: ₹4,000, then ₹3,000 × 17). */
+            readonly first_month_fee: number | null;
+            readonly total_fee: number;
+            /** @description One or two sentences for course cards. */
+            readonly description: string;
+            /** Format: uri */
+            readonly image: string | null;
+            /** @description Show on the home page. */
+            readonly featured: boolean;
+            /** @description "Most enrolled", "Flagship"… */
+            readonly tag: string;
+            /** @description "Mon–Fri, 10–11 AM" */
+            readonly schedule: string;
+            /** @description Text, so "Every Monday" works too. */
+            readonly next_batch_start: string;
+        };
+        /**
+         * @description * `Diploma` - Diploma
+         *     * `Certificate` - Certificate
+         *     * `PG Diploma` - Pg Diploma
+         *     * `Professional Diploma` - Professional Diploma
+         * @enum {string}
+         */
+        KindEnum: "Diploma" | "Certificate" | "PG Diploma" | "Professional Diploma";
+        /**
+         * @description * `Beginner` - Beginner
+         *     * `Intermediate` - Intermediate
+         *     * `Advanced` - Advanced
+         * @enum {string}
+         */
+        LevelEnum: "Beginner" | "Intermediate" | "Advanced";
         /** @description Email + password → access and refresh tokens carrying the user's role and name. */
         LoginRequest: {
             email: string;
@@ -115,6 +256,12 @@ export interface components {
          * @enum {string}
          */
         RoleEnum: "student" | "admin";
+        SyllabusGroup: {
+            title: string;
+            duration: string;
+            tools: string;
+            items: string[];
+        };
         User: {
             /** Format: email */
             readonly email: string;
@@ -233,6 +380,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AccessToken"];
+                };
+            };
+        };
+    };
+    courses_list: {
+        parameters: {
+            query?: {
+                /**
+                 * @description * `Programming` - Programming
+                 *     * `Accounting` - Accounting
+                 *     * `Design` - Design
+                 *     * `Web Designing` - Web Designing
+                 *     * `Computer Basics` - Computer Basics
+                 *     * `Multimedia` - Multimedia
+                 */
+                category?: "Accounting" | "Computer Basics" | "Design" | "Multimedia" | "Programming" | "Web Designing";
+                featured?: boolean;
+                /**
+                 * @description * `Beginner` - Beginner
+                 *     * `Intermediate` - Intermediate
+                 *     * `Advanced` - Advanced
+                 */
+                level?: "Advanced" | "Beginner" | "Intermediate";
+                max_fee?: number;
+                min_fee?: number;
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description Search name, description and syllabus */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseList"][];
+                };
+            };
+        };
+    };
+    courses_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseDetail"];
+                };
+            };
+        };
+    };
+    courses_categories_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Category"][];
                 };
             };
         };

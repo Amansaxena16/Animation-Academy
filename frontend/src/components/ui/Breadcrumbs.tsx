@@ -2,10 +2,14 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 /** The last item is the current page and is not a link. */
-export function Breadcrumbs({ items }: { items: { label: string; href?: string }[] }) {
+export function Breadcrumbs({
+  items,
+}: {
+  items: { label: string; href?: string }[];
+}) {
   return (
     <nav aria-label="Breadcrumb">
-      <ol className="m-0 flex list-none flex-wrap items-center gap-1.5 p-0 text-[13px] text-ink-muted">
+      <ol className="text-ink-muted m-0 flex list-none flex-wrap items-center gap-1.5 p-0 text-[13px]">
         {items.map((item, i) => {
           const last = i === items.length - 1;
           return (
@@ -15,9 +19,15 @@ export function Breadcrumbs({ items }: { items: { label: string; href?: string }
                   /
                 </li>
               )}
-              <li className={last ? "font-semibold text-ink" : undefined} aria-current={last ? "page" : undefined}>
+              <li
+                className={last ? "text-ink font-semibold" : undefined}
+                aria-current={last ? "page" : undefined}
+              >
                 {item.href && !last ? (
-                  <Link href={item.href} className="text-ink-muted no-underline hover:text-navy-ink">
+                  <Link
+                    href={item.href}
+                    className="text-ink-muted hover:text-navy-ink no-underline"
+                  >
                     {item.label}
                   </Link>
                 ) : (

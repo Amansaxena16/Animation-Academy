@@ -6,9 +6,12 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  ),
   title: {
-    default: "Animation Academy — ISO 9001:2000 certified multimedia institute, Kanpur",
+    default:
+      "Animation Academy — ISO 9001:2000 certified multimedia institute, Kanpur",
     template: "%s · Animation Academy",
   },
   description:
@@ -17,7 +20,14 @@ export const metadata: Metadata = {
     siteName: "Animation Academy",
     locale: "en_IN",
     type: "website",
-    images: [{ url: "/brand/aa-social.png", width: 600, height: 600, alt: "Animation Academy" }],
+    images: [
+      {
+        url: "/brand/aa-social.png",
+        width: 600,
+        height: 600,
+        alt: "Animation Academy",
+      },
+    ],
   },
 };
 

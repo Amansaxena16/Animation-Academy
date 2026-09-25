@@ -7,7 +7,14 @@
 
 import type { components } from "@/types/api";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+const PUBLIC_API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+
+/** Browsers use the public URL. The Next.js server may use a private one (API_INTERNAL_URL,
+ *  e.g. http://backend:8000/api/v1 inside Docker) to skip the public internet. */
+export const API_URL =
+  (typeof window === "undefined" && process.env.API_INTERNAL_URL) ||
+  PUBLIC_API_URL;
 
 // Generated from the API schema by `npm run api-types` (src/types/api.ts).
 export type Schemas = components["schemas"];
@@ -62,17 +69,29 @@ async function parse(res: Response): Promise<unknown> {
 
 function toError(status: number, data: unknown): ApiError {
   if (data && typeof data === "object" && "detail" in data) {
-    const d = data as { detail: string; errors?: Record<string, string[]>; code?: string };
+    const d = data as {
+      detail: string;
+      errors?: Record<string, string[]>;
+      code?: string;
+    };
     return new ApiError(status, d.detail, d.errors ?? {}, d.code);
   }
-  return new ApiError(status, status >= 500 ? "Something went wrong on our side. Please try again." : "Request failed.");
+  return new ApiError(
+    status,
+    status >= 500
+      ? "Something went wrong on our side. Please try again."
+      : "Request failed.",
+  );
 }
 
 /** Exchange the refresh cookie for a new access token. Concurrent callers share one request. */
 export function refreshSession(): Promise<AuthPayload | null> {
   refreshing ??= (async () => {
     try {
-      const res = await fetch(`${API_URL}/auth/refresh/`, { method: "POST", credentials: "include" });
+      const res = await fetch(`${API_URL}/auth/refresh/`, {
+        method: "POST",
+        credentials: "include",
+      });
       if (!res.ok) {
         setAccessToken(null);
         return null;
@@ -100,18 +119,27 @@ interface RequestOptions {
   next?: { revalidate?: number | false; tags?: string[] };
 }
 
-export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
+export async function api<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
   const { method = "GET", body, auth = true, signal, next } = options;
 
   const send = () => {
     const headers: Record<string, string> = { Accept: "application/json" };
     const isForm = typeof FormData !== "undefined" && body instanceof FormData;
-    if (body !== undefined && !isForm) headers["Content-Type"] = "application/json";
+    if (body !== undefined && !isForm)
+      headers["Content-Type"] = "application/json";
     if (auth && accessToken) headers.Authorization = `Bearer ${accessToken}`;
     return fetch(`${API_URL}${path}`, {
       method,
       headers,
-      body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
+      body:
+        body === undefined
+          ? undefined
+          : isForm
+            ? (body as FormData)
+            : JSON.stringify(body),
       credentials: "include",
       signal,
       next,

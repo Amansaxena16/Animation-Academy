@@ -25,7 +25,16 @@ function Motif({ category }: { category: CourseCategory }) {
         <>
           <rect x="60" y="36" width="120" height="132" rx="10" fill={PALE} />
           {[58, 80, 102, 124, 146].map((y) => (
-            <rect key={y} x="76" y={y} width="88" height="6" rx="3" fill={SKY} opacity={0.55} />
+            <rect
+              key={y}
+              x="76"
+              y={y}
+              width="88"
+              height="6"
+              rx="3"
+              fill={SKY}
+              opacity={0.55}
+            />
           ))}
           <rect x="200" y="110" width="22" height="58" rx="4" fill={BLUE} />
           <rect x="230" y="82" width="22" height="86" rx="4" fill={SKY} />
@@ -39,11 +48,37 @@ function Motif({ category }: { category: CourseCategory }) {
           <rect x="54" y="38" width="212" height="128" rx="12" fill={DEEP} />
           <rect x="54" y="38" width="212" height="22" rx="11" fill={BLUE} />
           {[70, 84, 98].map((x) => (
-            <circle key={x} cx={x} cy="49" r="4" fill={x === 70 ? ORANGE : PALE} opacity={x === 70 ? 1 : 0.6} />
+            <circle
+              key={x}
+              cx={x}
+              cy="49"
+              r="4"
+              fill={x === 70 ? ORANGE : PALE}
+              opacity={x === 70 ? 1 : 0.6}
+            />
           ))}
-          <path d="M122 88 98 112l24 24" fill="none" stroke={ORANGE} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M198 88l24 24-24 24" fill="none" stroke={ORANGE} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M172 82l-24 60" stroke={PALE} strokeWidth="8" strokeLinecap="round" />
+          <path
+            d="M122 88 98 112l24 24"
+            fill="none"
+            stroke={ORANGE}
+            strokeWidth="9"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M198 88l24 24-24 24"
+            fill="none"
+            stroke={ORANGE}
+            strokeWidth="9"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M172 82l-24 60"
+            stroke={PALE}
+            strokeWidth="8"
+            strokeLinecap="round"
+          />
         </>
       );
     case "Computer Basics": // a keyboard, for typing and CCC
@@ -72,22 +107,53 @@ function Motif({ category }: { category: CourseCategory }) {
         <>
           {[64, 102, 140].map((y, row) => (
             <g key={y}>
-              <line x1="40" y1={y} x2="190" y2={y} stroke={SKY} strokeWidth="3" strokeLinecap="round" />
+              <line
+                x1="40"
+                y1={y}
+                x2="190"
+                y2={y}
+                stroke={SKY}
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
               {[70 + row * 18, 130 - row * 10, 172].map((x) => (
                 <path key={x} d={`M${x} ${y - 8}l8 8-8 8-8-8Z`} fill={ORANGE} />
               ))}
             </g>
           ))}
-          <path d="M240 58l44 24v48l-44 24-44-24V82Z" fill="none" stroke={PALE} strokeWidth="3" strokeLinejoin="round" />
-          <path d="M196 82l44 24 44-24M240 106v48" fill="none" stroke={PALE} strokeWidth="3" strokeLinejoin="round" />
+          <path
+            d="M240 58l44 24v48l-44 24-44-24V82Z"
+            fill="none"
+            stroke={PALE}
+            strokeWidth="3"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M196 82l44 24 44-24M240 106v48"
+            fill="none"
+            stroke={PALE}
+            strokeWidth="3"
+            strokeLinejoin="round"
+          />
         </>
       );
   }
 }
 
-export function CourseArt({ category, className }: { category: CourseCategory; className?: string }) {
+export function CourseArt({
+  category,
+  className,
+}: {
+  category: CourseCategory;
+  className?: string;
+}) {
   return (
-    <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden className={className}>
+    <svg
+      viewBox="0 0 320 200"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden
+      className={className}
+    >
       <rect width="320" height="200" fill={NAVY} />
       <Motif category={category} />
     </svg>

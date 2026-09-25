@@ -1,0 +1,375 @@
+[
+  {
+    "slug": "dca-prog",
+    "name": "DCA — Programming",
+    "kind": "Diploma",
+    "category": "Programming",
+    "level": "Beginner",
+    "duration_label": "6 Months",
+    "months": 6,
+    "monthly_fee": 850,
+    "featured": true,
+    "tag": "",
+    "description": "Computer fundamentals and MS Office through to programming technique, C, and HTML & CSS.",
+    "schedule": "Mon · Wed · Fri, 4–6 PM",
+    "next_batch_start": "6 Oct 2026",
+    "syllabus": [
+      {
+        "title": "",
+        "duration": "",
+        "tools": "",
+        "items": [
+          "Computer Fundamental",
+          "Windows 7",
+          "Typing Master",
+          "MS Office — MS Word",
+          "MS Office — MS Excel",
+          "MS Office — MS PowerPoint",
+          "Internet Operating",
+          "Programming Technique & System Concept",
+          "Programming in 'C'",
+          "HTML & CSS"
+        ]
+      }
+    ],
+    "first_month_fee": null,
+    "order": 1,
+    "status": "Published"
+  },
+  {
+    "slug": "dca-acc",
+    "name": "DCA — Accounting",
+    "kind": "Diploma",
+    "category": "Accounting",
+    "level": "Beginner",
+    "duration_label": "6 Months",
+    "months": 6,
+    "monthly_fee": 800,
+    "featured": true,
+    "tag": "Most enrolled",
+    "description": "Computer fundamentals, MS Office and Tally Prime with GST, including GSTR1 and GSTR 3B return filing.",
+    "schedule": "Mon–Fri, 10–11 AM",
+    "next_batch_start": "6 Oct 2026",
+    "syllabus": [
+      {
+        "title": "",
+        "duration": "",
+        "tools": "",
+        "items": [
+          "Computer Fundamental",
+          "Windows 7",
+          "Typing Master",
+          "MS Office — MS Word",
+          "MS Office — MS Excel",
+          "MS Office — MS PowerPoint",
+          "Internet Operating",
+          "Manual Accounting Concept",
+          "Accounting Package — Tally 9.0",
+          "Tally Prime with GST",
+          "Return File GSTR1 & GSTR 3B"
+        ]
+      }
+    ],
+    "first_month_fee": null,
+    "order": 2,
+    "status": "Published"
+  },
+  {
+    "slug": "dtp",
+    "name": "Desk Top Publishing",
+    "kind": "Certificate",
+    "category": "Design",
+    "level": "Beginner",
+    "duration_label": "6 Months",
+    "months": 6,
+    "monthly_fee": 800,
+    "featured": true,
+    "tag": "",
+    "description": "CorelDraw X6 and Adobe Photoshop for print work, on top of computer fundamentals and MS Word.",
+    "schedule": "Tue · Thu · Sat, 5–7 PM",
+    "next_batch_start": "8 Oct 2026",
+    "syllabus": [
+      {
+        "title": "",
+        "duration": "",
+        "tools": "",
+        "items": [
+          "Computer Fundamental",
+          "Windows 7",
+          "Typing Master",
+          "MS Word",
+          "CorelDraw X6",
+          "Adobe Photoshop",
+          "Internet Operating"
+        ]
+      }
+    ],
+    "first_month_fee": null,
+    "order": 3,
+    "status": "Published"
+  },
+  {
+    "slug": "dwd",
+    "name": "DWD — Web Designing",
+    "kind": "Diploma",
+    "category": "Web Designing",
+    "level": "Advanced",
+    "duration_label": "6 Months",
+    "months": 6,
+    "monthly_fee": 1000,
+    "featured": true,
+    "tag": "",
+    "description": "Photoshop, Flash and Dreamweaver through to HTML, CSS, PHP, MySQl and JavaScript (jQuery).",
+    "schedule": "Mon–Fri, 7–8:30 PM",
+    "next_batch_start": "3 Nov 2026",
+    "syllabus": [
+      {
+        "title": "",
+        "duration": "",
+        "tools": "",
+        "items": [
+          "Internet Operating",
+          "Adobe Photoshop",
+          "Flash",
+          "Adobe Dreamweaver",
+          "CSS (Cascade Style Sheet)",
+          "HTML",
+          "PHP",
+          "MySQl",
+          "JavaScript (jQuery)"
+        ]
+      }
+    ],
+    "first_month_fee": null,
+    "order": 4,
+    "status": "Published"
+  },
+  {
+    "slug": "ccc",
+    "name": "Course on Computer Concepts",
+    "kind": "Certificate",
+    "category": "Computer Basics",
+    "level": "Beginner",
+    "duration_label": "3 Months",
+    "months": 3,
+    "monthly_fee": 1200,
+    "featured": true,
+    "tag": "CCC",
+    "description": "The CCC syllabus: Windows, MS Office, internet, e-governance services, digital payments and cyber security.",
+    "schedule": "Mon–Fri, 12–1 PM",
+    "next_batch_start": "Every Monday",
+    "syllabus": [
+      {
+        "title": "",
+        "duration": "",
+        "tools": "",
+        "items": [
+          "Introduction to Computer",
+          "Windows 7",
+          "MS Word",
+          "MS Excel",
+          "MS PowerPoint",
+          "Introduction to Internet & WWW",
+          "E-mail, Social Networking and eGovernance Services",
+          "Digital Financial Tools & Application",
+          "Overview of Futureskills & Cyber Security"
+        ]
+      }
+    ],
+    "first_month_fee": null,
+    "order": 5,
+    "status": "Published"
+  },
+  {
+    "slug": "pgdca",
+    "name": "PGDCA",
+    "kind": "PG Diploma",
+    "category": "Accounting",
+    "level": "Intermediate",
+    "duration_label": "1 Year",
+    "months": 12,
+    "monthly_fee": 700,
+    "featured": false,
+    "tag": "",
+    "description": "A year covering accounting with Tally Prime and GST returns alongside CorelDraw, Photoshop, Flash and Dreamweaver.",
+    "schedule": "Mon · Wed · Fri, 6–8 PM",
+    "next_batch_start": "12 Oct 2026",
+    "syllabus": [
+      {
+        "title": "",
+        "duration": "",
+        "tools": "",
+        "items": [
+          "Computer Fundamental",
+          "Windows 7",
+          "Typing Master",
+          "MS Office — MS Word",
+          "MS Office — MS Excel",
+          "MS Office — MS PowerPoint",
+          "Manual Accounting Concept",
+          "A/c Package Tally9 & Tally Prime GST",
+          "Return File GSTR1 & GSTR 3B",
+          "CorelDraw X7",
+          "Adobe Photoshop",
+          "Basic Flash",
+          "Adobe Dreamweaver",
+          "CSS",
+          "HTML",
+          "Internet Operating"
+        ]
+      }
+    ],
+    "first_month_fee": null,
+    "order": 6,
+    "status": "Published"
+  },
+  {
+    "slug": "pgdwd",
+    "name": "PG Diploma in Web Designing",
+    "kind": "PG Diploma",
+    "category": "Web Designing",
+    "level": "Intermediate",
+    "duration_label": "1 Year",
+    "months": 12,
+    "monthly_fee": 800,
+    "featured": false,
+    "tag": "",
+    "description": "A year of web work: CorelDraw and advanced Photoshop through Flash Advance, Swish Max, PHP, MySQL and jQuery.",
+    "schedule": "Tue · Thu · Sat, 6–8 PM",
+    "next_batch_start": "13 Oct 2026",
+    "syllabus": [
+      {
+        "title": "",
+        "duration": "",
+        "tools": "",
+        "items": [
+          "Computer Fundamental",
+          "Windows 7",
+          "Typing Master",
+          "MS Office — MS Word",
+          "MS Office — MS Excel",
+          "MS Office — MS PowerPoint",
+          "CorelDraw X6",
+          "Adobe Photoshop (Advance)",
+          "Flash Advance",
+          "Swish Max",
+          "Adobe Dreamweaver",
+          "CSS (Cascade Style Sheet)",
+          "HTML",
+          "PHP Language",
+          "MySQL",
+          "JavaScript (jQuery)",
+          "Internet Operating"
+        ]
+      }
+    ],
+    "first_month_fee": null,
+    "order": 7,
+    "status": "Published"
+  },
+  {
+    "slug": "pgctt",
+    "name": "PG Diploma in Computer Teachers Training",
+    "kind": "PG Diploma",
+    "category": "Programming",
+    "level": "Intermediate",
+    "duration_label": "15 Months",
+    "months": 15,
+    "monthly_fee": 800,
+    "featured": false,
+    "tag": "",
+    "description": "Fifteen months combining the PGDCA and PG Diploma in Web Designing syllabi, for those who want to teach computers.",
+    "schedule": "Mon–Sat, 2–4 PM",
+    "next_batch_start": "20 Oct 2026",
+    "syllabus": [
+      {
+        "title": "",
+        "duration": "",
+        "tools": "",
+        "items": [
+          "Covers the full PGDCA syllabus (1 Year)",
+          "Covers the full PG Diploma in Web Designing syllabus (1 Year)",
+          "Teaching practice and lab supervision"
+        ]
+      }
+    ],
+    "first_month_fee": null,
+    "order": 8,
+    "status": "Published"
+  },
+  {
+    "slug": "pdm",
+    "name": "Professional Diploma in Multimedia",
+    "kind": "Professional Diploma",
+    "category": "Multimedia",
+    "level": "Advanced",
+    "duration_label": "18 Months",
+    "months": 18,
+    "monthly_fee": 3000,
+    "first_month_fee": 4000,
+    "featured": true,
+    "tag": "Flagship",
+    "description": "Five semesters from graphic design and 2D animation through A/V editing, 3D modeling in Maya and ZBrush, to compositing in After Effect.",
+    "schedule": "Mon–Sat, 11 AM–2 PM",
+    "next_batch_start": "12 Oct 2026",
+    "syllabus": [
+      {
+        "title": "Sem-I — Graphic Designing",
+        "duration": "1½ Months",
+        "tools": "Adobe Photoshop, Adobe Illustrator",
+        "items": [
+          "Adobe Photoshop — Image Editing Work",
+          "Adobe Photoshop — Designing Work",
+          "Adobe Illustrator — Cartoon Designing",
+          "Adobe Illustrator — 3D Product Designing"
+        ]
+      },
+      {
+        "title": "Sem-II — 2D & Web Animation",
+        "duration": "3 Months",
+        "tools": "Macromedia Flash, Dreamweaver, Swiss Max",
+        "items": [
+          "Flash — Basics: Key Frame Animation, Motion & Shape Tween, Masking",
+          "Flash — 2D Story",
+          "Flash — Website",
+          "Dreamweaver — Website using Photoshop Web Template",
+          "Swiss Max"
+        ]
+      },
+      {
+        "title": "Sem-III — A/V Editing",
+        "duration": "1½ Months",
+        "tools": "Adobe Premiere, Sound Forge",
+        "items": [
+          "Adobe Premiere — A/V Editing, Remix, Promo, Add",
+          "Sound Forge — Sound Editing, Remix"
+        ]
+      },
+      {
+        "title": "Sem-IV — 3D Modeling, Animation & Sculpting",
+        "duration": "9 Months",
+        "tools": "Maya & Zbrush",
+        "items": [
+          "3D Modeling — Interior & Exterior",
+          "3D Modeling — Car Modeling",
+          "3D Modeling — Character Modeling",
+          "Lighting & Texturing",
+          "Rigging",
+          "Animation",
+          "Rendering",
+          "Sculpting"
+        ]
+      },
+      {
+        "title": "Sem-V — Compositing",
+        "duration": "3 Months",
+        "tools": "After Effect",
+        "items": [
+          "After Effect — compositing and finishing"
+        ]
+      }
+    ],
+    "order": 9,
+    "status": "Published"
+  }
+]

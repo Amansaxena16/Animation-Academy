@@ -1,29 +1,11 @@
-import type { CourseFee } from "@/lib/format";
+import type { components } from "./api";
 
-// Hand-written until Phase 3 generates types from the API schema (npm run api-types).
+// Generated from the API schema (npm run api-types); re-exported under readable names.
+type Schemas = components["schemas"];
 
-export const COURSE_CATEGORIES = [
-  "Programming",
-  "Accounting",
-  "Design",
-  "Web Designing",
-  "Computer Basics",
-  "Multimedia",
-] as const;
-export type CourseCategory = (typeof COURSE_CATEGORIES)[number];
-
-export type CourseLevel = "Beginner" | "Intermediate" | "Advanced";
-export type CourseKind = "Diploma" | "Certificate" | "PG Diploma" | "Professional Diploma";
-
-/** What a CourseCard needs. */
-export interface CourseSummary extends CourseFee {
-  slug: string;
-  name: string;
-  kind: CourseKind;
-  category: CourseCategory;
-  level: CourseLevel;
-  description: string;
-  /** "Most enrolled", "Flagship", "CCC". */
-  tag?: string | null;
-  image?: string | null;
-}
+export type Course = Schemas["CourseList"];
+export type CourseDetail = Schemas["CourseDetail"];
+export type SyllabusGroup = Schemas["SyllabusGroup"];
+export type Category = Schemas["Category"];
+export type CourseCategory = Schemas["CategoryEnum"];
+export type CourseLevel = Schemas["LevelEnum"];

@@ -23,7 +23,13 @@ interface LogoProps {
   className?: string;
 }
 
-export function Logo({ size = "md", tone = "auto", markOnly, href = "/", className }: LogoProps) {
+export function Logo({
+  size = "md",
+  tone = "auto",
+  markOnly,
+  href = "/",
+  className,
+}: LogoProps) {
   const h = HEIGHTS[size];
   const markH = markOnly ? 40 : h.mark;
   const typeW = Math.round((h.type * TYPE.w) / TYPE.h);
@@ -45,7 +51,10 @@ export function Logo({ size = "md", tone = "auto", markOnly, href = "/", classNa
             width={typeW}
             height={h.type}
             priority
-            className={cn(tone === "inverse" && "hidden", tone === "auto" && "dark:hidden")}
+            className={cn(
+              tone === "inverse" && "hidden",
+              tone === "auto" && "dark:hidden",
+            )}
           />
           <Image
             src="/brand/aa-wordmark-reversed.png"
@@ -53,7 +62,10 @@ export function Logo({ size = "md", tone = "auto", markOnly, href = "/", classNa
             width={typeW}
             height={h.type}
             priority
-            className={cn(tone === "fixed" && "hidden", tone === "auto" && "hidden dark:block")}
+            className={cn(
+              tone === "fixed" && "hidden",
+              tone === "auto" && "hidden dark:block",
+            )}
           />
         </>
       )}
@@ -62,7 +74,11 @@ export function Logo({ size = "md", tone = "auto", markOnly, href = "/", classNa
 
   if (!href) return content;
   return (
-    <Link href={href} aria-label="Animation Academy home" className="inline-flex">
+    <Link
+      href={href}
+      aria-label="Animation Academy home"
+      className="inline-flex"
+    >
       {content}
     </Link>
   );

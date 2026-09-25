@@ -16,7 +16,8 @@ const VARIANTS = {
   /** Always behind a confirmation Modal. */
   danger: "border-transparent bg-danger text-white hover:brightness-90",
   /** On navy bands. */
-  inverse: "bg-transparent text-on-navy border-white/50 hover:bg-white/10 hover:border-white",
+  inverse:
+    "bg-transparent text-on-navy border-white/50 hover:bg-white/10 hover:border-white",
 } as const;
 
 const SIZES = {
@@ -36,7 +37,12 @@ interface StyleProps {
   loading?: boolean;
 }
 
-export function buttonClasses({ variant = "primary", size = "md", block, loading }: StyleProps = {}) {
+export function buttonClasses({
+  variant = "primary",
+  size = "md",
+  block,
+  loading,
+}: StyleProps = {}) {
   return cn(
     "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border",
     "font-sans font-semibold leading-5 no-underline transition-[background,border-color,color,transform,box-shadow,filter] duration-150",
@@ -50,13 +56,16 @@ export function buttonClasses({ variant = "primary", size = "md", block, loading
 }
 
 function Spinner({ variant }: { variant: ButtonVariant }) {
-  const dark = variant === "secondary" || variant === "ghost" || variant === "accent";
+  const dark =
+    variant === "secondary" || variant === "ghost" || variant === "accent";
   return (
     <span
       aria-hidden
       className={cn(
-        "absolute size-[18px] animate-spin-fast rounded-full border-2 border-b-transparent border-l-transparent",
-        dark ? "border-t-ink border-r-ink" : "border-t-on-brand border-r-on-brand",
+        "animate-spin-fast absolute size-[18px] rounded-full border-2 border-b-transparent border-l-transparent",
+        dark
+          ? "border-t-ink border-r-ink"
+          : "border-t-on-brand border-r-on-brand",
       )}
     />
   );
@@ -64,11 +73,23 @@ function Spinner({ variant }: { variant: ButtonVariant }) {
 
 type ButtonProps = ComponentProps<"button"> & StyleProps;
 
-export function Button({ variant, size, block, loading, className, children, type, ...rest }: ButtonProps) {
+export function Button({
+  variant,
+  size,
+  block,
+  loading,
+  className,
+  children,
+  type,
+  ...rest
+}: ButtonProps) {
   return (
     <button
       type={type ?? "button"}
-      className={cn(buttonClasses({ variant, size, block, loading }), className)}
+      className={cn(
+        buttonClasses({ variant, size, block, loading }),
+        className,
+      )}
       aria-busy={loading || undefined}
       {...rest}
     >
@@ -78,9 +99,21 @@ export function Button({ variant, size, block, loading, className, children, typ
   );
 }
 
-type ButtonLinkProps = ComponentProps<typeof Link> & Omit<StyleProps, "loading">;
+type ButtonLinkProps = ComponentProps<typeof Link> &
+  Omit<StyleProps, "loading">;
 
 /** A link that looks like a button (navigation, not actions). */
-export function ButtonLink({ variant, size, block, className, ...rest }: ButtonLinkProps) {
-  return <Link className={cn(buttonClasses({ variant, size, block }), className)} {...rest} />;
+export function ButtonLink({
+  variant,
+  size,
+  block,
+  className,
+  ...rest
+}: ButtonLinkProps) {
+  return (
+    <Link
+      className={cn(buttonClasses({ variant, size, block }), className)}
+      {...rest}
+    />
+  );
 }

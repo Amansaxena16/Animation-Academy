@@ -25,11 +25,16 @@ interface BadgeProps {
 }
 
 /** Always a word, never colour alone. */
-export function Badge({ tone = "neutral", dot, className, children }: BadgeProps) {
+export function Badge({
+  tone = "neutral",
+  dot,
+  className,
+  children,
+}: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-sm px-[9px] text-xs leading-4 font-semibold",
+        "inline-flex h-6 items-center gap-1.5 rounded-sm px-[9px] text-xs leading-4 font-semibold whitespace-nowrap",
         TONES[tone],
         className,
       )}

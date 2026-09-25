@@ -11,12 +11,17 @@ import {
   inr,
 } from "./format";
 
-const dcaAcc = { monthlyFee: 800, months: 6, durationLabel: "6 Months" };
+const dcaAcc = {
+  monthly_fee: 800,
+  months: 6,
+  duration_label: "6 Months",
+  first_month_fee: null,
+};
 const pdm = {
-  monthlyFee: 0,
+  monthly_fee: 3000,
   months: 18,
-  durationLabel: "18 Months",
-  special: { firstFee: 4000, restFee: 3000, restCount: 17 },
+  duration_label: "18 Months",
+  first_month_fee: 4000,
 };
 
 describe("money", () => {
@@ -37,7 +42,10 @@ describe("money", () => {
   });
 
   it("states the PDM's own terms", () => {
-    expect(feeHeadline(pdm)).toEqual({ amount: "₹4,000", unit: "at admission" });
+    expect(feeHeadline(pdm)).toEqual({
+      amount: "₹4,000",
+      unit: "at admission",
+    });
     expect(feeLong(pdm)).toBe("₹4,000 + ₹3,000 × 17 · 18 Months");
     expect(feeSubline(pdm)).toBe("+ ₹3,000 × 17 months · ₹55,000 total");
   });

@@ -28,20 +28,31 @@ interface AvatarProps {
   className?: string;
 }
 
-export function Avatar({ name, src, size = "md", tint, ring, className }: AvatarProps) {
+export function Avatar({
+  name,
+  src,
+  size = "md",
+  tint,
+  ring,
+  className,
+}: AvatarProps) {
   const t = tint ?? [...name].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
   return (
     <span
       className={cn(
-        "inline-grid shrink-0 place-items-center overflow-hidden rounded-full font-display leading-none font-bold",
+        "font-display inline-grid shrink-0 place-items-center overflow-hidden rounded-full leading-none font-bold",
         SIZES[size],
         !src && TINTS[t % TINTS.length],
-        ring && "ring-4 ring-surface-raised",
+        ring && "ring-surface-raised ring-4",
         className,
       )}
       aria-hidden={!src}
     >
-      {src ? <img src={src} alt={name} className="size-full object-cover" /> : initials(name)}
+      {src ? (
+        <img src={src} alt={name} className="size-full object-cover" />
+      ) : (
+        initials(name)
+      )}
     </span>
   );
 }

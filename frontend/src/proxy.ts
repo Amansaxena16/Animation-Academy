@@ -7,7 +7,8 @@ import { NextResponse } from "next/server";
 const HOME = { student: "/student", admin: "/admin" } as const;
 
 export function proxy(request: NextRequest) {
-  const role = request.cookies.get("aa_session")?.value as keyof typeof HOME | undefined;
+  const role = request.cookies.get("aa_session")?.value as
+    keyof typeof HOME | undefined;
   const { pathname, search } = request.nextUrl;
   const area = pathname.startsWith("/admin") ? "admin" : "student";
 

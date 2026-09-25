@@ -17,9 +17,12 @@ const valueFor = (value, theme) =>
 // Raw, theme-switching variables. Shadows get an `elev-` prefix so they don't collide with
 // Tailwind's own --shadow-* theme variables.
 const rawVars = (theme) => [
-  ...tokens.color.tokens.map((t) => `  --${t.name}: ${valueFor(t.value, theme)};`),
+  ...tokens.color.tokens.map(
+    (t) => `  --${t.name}: ${valueFor(t.value, theme)};`,
+  ),
   ...tokens.shadow.tokens.map(
-    (t) => `  --elev-${t.name.replace(/^shadow-/, "")}: ${valueFor(t.value, theme)};`,
+    (t) =>
+      `  --elev-${t.name.replace(/^shadow-/, "")}: ${valueFor(t.value, theme)};`,
   ),
 ];
 
@@ -47,9 +50,11 @@ const typeUtilities = tokens.type.groups.flatMap((group) =>
       `  line-height: ${style.lineHeight};`,
       `  font-weight: ${style.fontWeight};`,
     ];
-    if (style.letterSpacing) lines.push(`  letter-spacing: ${style.letterSpacing};`);
+    if (style.letterSpacing)
+      lines.push(`  letter-spacing: ${style.letterSpacing};`);
     if (style.fontStyle) lines.push(`  font-style: ${style.fontStyle};`);
-    if (["pill", "overline"].includes(style.name)) lines.push("  text-transform: uppercase;");
+    if (["pill", "overline"].includes(style.name))
+      lines.push("  text-transform: uppercase;");
     const m = mobile[style.name];
     if (m) {
       lines.push(

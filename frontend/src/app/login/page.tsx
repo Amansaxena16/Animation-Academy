@@ -15,7 +15,7 @@ function safeNext(value: string | string[] | undefined): string | null {
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const { next } = await searchParams;
   return (
-    <main className="grid min-h-screen place-items-center bg-surface px-4 py-10">
+    <main className="bg-surface grid min-h-screen place-items-center px-4 py-10">
       <div className="flex w-full max-w-[420px] flex-col items-center gap-8">
         <Logo />
         <LoginForm next={safeNext(next)} />

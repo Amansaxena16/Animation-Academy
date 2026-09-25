@@ -1,4 +1,9 @@
-import { Archivo, EB_Garamond, JetBrains_Mono, Source_Sans_3 } from "next/font/google";
+import {
+  Archivo,
+  EB_Garamond,
+  JetBrains_Mono,
+  Source_Sans_3,
+} from "next/font/google";
 
 // Self-hosted by next/font. The CSS variables are mapped to font-display / font-sans /
 // font-serif / font-mono in src/styles/tokens.css.

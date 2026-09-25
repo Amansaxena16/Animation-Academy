@@ -22,7 +22,8 @@ export function LoginForm({ next }: { next: string | null }) {
   const [error, setError] = useState<ApiError | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const destination = (role: Role) => (next && next.startsWith(HOME[role]) ? next : HOME[role]);
+  const destination = (role: Role) =>
+    next && next.startsWith(HOME[role]) ? next : HOME[role];
 
   // Already signed in? Go straight to the dashboard.
   useEffect(() => {
@@ -38,17 +39,28 @@ export function LoginForm({ next }: { next: string | null }) {
       const user = await login(email, password);
       router.replace(destination(user.role));
     } catch (err) {
-      setError(err instanceof ApiError ? err : new ApiError(0, "Can't reach the server. Check your connection and try again."));
+      setError(
+        err instanceof ApiError
+          ? err
+          : new ApiError(
+              0,
+              "Can't reach the server. Check your connection and try again.",
+            ),
+      );
       setLoading(false);
     }
   };
 
   return (
     <Card pad className="w-full">
-      <h1 className="m-0 type-h1">Log in</h1>
-      <p className="mt-1 mb-6 text-sm text-ink-muted">Students and institute staff use the same login.</p>
+      <h1 className="type-h1 m-0">Log in</h1>
+      <p className="text-ink-muted mt-1 mb-6 text-sm">
+        Students and institute staff use the same login.
+      </p>
       <form onSubmit={submit} noValidate className="flex flex-col gap-4">
-        {error && !error.field("email") && !error.field("password") && <Alert tone="danger">{error.detail}</Alert>}
+        {error && !error.field("email") && !error.field("password") && (
+          <Alert tone="danger">{error.detail}</Alert>
+        )}
         <Field label="Email" required error={error?.field("email")}>
           {(p) => (
             <Input
@@ -80,9 +92,9 @@ export function LoginForm({ next }: { next: string | null }) {
           Log In
         </Button>
       </form>
-      <p className="mt-6 mb-0 text-center text-sm text-ink-muted">
+      <p className="text-ink-muted mt-6 mb-0 text-center text-sm">
         New here?{" "}
-        <Link href="/admission" className="font-semibold text-navy-ink">
+        <Link href="/admission" className="text-navy-ink font-semibold">
           Apply for admission
         </Link>
       </p>

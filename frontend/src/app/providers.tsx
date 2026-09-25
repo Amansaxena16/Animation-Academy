@@ -17,7 +17,8 @@ export function Providers({ children }: { children: ReactNode }) {
             staleTime: 30_000,
             refetchOnWindowFocus: false,
             // Don't retry what won't change: permission and validation errors.
-            retry: (count, error) => !(error instanceof ApiError && error.status < 500) && count < 2,
+            retry: (count, error) =>
+              !(error instanceof ApiError && error.status < 500) && count < 2,
           },
         },
       }),

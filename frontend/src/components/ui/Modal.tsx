@@ -52,7 +52,9 @@ export function ConfirmModal({
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !loading) onCancel();
       if (e.key !== "Tab" || !dialog.current) return;
-      const focusable = dialog.current.querySelectorAll<HTMLElement>("button:not([disabled])");
+      const focusable = dialog.current.querySelectorAll<HTMLElement>(
+        "button:not([disabled])",
+      );
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (e.shiftKey && document.activeElement === first) {
@@ -77,8 +79,10 @@ export function ConfirmModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-80 grid animate-fade place-items-center bg-[rgba(15,23,42,0.55)] p-5"
-      onMouseDown={(e) => e.target === e.currentTarget && !loading && onCancel()}
+      className="animate-fade fixed inset-0 z-80 grid place-items-center bg-[rgba(15,23,42,0.55)] p-5"
+      onMouseDown={(e) =>
+        e.target === e.currentTarget && !loading && onCancel()
+      }
     >
       <div
         ref={dialog}
@@ -86,24 +90,34 @@ export function ConfirmModal({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={textId}
-        className="w-full max-w-[440px] animate-pop rounded-lg bg-surface-raised p-6 shadow-lg"
+        className="animate-pop bg-surface-raised w-full max-w-[440px] rounded-lg p-6 shadow-lg"
       >
         <div
           className={cn(
             "mb-4 grid size-12 place-items-center rounded-full [&_svg]:size-6",
-            tone === "danger" ? "bg-danger-soft text-danger-ink" : "bg-brand-soft text-brand-ink",
+            tone === "danger"
+              ? "bg-danger-soft text-danger-ink"
+              : "bg-brand-soft text-brand-ink",
           )}
         >
           {icon ?? <TriangleAlert />}
         </div>
-        <h2 id={titleId} className="m-0 mb-1.5 font-display text-[19px] leading-[26px] font-semibold">
+        <h2
+          id={titleId}
+          className="font-display m-0 mb-1.5 text-[19px] leading-[26px] font-semibold"
+        >
           {title}
         </h2>
-        <div id={textId} className="m-0 text-sm leading-[22px] text-ink-muted">
+        <div id={textId} className="text-ink-muted m-0 text-sm leading-[22px]">
           {text}
         </div>
         <div className="mt-6 flex flex-wrap justify-end gap-2.5">
-          <Button ref={cancel} variant="secondary" onClick={onCancel} disabled={loading}>
+          <Button
+            ref={cancel}
+            variant="secondary"
+            onClick={onCancel}
+            disabled={loading}
+          >
             {cancelLabel}
           </Button>
           <Button variant={tone} onClick={onConfirm} loading={loading}>

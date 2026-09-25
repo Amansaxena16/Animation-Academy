@@ -13,7 +13,7 @@ The product has three parts:
 - **Student portal:** profile, enrolled courses with their admission status, and certificates to print or download. Teaching happens at the institute, so there are no online lessons.
 - **Admin console:** approve admissions, manage students and courses, issue certificates, post announcements, and edit website content and settings.
 
-> **Status:** Phases 0–2 are complete (project setup, backend foundation with JWT auth, and the frontend foundation). See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
+> **Status:** Phases 0–3 are complete (project setup, JWT auth, the frontend foundation, and the course catalogue). See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
 
 ## Tech stack
 
@@ -73,6 +73,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.txt
 python manage.py migrate
+python manage.py seed_courses      # the 9 prospectus courses (safe to re-run)
 python manage.py createsuperuser   # email + password; gets the admin role
 python manage.py runserver
 ```

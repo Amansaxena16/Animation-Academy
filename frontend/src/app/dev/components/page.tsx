@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 
 import { Showcase } from "./Showcase";
 
-export const metadata: Metadata = { title: "Components", robots: { index: false } };
+export const metadata: Metadata = {
+  title: "Components",
+  robots: { index: false },
+};
 
 /** Every UI component in light and dark, for visual checks. Not served in production. */
 export default function ComponentsPage() {

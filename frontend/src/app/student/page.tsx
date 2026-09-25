@@ -12,7 +12,7 @@ export default function StudentDashboard() {
   const { user } = useAuth();
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="m-0 type-h1">Welcome, {user?.name.split(" ")[0]}</h1>
+      <h1 className="type-h1 m-0">Welcome, {user?.name.split(" ")[0]}</h1>
       <Card>
         <EmptyState
           icon={<BookOpen />}
