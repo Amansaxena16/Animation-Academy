@@ -10,6 +10,7 @@ admin.site.site_title = "Animation Academy"
 api_v1 = [
     path("auth/", include("accounts.urls")),
     path("", include("website.urls")),
+    path("", include("students.urls")),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path("docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
 ]

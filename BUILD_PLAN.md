@@ -362,7 +362,39 @@ Seed: `seed_content` loads the settings defaults and the 7 sample announcements.
 
 ---
 
-## Phase 5 — Admission (registration)
+## Phase 5 — Admission (registration) ✅ done (26 Sep 2026)
+
+**How it was built** (differences from the plan below are marked ⚠):
+- **Models (`students`):**
+  - `Student`: 1:1 with User. The name is stored in capitals; the code `AA-STU-…` comes from the pk. ⚠ `gender` is optional (the paper form has no gender). `qualifications` is JSON checked by `validate_qualifications`: exactly the 4 exams in order, a 4-digit year from 1950 to now, a percentage from 0 to 100, and High School year and board required.
+  - `Enrollment`: code `EN-…`, the certificate fields, and a **database constraint allowing one live (not Cancelled) enrollment per student and course**. `course` is PROTECT.
+  - Both have Django admin screens (the student screen shows enrollments inline).
+- **API:**
+  - `POST /admissions/validate/` `{step, data}` checks one step (account, personal, education, course) with the same serializers as the final submit. Throttled at 30 a minute. ⚠ The account step can reveal that an email is registered ("Log in instead"); accepted for usability and throttled.
+  - `POST /admissions/` (multipart or JSON) runs in one transaction: User, then Student (Pending), then Enrollment (Pending). It then **signs the student in** (access token and cookies) and returns the codes. Throttled at 5 an hour.
+  - Closed registration returns 403 `registration_closed` on both endpoints.
+  - Two identical emails submitted at the same moment return a normal 400, not a 500.
+- **Validation:**
+  - name: letters only, at least 3, stored in capitals
+  - pincode: 6 digits, not starting with 0
+  - mobile: starts 6–9, 10 digits; +91 or a leading 0 is removed
+  - date of birth: age 10–80
+  - password: Django's validators; ⚠ the similarity check now includes `full_name` (settings)
+  - `accept_no_refund` must be true
+  - a published course is required
+- **Photo:** ⚠ optional (it can be brought to the office). JPEG or PNG up to 2 MB, **re-encoded with Pillow** to a JPEG at most 800px (removes EXIF such as GPS and anything hidden in the file).
+- **Tests:** 40 new, 108 in total.
+- **Frontend (`/admission`):**
+  - The server page loads the settings (closed → a "call us" message) and the courses (`?course=` preselects one).
+  - Four steps (Account, Personal, Education, Course), each checked in the browser, then on the server via `/admissions/validate/`, before moving on. Server errors map onto the fields; after the final submit it jumps back to the step with the first error.
+  - Names are typed in capitals. The education table becomes a card per exam on phones. There is a password show/hide toggle and a confirm field.
+  - The no-refund line and checkbox sit directly above Submit.
+  - A side card shows the chosen course, its fees and the next steps.
+  - The draft (without password or photo) is kept in `sessionStorage` for this tab.
+  - Success screen: student ID and application number, what to bring, and "Go to My Dashboard". The user is already signed in (`AuthProvider.startSession`).
+- **`titleCase`:** shows "Nisha Bhatt" in the dashboard; certificates will print the stored capitals.
+- **Verified in Chrome:** a full application (the pincode error was caught; names converted to capitals; the High School error was shown), sign-in carried to `/student` (AA-STU-1001), the database records, and registration closed on the page and the API. The test applicant was deleted afterwards.
+
 
 ### 5.1 Models (`students`)
 - `Student`: `user` (1:1), `code`, name (stored uppercase), father_name, mobile, phone, dob, gender, address, pincode, city, state, country, photo, employment (choices), **`qualifications` (JSONField, the 4 rows of the paper form)**, status (Pending/Active/Inactive/Graduated), joined_at.
@@ -373,7 +405,7 @@ Seed: `seed_content` loads the settings defaults and the 7 sample announcements.
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
 | POST | `/api/v1/admissions/validate/` | public | Validates one step (`{step, data}`) so the form can show errors before moving on. Also checks that the email is still free |
-| POST | `/api/v1/admissions/` | public, throttled | **multipart**: account + personal + photo + `qualifications` + `course` + `employment` + `accept_no_refund=true` |
+| POST | `/api/v1/admissions/` | public, throttled | **multipart** (or JSON): account + personal + optional photo + `qualifications` (JSON string in multipart) + `course` + `employment` + `accept_no_refund=true` |
 
 What `POST /admissions/` does, in **one transaction**:
 1. Reject the request if `allow_registration` is false, the course is not Published, or the email already exists.

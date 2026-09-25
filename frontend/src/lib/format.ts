@@ -121,3 +121,10 @@ export function initials(name: string): string {
 export function todayISO(now: Date = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(now);
 }
+
+/** "NISHA BHATT" → "Nisha Bhatt" for greetings; names are stored in capitals for certificates. */
+export function titleCase(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/(^|[\s.'-])\p{L}/gu, (m) => m.toUpperCase());
+}

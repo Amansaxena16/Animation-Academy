@@ -28,6 +28,8 @@ interface AuthState {
   /** Restore the session from the refresh cookie (once; later calls reuse the result). */
   ensureSession: () => Promise<SessionUser | null>;
   login: (email: string, password: string) => Promise<SessionUser>;
+  /** Adopt a session the API just created (e.g. after online admission). */
+  startSession: (payload: AuthPayload) => void;
   logout: () => Promise<void>;
 }
 
@@ -64,6 +66,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return payload.user;
   }, []);
 
+  const startSession = useCallback((payload: AuthPayload) => {
+    setAccessToken(payload.access);
+    setUser(payload.user);
+    setStatus("authenticated");
+    restoring.current = Promise.resolve(payload.user);
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await api("/auth/logout/", { method: "POST", auth: false });
@@ -86,8 +95,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ status, user, ensureSession, login, logout }),
-    [status, user, ensureSession, login, logout],
+    () => ({ status, user, ensureSession, login, startSession, logout }),
+    [status, user, ensureSession, login, startSession, logout],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

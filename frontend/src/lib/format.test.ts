@@ -8,6 +8,7 @@ import {
   formatDateLong,
   formatDateShort,
   initials,
+  titleCase,
   todayISO,
   inr,
 } from "./format";
@@ -72,5 +73,13 @@ describe("todayISO", () => {
   it("uses the Indian calendar day", () => {
     // 20:00 UTC on 25 Sep is 01:30 on 26 Sep in Kolkata.
     expect(todayISO(new Date("2026-09-25T20:00:00Z"))).toBe("2026-09-26");
+  });
+});
+
+describe("titleCase", () => {
+  it("turns certificate capitals into a friendly name", () => {
+    expect(titleCase("NISHA BHATT")).toBe("Nisha Bhatt");
+    expect(titleCase("MOHD. FARHAN ALI")).toBe("Mohd. Farhan Ali");
+    expect(titleCase("D'SOUZA")).toBe("D'Souza");
   });
 });

@@ -252,7 +252,7 @@ Ask for the same fields in the same order as the paper form:
    - Address, **Pincode** (6 digits) and City (default Kanpur)
    - Mobile (10 digits) and Phone (optional)
    - Date of Birth
-   - **Photo** upload
+   - **Photo** upload (optional online; it can be brought to the office)
 3. **Education:** a qualification table with one row each for **High School, Intermediate, Graduation, Post Graduation**. Columns: Year · Board/Univ. · Subject · %. At least the High School year and board are required.
 4. **Course:**
    - Course Applied For

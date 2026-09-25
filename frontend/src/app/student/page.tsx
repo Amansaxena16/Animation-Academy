@@ -6,13 +6,16 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useAuth } from "@/lib/auth";
+import { titleCase } from "@/lib/format";
 
 // Placeholder until Phase 6 (enrollments, profile, certificates).
 export default function StudentDashboard() {
   const { user } = useAuth();
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="type-h1 m-0">Welcome, {user?.name.split(" ")[0]}</h1>
+      <h1 className="type-h1 m-0">
+        Welcome, {titleCase(user?.name ?? "").split(" ")[0]}
+      </h1>
       <Card>
         <EmptyState
           icon={<BookOpen />}

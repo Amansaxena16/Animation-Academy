@@ -4,6 +4,43 @@
  */
 
 export interface paths {
+    "/api/v1/admissions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Apply online: creates the login, the student (Pending) and the enrollment (Pending),
+         *     then signs the new student in.
+         */
+        post: operations["admissions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admissions/validate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Check one step of the form before moving on. Nothing is saved. */
+        post: operations["admissions_validate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/announcements/": {
         parameters: {
             query?: never;
@@ -12,8 +49,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Published announcements, newest first. `upcoming=true` gives holidays and events from
-         *     today onwards, soonest first.
+         * @description Published announcements as a notice board orders them: upcoming (today onwards) soonest
+         *     first, then past ones newest first. `upcoming=true` keeps only upcoming holidays and events.
          */
         get: operations["announcements_list"];
         put?: never;
@@ -202,6 +239,46 @@ export interface components {
             access: string;
             user: components["schemas"]["User"];
         };
+        /** @description All four steps plus an optional photo (JPEG or PNG, up to 2 MB). */
+        AdmissionRequest: {
+            /** Format: email */
+            email: string;
+            password: string;
+            name: string;
+            father_name: string;
+            /** Format: date */
+            dob: string;
+            gender?: components["schemas"]["GenderEnum"] | components["schemas"]["BlankEnum"];
+            address: string;
+            pincode: string;
+            /** @default Kanpur */
+            city: string;
+            mobile: string;
+            /** @default  */
+            phone: string;
+            qualifications: unknown;
+            course: string;
+            employment: components["schemas"]["EmploymentEnum"];
+            accept_no_refund: boolean;
+            /** Format: binary */
+            photo?: string | null;
+        };
+        AdmissionResult: {
+            student_code: string;
+            enrollment_code: string;
+            course: components["schemas"]["CourseRef"];
+            access: string;
+            user: components["schemas"]["User"];
+        };
+        AdmissionStepRequest: {
+            step: components["schemas"]["StepEnum"];
+            data: {
+                [key: string]: unknown;
+            };
+        };
+        AdmissionStepValid: {
+            valid: boolean;
+        };
         Announcement: {
             readonly id: number;
             readonly title: string;
@@ -224,6 +301,8 @@ export interface components {
          * @enum {string}
          */
         AnnouncementCategoryEnum: "General" | "Holiday" | "Course Update" | "Exam" | "Event" | "Important Notice";
+        /** @enum {unknown} */
+        BlankEnum: "";
         Category: {
             value: string;
             label: string;
@@ -314,6 +393,26 @@ export interface components {
             /** @description Text, so "Every Monday" works too. */
             readonly next_batch_start: string;
         };
+        CourseRef: {
+            slug: string;
+            name: string;
+        };
+        /**
+         * @description * `Student` - Student
+         *     * `Unemployed` - Unemployed
+         *     * `Employed` - Employed
+         *     * `Self-employed` - Self Employed
+         *     * `Part-time` - Part Time
+         * @enum {string}
+         */
+        EmploymentEnum: "Student" | "Unemployed" | "Employed" | "Self-employed" | "Part-time";
+        /**
+         * @description * `Male` - Male
+         *     * `Female` - Female
+         *     * `Other` - Other
+         * @enum {string}
+         */
+        GenderEnum: "Male" | "Female" | "Other";
         /**
          * @description * `Diploma` - Diploma
          *     * `Certificate` - Certificate
@@ -365,6 +464,14 @@ export interface components {
             value: string;
             label: string;
         };
+        /**
+         * @description * `account` - account
+         *     * `personal` - personal
+         *     * `education` - education
+         *     * `course` - course
+         * @enum {string}
+         */
+        StepEnum: "account" | "personal" | "education" | "course";
         SyllabusGroup: {
             title: string;
             duration: string;
@@ -387,6 +494,62 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    admissions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["AdmissionRequest"];
+                "application/json": components["schemas"]["AdmissionRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdmissionResult"];
+                };
+            };
+            /** @description Registration is closed. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    admissions_validate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdmissionStepRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AdmissionStepRequest"];
+                "multipart/form-data": components["schemas"]["AdmissionStepRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdmissionStepValid"];
+                };
+            };
+        };
+    };
     announcements_list: {
         parameters: {
             query?: {

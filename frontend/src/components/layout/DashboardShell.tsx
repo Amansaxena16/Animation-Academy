@@ -11,6 +11,7 @@ import { BottomNav, Sidebar } from "@/components/ui/Sidebar";
 import { Skeleton } from "@/components/ui/EmptyState";
 import type { Role } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { titleCase } from "@/lib/format";
 import { setTheme, useApplyTheme, useTheme } from "@/lib/theme";
 
 import { ADMIN_NAV, STUDENT_NAV } from "./nav";
@@ -119,9 +120,11 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
             </button>
             {user && (
               <span className="flex items-center gap-2.5 pl-1">
-                <Avatar name={user.name} size="sm" />
+                <Avatar name={titleCase(user.name)} size="sm" />
                 <span className="hidden flex-col leading-tight sm:flex">
-                  <b className="text-sm font-semibold">{user.name}</b>
+                  <b className="text-sm font-semibold">
+                    {titleCase(user.name)}
+                  </b>
                   <small className="text-ink-muted font-mono text-xs">
                     {user.student_code ??
                       (user.role === "admin" ? "Staff" : "Student")}
