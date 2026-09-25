@@ -49,12 +49,14 @@ Suggested layout: `backend/` (Django project), `frontend/` (Next.js), and `docke
 
 The system has **two roles**: **Student** and **Admin**. There is no teacher role (see §13). Public visitors are unauthenticated.
 
+**Scope:** the website **presents the courses and takes enrollments**. All teaching happens in person at the institute: there are no online lessons, no course content and no progress tracking. A student logs in only to see their profile, the courses they are enrolled in (with admission status) and their certificates.
+
 | Role | Sidebar navigation |
 |---|---|
 | Student | Dashboard · My Courses · Certificates · Profile |
-| Admin | Dashboard · Students · Courses · Enrollments · Certificates · Announcements · Media · Website Content · Settings |
+| Admin | Dashboard · Students · Courses · Enrollments · Certificates · Announcements · Website Content · Settings |
 
-**Privacy rule:** the public site shows only courses, fees and aggregate numbers. Student names, parentage, phone numbers, addresses and progress appear **only inside authenticated dashboards**.
+**Privacy rule:** the public site shows only courses, fees and aggregate numbers. Student names, parentage, phone numbers, addresses and enrollments appear **only inside authenticated dashboards**.
 
 ---
 
@@ -67,7 +69,7 @@ Top navigation: **Home · Courses · Admission · About · Updates · Contact**,
 |---|---|
 | `/` Home | Hero (overline "ISO 9001:2000 certified · Nehru Nagar, Kanpur", headline, sub, **Explore Courses** + **Join Animation Academy**, "Monthly fees from ₹700 · one-time registration ₹250") → stats band (count-up: Students trained 500+, Courses offered 20+, Years of teaching 9+, Certificates issued 1000+; admin-editable and can be hidden) → featured courses → flagship (Professional Diploma in Multimedia) → "Why Animation Academy" (6 points, below) → latest updates → CTA |
 | `/courses` | Search (e.g. "Try 'Tally' or 'CorelDraw'"), category chips (All, Programming, Accounting, Design, Web Designing, Computer Basics, Multimedia), level and price filters, and a course card grid |
-| `/courses/[slug]` | Breadcrumbs, hero, tabs (Overview / Syllabus), syllabus accordion (units of 4 items, or the 5 semesters for PDM), fee box, schedule, next batch start, **Enroll Now** |
+| `/courses/[slug]` | Breadcrumbs, hero, tabs (Overview / Syllabus), the syllabus as information only (a topic list shown in units of 4, or the 5 semesters for PDM), fee box, schedule, next batch start, **Enroll Now** |
 | `/admission` (register) | The online admission form, a 4-step stepper: **Account → Personal → Education → Course** (§8) |
 | `/about` | About the institute and IOCSGT |
 | `/updates` | Published announcements, filterable by category |
@@ -84,20 +86,18 @@ Top navigation: **Home · Courses · Admission · About · Updates · Contact**,
 6. **Monthly fees**: Pay month by month after a one-time ₹250 registration — no lump sum before you have seen a class.
 
 ### Student dashboard (`/student/...`)
-- **Dashboard:** greeting, active courses with progress, certificates, upcoming holidays and events.
-- **My Courses:** tabs All / Active / Completed / Pending, each with progress.
-- **Course view:** modules and lessons with progress tracking.
+- **Dashboard:** greeting, enrolled courses with their status, certificates, upcoming holidays and events.
+- **My Courses:** tabs All / Pending / Active / Completed. Each row shows the course, its batch schedule, the fee and the admission status. There are no lessons and no progress bars.
 - **Certificates:** list, then view, print or download, and copy the verification link.
 - **Profile:** name, father's name, email, phone, DOB, gender, address, pincode, city, state, country, qualification, board, employment.
 
 ### Admin console (`/admin/...`; don't clash with Django's `/admin`, so move Django admin to e.g. `/django-admin`)
 - **Dashboard:** KPI stat cards, pending admissions (approve or reject inline), recent activity.
 - **Students:** searchable, filterable (All / Active / Pending / Inactive / Graduated) and paginated table; student detail; add/edit form.
-- **Courses:** list (All / Published / Draft), add/edit (name, kind, category, level, duration, months, fee, description, start date, schedule), manage categories.
-- **Enrollments:** tabs by status. Actions: **Approve** (Pending → Active, and the student becomes Active), **Reject** (confirmation modal), **Complete & issue** (→ Completed, 100%, certificate issued).
+- **Courses:** list (All / Published / Draft), add/edit (name, kind, category, level, duration, months, fee, description, syllabus topics, start date, schedule).
+- **Enrollments:** tabs by status. Actions: **Approve** (Pending → Active, and the student becomes Active), **Reject** (confirmation modal), **Complete & issue** (→ Completed, certificate issued).
 - **Certificates:** list and issue (choose student + course).
 - **Announcements:** create/edit (title, text, category, date, published toggle), delete via modal.
-- **Media:** gallery upload and remove.
 - **Website Content:** hero headline and sub, the 4 stats, show-stats toggle, about text.
 - **Settings:** phone, email, address, registration fee, allow-registration toggle, maintenance mode toggle.
 
@@ -110,7 +110,7 @@ Copies: `design-system/tokens.json` (source of truth) and `design-system/bundle.
 ### Colour (light / dark)
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| `brand` | `#0a63a8` | `#1470b8` | Azure from the logo sphere. **Leads.** Primary buttons, fee figures, eyebrows, active tabs, progress |
+| `brand` | `#0a63a8` | `#1470b8` | Azure from the logo sphere. **Leads.** Primary buttons, fee figures, eyebrows, active tabs, the stepper |
 | `brand-deep` | `#07497e` | `#0a5c9c` | Hover/pressed on brand |
 | `brand-soft` | `#e1f0fb` | `#0e2740` | Fee wells, selected rows, icon wells |
 | `on-brand` | `#ffffff` | `#ffffff` | Text on brand |
@@ -181,7 +181,7 @@ Font stacks: display `Archivo, "Arial Narrow", "Segoe UI", system-ui, sans-serif
 - **Motion:**
   - 150–250ms, `cubic-bezier(.2,.8,.2,1)`.
   - Cards lift 2px on hover; course art zooms 4%.
-  - Stats count up once on first view; progress bars ease to width.
+  - Stats count up once on first view.
   - Respect `prefers-reduced-motion`.
 - **Focus:** 2px `focus` outline with 2px offset on everything interactive.
 - **Hover:** darkens fills (`brand-deep`, `navy-deep`) or strengthens borders.
@@ -206,7 +206,6 @@ The reference implementation is `design-system/bundle.css` (`aa-` prefix, wrap s
 | **StatCard** | Icon well (blue/amber/green) + optional delta, value in `stat` style, label. Rows of 4–6 on desktop, 2 per row on mobile. |
 | **FormField** | Label (+ `*` for required), control (44px), helper text, 6px gap; `is-error` / `is-valid`. Extras: input with icon, radio-card, checkbox, photo upload drop zone. **Validate on blur**; error copy says how to fix it. |
 | **Stepper** | Account → Personal → Education → Course; one-word labels; done steps show a check. |
-| **Progress** | Bar + the number beside it; turns `success` at 100%; `sm` size for tables. |
 | **Tabs / Seg** | Tabs for page sections (horizontal scroll on mobile); a segmented control for in-place filters (All / Active / Completed). |
 | **Table** | Card → table; the first column is the entity (avatar, name, ID); row actions are right-aligned icon buttons with `aria-label`; delete opens the Modal; stacks into labelled cards below 720px (`data-label`); paginate 10–25 rows with "Showing a–b of n". |
 | **Breadcrumbs** | Course detail and admin detail/edit pages; the last item is not a link. |
@@ -291,30 +290,44 @@ Submitting creates a **Student (Pending)** and an **Enrollment (Pending)**. The 
 
 ## 10. Data model (Django)
 
-IDs are human-readable and shown in mono. Use an auto PK internally plus a unique `code` field.
+**5 apps, 9 models.** IDs are human-readable and shown in mono. Use an auto PK internally plus a unique `code` field.
 
-| Model | Fields |
-|---|---|
-| **User** (custom, email login) | email (unique), password, role (`student` / `admin`), is_active |
-| **Student** (1:1 User) | code `AA-STU-NNNN`, name, father_name, email, mobile, phone, dob, gender, address, pincode, city, state (default Uttar Pradesh), country (India), photo, employment (Student/Unemployed/Employed/Self-employed/Part-time), status (Pending/Active/Inactive/Graduated), joined date |
-| **Qualification** | student FK, exam (High School/Intermediate/Graduation/Post Graduation), year, board, subject, percentage |
-| **CourseCategory** | name (Programming, Accounting, Design, Web Designing, Computer Basics, Multimedia) |
-| **Course** | slug, name, kind (Diploma/Certificate/PG Diploma/Professional Diploma), category FK, level (Beginner/Intermediate/Advanced), duration_label ("6 Months"), months, monthly_fee, special fee (first_fee, rest_fee, rest_count; nullable, PDM only), description, image, featured, tag, status (Published/Draft), schedule ("Mon–Fri, 10–11 AM"), next_batch_start, rating, reviews_count, combines (M2M to self: PGCTT = PGDCA + PGDWD), sort order |
-| **CourseModule** | course FK, order, title (e.g. "Sem-I — Graphic Designing" or "Unit 1"), duration_label, tools |
-| **Lesson** (syllabus item) | module FK, order, title |
-| **Enrollment** | code `EN-NNNN`, student FK, course FK, applied date, status (Pending/Active/Completed/Cancelled), progress % |
-| **LessonProgress** | enrollment FK, lesson FK, done, done_at |
-| **Certificate** | code `AA-YYYY-NNNNNN`, student FK, course FK, enrollment FK, issued date (unique per student+course) |
-| **Announcement** | title, text, category (General/Holiday/Course Update/Exam/Event/Important Notice), date, published |
-| **MediaItem** | image, caption, order |
-| **SiteSettings** (singleton) | hero headline, hero sub, stat1–4, show_stats, about, phone, email, address, registration_fee (250), allow_registration, maintenance_mode |
-| **ContactMessage** | name, email, message, created_at, handled |
+| App | Model | Fields |
+|---|---|---|
+| `accounts` | **User** (custom, email login) | email (unique), password, full_name, role (`student` / `admin`), is_active |
+| `common` | **Sequence** | name, last_value: the counters behind the human-readable IDs |
+| `courses` | **Course** | slug, name, kind (Diploma/Certificate/PG Diploma/Professional Diploma), category (choices: Programming, Accounting, Design, Web Designing, Computer Basics, Multimedia), level (Beginner/Intermediate/Advanced), duration_label ("6 Months"), months, monthly_fee, special fee (first_fee, rest_fee, rest_count; nullable, PDM only), description, **syllabus (JSON)**, image, featured, tag, status (Published/Draft), schedule ("Mon–Fri, 10–11 AM"), next_batch_start, sort order |
+| `students` | **Student** (1:1 User) | code `AA-STU-NNNN`, name, father_name, mobile, phone, dob, gender, address, pincode, city, state (default Uttar Pradesh), country (India), photo, employment (Student/Unemployed/Employed/Self-employed/Part-time), **qualifications (JSON)**, status (Pending/Active/Inactive/Graduated), joined date |
+| `students` | **Enrollment** | code `EN-NNNN`, student FK, course FK, applied date, status (Pending/Active/Completed/Cancelled), approved_at, completed_at, note |
+| `students` | **Certificate** | code `AA-YYYY-NNNNNN`, enrollment (1:1), issued date, issued_by. The student and course come from the enrollment |
+| `content` | **SiteSettings** (singleton) | hero headline, hero sub, stat1–4, show_stats, about, phone, email, address, registration_fee (250), allow_registration, maintenance_mode, director_name |
+| `content` | **Announcement** | title, text, category (General/Holiday/Course Update/Exam/Event/Important Notice), date, published |
+| `content` | **ContactMessage** | name, email, phone, message, created_at, handled |
+
+**JSON fields, and why they aren't separate tables:**
+- **`Course.syllabus`** is displayed, never tracked, so it is a list of groups:
+  ```json
+  [{"title": "Sem-I — Graphic Designing", "duration": "1½ Months",
+    "tools": "Adobe Photoshop, Adobe Illustrator", "items": ["...", "..."]}]
+  ```
+  Ordinary courses have a single group with an empty title, and the course page shows its items in units of 4. The PDM has 5 groups, one per semester.
+- **`Student.qualifications`** is always the same 4 rows from the paper form:
+  ```json
+  [{"exam": "High School", "year": "2020", "board": "UP Board", "subject": "Science", "percentage": "78"}, ...]
+  ```
+  The serializer checks the exam names and that the High School row has a year and a board.
 
 **Computed:**
 - `total = monthly_fee × months`
 - For PDM: `total = first + rest × n` = 4000 + 3000 × 17 = **₹55,000**
 
-**Modules:** the syllabus is grouped **in units of 4 items** ("Unit 1", "Unit 2"…), except the PDM, which uses its 5 semesters.
+**Removed during planning, and why:**
+- **CourseCategory:** 6 fixed categories work as choices.
+- **CourseModule and Lesson:** the syllabus is only displayed, so it lives in `Course.syllabus`.
+- **Qualification:** replaced by `Student.qualifications`.
+- **LessonProgress:** there are no online lessons.
+- **MediaItem:** there is no gallery.
+- **The separate `enrollments` and `certificates` apps:** they were folded into `students`.
 
 ---
 
@@ -326,9 +339,8 @@ IDs are human-readable and shown in mono. Use an auto PK internally plus a uniqu
    - Otherwise a confirmation modal shows: "Apply for [course]?", then "[fee] per month for [dur], plus a one-time registration fee of ₹250. The next batch starts [date]. The office confirms your seat within one working day. No refund is allowed after confirmation of admission." The button is **Confirm Admission**, and it creates a Pending enrollment.
 3. **Admin Approve:** Enrollment → `Active`, and the Student → `Active` if they were Pending. Toast: "Admission confirmed."
 4. **Admin Reject:** a confirmation modal, then the enrollment is cancelled. Copy: "…will be cancelled and they will be informed by phone."
-5. **Progress:** the student ticks lessons done, and progress = done ÷ total lessons.
-   - In the prototype, reaching **100% auto-completes the course and issues a certificate**. See §13: the admin probably needs to confirm this.
-6. **Admin Complete & issue:** Enrollment → `Completed`, progress 100%, and a certificate is issued if none exists for that student and course.
+5. **Studying happens at the institute.** The enrollment stays `Active` while the student attends. There is nothing to track online.
+6. **Admin Complete & issue:** Enrollment → `Completed`, and a certificate is issued if that enrollment doesn't have one. **Only an admin can complete a course**; nothing is issued automatically.
 7. **Certificate IDs** are sequential per year: `AA-2026-000124`, and so on.
 8. **Verify:** a public lookup by ID returns the student name, course, duration and date, or a "not found" state.
 9. **Settings:**
@@ -336,7 +348,7 @@ IDs are human-readable and shown in mono. Use an auto PK internally plus a uniqu
    - `maintenance_mode` shows a maintenance page to the public.
    - `show_stats` toggles the home stats band.
 10. **Announcements:** only `published` ones appear on the public site and dashboards. Home shows the latest 4; "upcoming" shows Holiday and Event items.
-11. **Destructive actions** (delete student, course, announcement or photo; reject) always go through the Modal.
+11. **Destructive actions** (delete student, course or announcement; reject) always go through the Modal.
 
 ---
 
@@ -422,11 +434,11 @@ The prototype also has 14 sample students (`AA-STU-1038`…`1121`), 21 enrollmen
 - **The prototype's placeholder body CSS** (`#1d4ed8` links, DM Sans) is leftover. Ignore it.
 
 **Open questions for the institute or owner:**
-1. Should reaching 100% lesson progress **auto-issue** a certificate (as the prototype does), or should the admin always confirm? Admin confirmation is recommended.
+1. ~~Auto-issue certificates at 100% progress?~~ **Decided:** there is no progress tracking; an admin completes the course and issues the certificate.
 2. Is fee **payment** online (Razorpay/UPI) or tracked offline by the office? The `accent` button is reserved for "fee payment", but the prototype has no payment flow.
 3. Should admission send an email or SMS notification to the office or the student?
-4. Who is the Director named on certificates? (The preview uses the placeholder "Anil Verma".)
-5. Where do the course artwork and lab photos come from? The prototype's images weren't embedded. Per the design system, use flat geometric illustrations in the palette until real Nehru Nagar lab photos exist; never staged stock.
+4. Who is the Director named on certificates? (The preview uses the placeholder "Anil Verma". The name is stored in `SiteSettings.director_name`.)
+5. Where does the course artwork come from? The prototype's images weren't embedded. Per the design system, use flat geometric illustrations in the palette until real Nehru Nagar lab photos exist; never staged stock. (A photo gallery is out of scope.)
 6. Prospectus spellings: keep "Swish Max" / "Swiss Max" and "MySQl" exactly as printed, or correct them?
 
 ---
@@ -439,7 +451,7 @@ The prototype also has 14 sample students (`AA-STU-1038`…`1121`), 21 enrollmen
 - [ ] Indian number formatting helper (`₹` + `en-IN`) and fee helpers (monthly, total, PDM special)
 - [ ] Django models, migrations and a seed command with the prospectus courses
 - [ ] JWT auth with role-based permissions (student sees only their own data)
-- [ ] Public pages → admission flow → student dashboard → admin console
+- [ ] Public pages → admission flow → student portal (profile, enrollments, certificates) → admin console
 - [ ] Certificate: print CSS, PDF, and a public verify endpoint
 - [ ] Responsive at 1024 / 720 / 640; `prefers-reduced-motion` respected; 4.5:1 contrast in both themes
 - [ ] No emoji; Title Case buttons; prospectus names verbatim

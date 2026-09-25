@@ -2,6 +2,8 @@
 
 The order we build in, step by step, with every API endpoint defined in the step that needs it. Design, content and data rules are in `PROJECT_GUIDE.md`; this file is about **sequence and API**.
 
+**Scope:** the website presents the courses and takes enrollments. Teaching happens at the institute, so there are no online lessons or progress tracking. The backend has **5 apps and 9 models** (PROJECT_GUIDE §10).
+
 **Approach:** set up the foundations first (Phase 0–2). After that we build in **vertical slices**: each slice ships its models, API, tests and frontend pages together, so every phase ends with something working in the browser.
 
 ```
@@ -12,11 +14,10 @@ Phase 3  Courses catalogue            → public Courses + Course detail pages
 Phase 4  Site content                 → Home, About, Updates, Contact
 Phase 5  Admission (registration)     → 4-step admission form
 Phase 6  Login + student portal       → Student dashboard, My Courses, Profile
-Phase 7  Lesson progress              → Student course view
-Phase 8  Certificates + verify        → Certificates, print/PDF, public Verify
-Phase 9  Admin console                → all admin screens
-Phase 10 Hardening                    → security, performance, accessibility, tests
-Phase 11 Deployment
+Phase 7  Certificates + verify        → Certificates, print/PDF, public Verify
+Phase 8  Admin console                → all admin screens
+Phase 9  Hardening                    → security, performance, accessibility, tests
+Phase 10 Deployment
 ```
 
 ---
@@ -43,7 +44,7 @@ Installed: Django 6.1, DRF 3.18, simplejwt 5.5, Next.js 16.3, React 19.2, Tailwi
    - `psycopg[binary]`, `django-cors-headers`, `django-filter`
    - `drf-spectacular` (OpenAPI docs), `Pillow` (photos)
    - `python-dotenv` or `django-environ`
-   - `weasyprint` (certificate PDF; can come in Phase 8)
+   - `weasyprint` (certificate PDF; can come in Phase 7)
    - `pytest-django`, `factory-boy`
 5. Frontend: `create-next-app` with TypeScript, App Router, Tailwind, ESLint and the `src/` dir, then add `lucide-react`, `zod`, `react-hook-form` and `@tanstack/react-query`.
 6. Tooling:
@@ -67,7 +68,7 @@ Installed: Django 6.1, DRF 3.18, simplejwt 5.5, Next.js 16.3, React 19.2, Tailwi
 
 **Limits and follow-ups:**
 - An access token stays valid for up to 15 minutes after logout. This is accepted because the lifetime is short.
-- The OutstandingToken table grows over time. Schedule `python manage.py flushexpiredtokens` (a cron job, added in Phase 11).
+- The OutstandingToken table grows over time. Schedule `python manage.py flushexpiredtokens` (a cron job, added in Phase 10).
 
 
 ### 1.1 Django project and apps
@@ -75,18 +76,18 @@ Create project `config` and these apps (one per domain):
 
 | App | Owns |
 |---|---|
-| `accounts` | Custom `User` (email login, `role`), auth views |
-| `courses` | CourseCategory, Course, CourseModule, Lesson |
-| `students` | Student, Qualification |
-| `enrollments` | Enrollment, LessonProgress |
-| `certificates` | Certificate, verification, PDF |
-| `content` | SiteSettings, Announcement, MediaItem, ContactMessage |
-| `common` | ID generators, permissions, pagination, formatting helpers, base test utils |
+| `accounts` | User, and the auth views |
+| `common` | Sequence (ID counters), permissions, pagination, error format |
+| `courses` | Course (syllabus stored as JSON) |
+| `students` | Student (qualifications stored as JSON), Enrollment, Certificate, verification, PDF |
+| `content` | SiteSettings, Announcement, ContactMessage |
+
+*(Reduced on 25 Sep 2026 from 7 apps and 17 models. The `enrollments` and `certificates` apps were folded into `students`; CourseCategory, CourseModule, Lesson, Qualification, LessonProgress and MediaItem were dropped.)*
 
 ### 1.2 Settings
 - Split settings into `base.py`, `dev.py` and `prod.py`; read secrets from `.env`.
 - Database: Postgres from env. Timezone `Asia/Kolkata`, `USE_TZ=True`.
-- Set `MEDIA_ROOT` / `MEDIA_URL` for photos and gallery images.
+- Set `MEDIA_ROOT` / `MEDIA_URL` for student photos and course images.
 - CORS: allow `http://localhost:3000` in dev.
 - Move Django admin to **`/django-admin/`**, so `/admin` stays free for the Next.js admin console.
 
@@ -130,7 +131,7 @@ Create project `config` and these apps (one per domain):
 | GET | `/api/v1/auth/me/` | auth | The current user, role and student code |
 | POST | `/api/v1/auth/change-password/` | auth | `{old_password, new_password}` |
 
-Password reset by email or OTP is left for later (see Phase 10).
+Password reset by email or OTP is left for later (see Phase 9).
 
 **Done when:**
 - pytest covers login, refresh, logout, me, and a wrong-role request getting 403
@@ -164,16 +165,15 @@ Port them from `design-system/bundle.css`, in this order, because later ones use
 7. Alert and Toast
 8. Modal (confirmation; focus management, Esc)
 9. Tabs and SegmentedControl
-10. Progress
-11. Stepper
-12. Breadcrumbs
-13. EmptyState and Skeleton
-14. Table (stacks into cards below 720px) and Pager
-15. StatCard
-16. CourseCard and FeeBox
-17. Announcement
-18. Sidebar and BottomNav
-19. Certificate (built properly in Phase 8)
+10. Stepper
+11. Breadcrumbs
+12. EmptyState and Skeleton
+13. Table (stacks into cards below 720px) and Pager
+14. StatCard
+15. CourseCard and FeeBox
+16. Announcement
+17. Sidebar and BottomNav
+18. Certificate (built properly in Phase 7)
 
 Put copies of the logos in `public/brand/`, and use `aa-mark-512.png` as the favicon.
 
@@ -201,31 +201,34 @@ A `/dev/components` page shows every component in light and dark for visual chec
 
 ## Phase 3 — Courses catalogue
 
-### 3.1 Models (`courses`)
-- `CourseCategory`: name, slug, order.
-- `Course`: every field from PROJECT_GUIDE §10, including the nullable `special_first_fee`, `special_rest_fee` and `special_rest_count`, `status` (Published/Draft), `featured`, `tag`, `schedule`, `next_batch_start` (text, because "Every Monday" is a valid value), and `combines` (M2M to self).
-- `CourseModule`: course, order, title, duration_label, tools.
-- `Lesson`: module, order, title.
+### 3.1 Model (`courses`)
+- `Course`: every field from PROJECT_GUIDE §10, including:
+  - `category` and `level` as choices
+  - the nullable `special_first_fee`, `special_rest_fee` and `special_rest_count` (PDM only)
+  - `status` (Published/Draft), `featured`, `tag`, `schedule`
+  - `next_batch_start` as text, because "Every Monday" is a valid value
+  - **`syllabus` as a JSONField**: a list of `{title, duration, tools, items[]}` groups
 - A model property `total_fee`.
+- A validator that checks the syllabus JSON shape on save, so bad data can't come in through Django admin either.
 
 ### 3.2 Seed command
-`python manage.py seed_courses` loads the 9 prospectus courses from `backend/courses/fixtures/courses.json`, with all syllabi and the PDM's 5 semesters.
-- Modules are built as described in PROJECT_GUIDE §10: syllabus items grouped into units of 4, or the semesters for the PDM.
+`python manage.py seed_courses` loads the 9 prospectus courses from `backend/courses/fixtures/courses.json`, with every syllabus.
+- Ordinary courses get one group with an empty title; the PDM gets its 5 semesters.
 - The command is idempotent (update_or_create by slug).
 
 ### 3.3 Public API
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| GET | `/api/v1/categories/` | public | Category list for the filter chips |
-| GET | `/api/v1/courses/` | public | Published courses. Filters: `q` (name, description, syllabus), `category`, `level`, `price` (`lt800` / `800-1000` / `gt1000`, or min/max), `featured=true`. Ordering: `order`, `fee`, `name` |
-| GET | `/api/v1/courses/{slug}/` | public | Detail with modules → lessons, fee breakdown and computed total |
+| GET | `/api/v1/courses/` | public | Published courses. Filters: `q` (name, description), `category`, `level`, `price` (min/max), `featured=true`. Ordering: `order`, `fee`, `name` |
+| GET | `/api/v1/courses/categories/` | public | The category choices, for the filter chips |
+| GET | `/api/v1/courses/{slug}/` | public | Detail with the syllabus, fee breakdown and computed total |
 
-The list serializer is light (card fields only); the detail serializer includes the modules.
+The list serializer is light (card fields only); the detail serializer adds the syllabus.
 
 ### 3.4 Frontend
 - `/courses`: search, category chips, level and price filters, CourseCard grid, empty state.
-- `/courses/[slug]`: breadcrumbs, hero, Overview/Syllabus tabs, module accordion, FeeBox, schedule and start date, Enroll Now.
+- `/courses/[slug]`: breadcrumbs, hero, Overview/Syllabus tabs, the syllabus as a read-only topic list (units of 4, or the PDM's semesters), FeeBox, schedule and start date, Enroll Now.
   - For now, Enroll Now links to `/admission?course=slug`; Phase 6 adds the logged-in path.
 - Use Server Components with `fetch` + `revalidate: 300` for SEO, plus `generateMetadata` per course.
 
@@ -236,9 +239,8 @@ The list serializer is light (card fields only); the detail serializer includes 
 ## Phase 4 — Site content
 
 ### 4.1 Models (`content`)
-- `SiteSettings`: a singleton (`pk=1`, a `load()` classmethod) holding the hero headline and sub, `stat_1`…`stat_4`, `show_stats`, `about`, `phone`, `email`, `address`, `registration_fee` (250), `allow_registration`, `maintenance_mode`, and `auto_issue_certificate` (default **False**; see open question 1).
-- `Announcement`: title, text, category (choices), date, published, created_by.
-- `MediaItem`: image, caption, order.
+- `SiteSettings`: a singleton (`pk=1`, a `load()` classmethod) holding the hero headline and sub, `stat_1`…`stat_4`, `show_stats`, `about`, `phone`, `email`, `address`, `registration_fee` (250), `allow_registration`, `maintenance_mode` and `director_name`.
+- `Announcement`: title, text, category (choices), date, published.
 - `ContactMessage`: name, email, phone (optional), message, created_at, handled.
 
 Seed: `seed_content` loads the settings defaults and the 7 sample announcements.
@@ -249,7 +251,6 @@ Seed: `seed_content` loads the settings defaults and the 7 sample announcements.
 |---|---|---|---|
 | GET | `/api/v1/site/` | public | Public settings: hero, stats (only if `show_stats`), contact info, registration fee, `allow_registration`, `maintenance_mode` |
 | GET | `/api/v1/announcements/` | public | Published only. Filters: `category`, `upcoming=true` (Holiday + Event, date ≥ today), `limit` |
-| GET | `/api/v1/media/` | public | Gallery images |
 | POST | `/api/v1/contact/` | public, throttled | `{name, email, phone?, message}` → 201 |
 
 ### 4.3 Frontend
@@ -270,19 +271,15 @@ Seed: `seed_content` loads the settings defaults and the 7 sample announcements.
 ## Phase 5 — Admission (registration)
 
 ### 5.1 Models (`students`)
-- `Student`: `user` (1:1), `code`, name (stored uppercase), father_name, mobile, phone, dob, gender, address, pincode, city, state, country, photo, employment (choices), status (Pending/Active/Inactive/Graduated), joined_at.
-- `Qualification`: student, exam (choices: High School/Intermediate/Graduation/Post Graduation), year, board, subject, percentage. Unique on (student, exam).
-
-`Enrollment` is created in this phase too (the model lives in `enrollments`; the full API comes in Phase 6):
-- fields: code, student, course, applied_at, status (Pending/Active/Completed/Cancelled), progress, approved_at, completed_at
-- unique on (student, course) while not Cancelled
+- `Student`: `user` (1:1), `code`, name (stored uppercase), father_name, mobile, phone, dob, gender, address, pincode, city, state, country, photo, employment (choices), **`qualifications` (JSONField, the 4 rows of the paper form)**, status (Pending/Active/Inactive/Graduated), joined_at.
+- `Enrollment`: code, student, course, applied_at, status (Pending/Active/Completed/Cancelled), approved_at, completed_at, note (e.g. a rejection reason). Unique on (student, course) while not Cancelled.
 
 ### 5.2 API
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
 | POST | `/api/v1/admissions/validate/` | public | Validates one step (`{step, data}`) so the form can show errors before moving on. Also checks that the email is still free |
-| POST | `/api/v1/admissions/` | public, throttled | **multipart**: account + personal + photo + `qualifications[]` + `course` + `employment` + `accept_no_refund=true` |
+| POST | `/api/v1/admissions/` | public, throttled | **multipart**: account + personal + photo + `qualifications` + `course` + `employment` + `accept_no_refund=true` |
 
 What `POST /admissions/` does, in **one transaction**:
 1. Reject the request if `allow_registration` is false, the course is not Published, or the email already exists.
@@ -291,10 +288,10 @@ What `POST /admissions/` does, in **one transaction**:
    - father's name required
    - 6-digit pincode, 10-digit mobile, DOB in the past
    - password ≥ 8 characters
-   - the High School row needs a year and a board
+   - exactly the 4 exam rows, and the High School row needs a year and a board
    - photo: JPEG or PNG, at most 2 MB
    - `accept_no_refund` must be true
-3. Create `User(role=student)`, then `Student(status=Pending)` with its qualifications, then `Enrollment(status=Pending)`.
+3. Create `User(role=student)`, then `Student(status=Pending)`, then `Enrollment(status=Pending)`.
 4. Return `{student_code, enrollment_code, course, fee_summary}` and log the user in (JWT + refresh cookie), so they land on their dashboard showing the Pending admission.
 
 ### 5.3 Frontend
@@ -310,23 +307,23 @@ What `POST /admissions/` does, in **one transaction**:
 
 ## Phase 6 — Login + student portal
 
+The portal is **read-mostly**: profile, enrolled courses with their status, and certificates (Phase 7). There are no lessons and no progress tracking.
+
 ### 6.1 API (student, `IsStudent` + own data only)
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/api/v1/me/dashboard/` | Counts (active, completed, certificates), active enrollments with progress, recent certificates, upcoming announcements |
+| GET | `/api/v1/me/dashboard/` | Counts (pending, active, completed, certificates), current enrollments, recent certificates, upcoming announcements |
 | GET | `/api/v1/me/profile/` | Profile + qualifications |
-| PATCH | `/api/v1/me/profile/` | Update the editable fields (not `code` or `status`); multipart for a new photo |
-| PUT | `/api/v1/me/qualifications/` | Replace the 4 qualification rows |
-| GET | `/api/v1/me/enrollments/` | Filter `status` = all / Active / Completed / Pending |
+| PATCH | `/api/v1/me/profile/` | Update the editable fields and the qualifications (not `code`, `name` or `status`; the name is printed on certificates, so only the office changes it); multipart for a new photo |
+| GET | `/api/v1/me/enrollments/` | Filter `status` = all / Pending / Active / Completed |
 | POST | `/api/v1/me/enrollments/` | `{course, accept_no_refund}`. Returns **409** "Already enrolled — Find it under My Courses." if one exists; otherwise creates a Pending enrollment |
-| GET | `/api/v1/me/enrollments/{code}/` | Detail with course modules and lessons (the done flags come in Phase 7) |
 
 ### 6.2 Frontend
 - `/login`: Student/Admin toggle (only a UI hint; the server decides the role), email, password, errors, redirect by role.
 - The student layout: sidebar (Dashboard, My Courses, Certificates, Profile), BottomNav on mobile, the user menu and Logout.
 - `/student`: the dashboard.
-- `/student/courses`: tabs All / Active / Completed / Pending.
+- `/student/courses`: tabs All / Pending / Active / Completed. Each row shows the course, schedule, fee and status badge, and links to the public course page for the syllabus.
 - `/student/profile`: form with a photo, and the qualification table.
 - On the course detail page, **Enroll Now** for a logged-in student opens a Modal: "Apply for [course]?", the fee text, the next batch date, the no-refund line and **Confirm Admission**, then a toast "Admission requested".
 
@@ -334,42 +331,17 @@ What `POST /admissions/` does, in **one transaction**:
 
 ---
 
-## Phase 7 — Lesson progress
+## Phase 7 — Certificates and verification
 
-### 7.1 Model
-`LessonProgress`: enrollment, lesson, done, done_at. Unique on (enrollment, lesson).
-
-`Enrollment.progress` is recalculated in a service function each time a lesson is toggled: done ÷ total lessons, rounded.
+### 7.1 Model and service (`students`)
+- `Certificate`: code `AA-{year}-{n:06d}`, enrollment (1:1), issued_on, issued_by. The student and course are read through the enrollment.
+- `students.services.issue_certificate(enrollment, by)`:
+  - it is idempotent
+  - it sets the enrollment to Completed
+  - it creates the certificate
+  - it never runs on its own: **only an admin action calls it** (Phase 8)
 
 ### 7.2 API
-
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/api/v1/me/enrollments/{code}/` | Now includes `done` per lesson and `progress` |
-| PUT | `/api/v1/me/enrollments/{code}/lessons/{lesson_id}/` | `{done: true/false}` → the updated progress. Only allowed while the enrollment is **Active** |
-
-**When progress reaches 100%:**
-- if `auto_issue_certificate` is on: set the enrollment to Completed and issue the certificate (Phase 8 service)
-- otherwise: mark it **"Awaiting completion"**, and it shows on the admin dashboard for **Complete & issue**
-
-### 7.3 Frontend
-`/student/courses/[code]`: modules as an accordion, a checkbox per lesson, a progress bar that eases to its width, and a completion message.
-
-**Done when:** ticking lessons updates progress everywhere, and a Pending or Cancelled enrollment can't be ticked.
-
----
-
-## Phase 8 — Certificates and verification
-
-### 8.1 Model and service
-- `Certificate`: code `AA-{year}-{n:06d}`, student, course, enrollment (1:1), issued_on, issued_by. Unique on (student, course).
-- `certificates.services.issue_certificate(enrollment, by)`:
-  - it is idempotent
-  - it sets the enrollment to Completed with progress 100
-  - it creates the certificate
-  - if every one of the student's enrollments is completed, it can set the student to Graduated (to be confirmed with the institute)
-
-### 8.2 API
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
@@ -378,8 +350,8 @@ What `POST /admissions/` does, in **one transaction**:
 | GET | `/api/v1/me/certificates/{code}/pdf/` | student | A4 landscape PDF (WeasyPrint from a Django template matching the design) |
 | GET | `/api/v1/verify/{code}/` | public, throttled | `{valid: true, code, student_name, course_name, duration, issued_on}` or 404 `{valid: false}`. **Returns nothing else about the student** (privacy rule) |
 
-### 8.3 Frontend
-- The **Certificate component**: ivory, navy rule, the fixed-colour logo, the name in EB Garamond italic, ID in mono, a Verified seal and the Director's signature. It scales with its container and has a print stylesheet.
+### 7.3 Frontend
+- The **Certificate component**: ivory, navy rule, the fixed-colour logo, the name in EB Garamond italic, ID in mono, a Verified seal and the Director's signature (`director_name`). It scales with its container and has a print stylesheet.
 - `/student/certificates`: a list with thumbnails.
 - `/student/certificates/[code]`: the full view with Print, Download PDF, and Copy Verification Link (`/verify/AA-2026-000123`).
 - `/verify` and `/verify/[code]`: an ID input with valid and not-found states.
@@ -391,77 +363,68 @@ What `POST /admissions/` does, in **one transaction**:
 
 ---
 
-## Phase 9 — Admin console
+## Phase 8 — Admin console
 
-All endpoints live under `/api/v1/admin/`, with the `IsAdmin` permission, pagination and `django-filter`. Every write is logged in an `AuditLog` (who, what, when). We build them in this order, **one screen at a time: API → tests → page**.
+All endpoints live under `/api/v1/admin/`, with the `IsAdmin` permission, pagination and `django-filter`. We build them in this order, **one screen at a time: API → tests → page**.
 
-### 9.1 Dashboard
+### 8.1 Dashboard
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/admin/dashboard/` | KPIs (total students, active enrollments, pending admissions, certificates issued, admissions this month), the latest pending admissions, enrollments awaiting completion, recent contact messages |
+| GET | `/admin/dashboard/` | KPIs (total students, active enrollments, pending admissions, certificates issued, admissions this month), the latest pending admissions, recent contact messages |
 
-### 9.2 Enrollments (first after the dashboard: this is the daily work)
+### 8.2 Enrollments (first after the dashboard: this is the daily work)
 | Method | Path | Purpose |
 |---|---|---|
 | GET | `/admin/enrollments/` | Filters `status`, `course`, `q` (student name or code) |
 | GET | `/admin/enrollments/{code}/` | Detail |
 | POST | `/admin/enrollments/{code}/approve/` | Pending → Active (and the student Pending → Active) |
-| POST | `/admin/enrollments/{code}/reject/` | `{reason?}` → Cancelled |
-| POST | `/admin/enrollments/{code}/complete/` | → Completed + `issue_certificate` |
+| POST | `/admin/enrollments/{code}/reject/` | `{reason?}` → Cancelled; the reason is saved in `note` |
+| POST | `/admin/enrollments/{code}/complete/` | Active → Completed + `issue_certificate` |
 
-### 9.3 Students
+### 8.3 Students
 | Method | Path | Purpose |
 |---|---|---|
 | GET | `/admin/students/` | Filters `status`, `city`, `q`; pager "Showing a–b of n" |
 | POST | `/admin/students/` | Add a student (creates a User with a temporary password, returned once) |
 | GET | `/admin/students/{code}/` | Profile, qualifications, enrollments, certificates |
-| PATCH | `/admin/students/{code}/` | Edit, including status |
+| PATCH | `/admin/students/{code}/` | Edit, including name and status |
 | DELETE | `/admin/students/{code}/` | Soft delete (sets Inactive and deactivates the User); the frontend asks for confirmation first |
 | POST | `/admin/students/{code}/reset-password/` | Returns a new temporary password |
 
-### 9.4 Courses
+### 8.4 Courses
 | Method | Path | Purpose |
 |---|---|---|
-| GET/POST | `/admin/courses/` | List (all statuses) / create |
-| GET/PATCH/DELETE | `/admin/courses/{slug}/` | Detail / edit (fees, status, featured, schedule…) / delete (blocked if it has enrollments; set it to Draft instead) |
-| PUT | `/admin/courses/{slug}/syllabus/` | Replace the modules and lessons in one call (ordered list) |
+| GET/POST | `/admin/courses/` | List (all statuses) / create, including the syllabus JSON |
+| GET/PATCH/DELETE | `/admin/courses/{slug}/` | Detail / edit (fees, status, featured, schedule, syllabus…) / delete (blocked if it has enrollments; set it to Draft instead) |
 | POST | `/admin/courses/{slug}/image/` | Upload the artwork |
-| GET/POST | `/admin/categories/` | List / add |
-| PATCH/DELETE | `/admin/categories/{slug}/` | Rename / delete (blocked if in use) |
 
-### 9.5 Certificates
+### 8.5 Certificates
 | Method | Path | Purpose |
 |---|---|---|
 | GET | `/admin/certificates/` | Filters `course`, `year`, `q` |
-| POST | `/admin/certificates/` | Issue manually: `{student, course}` (it needs that enrollment) |
 | GET | `/admin/certificates/{code}/pdf/` | Download any certificate |
 
-### 9.6 Announcements
+Certificates are issued through **Complete** (8.2). There is no separate issue endpoint, so every certificate belongs to a real enrollment.
+
+### 8.6 Announcements
 | Method | Path | Purpose |
 |---|---|---|
 | GET/POST | `/admin/announcements/` | Tabs All / Published / Draft; create |
 | PATCH/DELETE | `/admin/announcements/{id}/` | Edit, publish toggle / delete (confirmation first) |
 
-### 9.7 Media
+### 8.7 Website content and settings
 | Method | Path | Purpose |
 |---|---|---|
-| GET/POST | `/admin/media/` | List / upload (multipart, image type and size checked) |
-| PATCH/DELETE | `/admin/media/{id}/` | Caption and order / delete |
+| GET/PATCH | `/admin/site/` | One endpoint for everything in SiteSettings: hero headline and sub, the 4 stats, show_stats, about, phone, email, address, registration fee, allow_registration, maintenance_mode, director_name |
 
-### 9.8 Website content and settings
-| Method | Path | Purpose |
-|---|---|---|
-| GET/PATCH | `/admin/site/content/` | Hero headline and sub, the 4 stats, show_stats, about |
-| GET/PATCH | `/admin/site/settings/` | Phone, email, address, registration fee, allow_registration, maintenance_mode, auto_issue_certificate |
-
-### 9.9 Contact messages
+### 8.8 Contact messages
 | Method | Path | Purpose |
 |---|---|---|
 | GET | `/admin/contact-messages/` | Filter `handled` |
 | PATCH | `/admin/contact-messages/{id}/` | Mark as handled |
 
-### 9.10 Frontend
-Pages under `/admin/…`, in the same order as above: Dashboard → Enrollments → Students (list, detail, add/edit) → Courses (list, add/edit with a syllabus editor, categories) → Certificates → Announcements → Media → Website Content → Settings.
+### 8.9 Frontend
+Pages under `/admin/…`, in the same order as above: Dashboard → Enrollments → Students (list, detail, add/edit) → Courses (list, add/edit with a syllabus editor) → Certificates → Announcements → Website Content → Settings. (Website Content and Settings are two pages over the same `/admin/site/` endpoint.)
 - Every destructive action goes through the confirmation Modal.
 - Every save shows a toast.
 - Every table stacks into cards on mobile.
@@ -470,19 +433,19 @@ Pages under `/admin/…`, in the same order as above: Dashboard → Enrollments 
 
 ---
 
-## Phase 10 — Hardening
+## Phase 9 — Hardening
 
 1. **Security:**
    - Permission tests for every endpoint (anonymous, student, other student, admin).
    - Throttles on login, admission, contact and verify.
    - Upload checks (type, size, re-encode images with Pillow).
    - Production security settings: `SECURE_*`, HSTS, CSRF for cookie auth, and strict CORS.
-2. **Password reset:** by email (`/auth/password-reset/` + `/confirm/`) or by the office (Phase 9.3). Pick one with the institute.
+2. **Password reset:** by email (`/auth/password-reset/` + `/confirm/`) or by the office (Phase 8.3). Pick one with the institute.
 3. **Notifications (optional, pending the institute's answer):** an email or SMS to the office on a new admission, and to the student on approval or certificate.
 4. **Performance:**
    - `select_related` / `prefetch_related` on list endpoints
    - database indexes on `status`, `code` and `slug`
-   - Next.js ISR for public pages, `next/image` for media
+   - Next.js ISR for public pages, `next/image` for course images
 5. **Accessibility:**
    - keyboard navigation
    - Modal focus trap
@@ -491,19 +454,20 @@ Pages under `/admin/…`, in the same order as above: Dashboard → Enrollments 
    - `prefers-reduced-motion`
 6. **Tests:**
    - pytest for models, services, permissions and endpoints (target ≥ 85% of backend code)
-   - Playwright end-to-end tests for: admission → approve → tick lessons → complete → verify
+   - Playwright end-to-end tests for: admission → approve → complete → download certificate → verify
 7. **SEO:** metadata per page, `sitemap.xml`, `robots.txt`, OG image (`aa-social.png`), JSON-LD `EducationalOrganization` + `Course`.
 
 ---
 
-## Phase 11 — Deployment
+## Phase 10 — Deployment
 
-1. **Backend:** gunicorn behind nginx (or a PaaS), `collectstatic`, and `migrate` + the seed commands on first deploy. Media goes to S3-compatible storage or a mounted volume.
+1. **Backend:** gunicorn behind nginx (or a PaaS), `collectstatic`, and `migrate` + the seed commands on first deploy. Uploads (student photos, course images) go to S3-compatible storage or a mounted volume.
 2. **Frontend:** `next build` running on Node (or Vercel); `NEXT_PUBLIC_API_URL` points at the API domain.
 3. **Domains:** `animationacademy.in` → frontend, `api.animationacademy.in` → backend. HTTPS everywhere. Set the cookie domain so the refresh cookie works across both.
 4. **Postgres:** a managed instance or a Docker volume, with **daily backups**.
-5. **CI (GitHub Actions):** lint + tests on each PR, and deploy on merge to `main`.
-6. **Go-live checklist:**
+5. **Scheduled job:** `python manage.py flushexpiredtokens` daily.
+6. **CI (GitHub Actions):** lint + tests on each PR, and deploy on merge to `main`.
+7. **Go-live checklist:**
    - real Director name on certificates
    - real course images
    - the admin account created
@@ -516,26 +480,22 @@ Pages under `/admin/…`, in the same order as above: Dashboard → Enrollments 
 
 ```
 AUTH      POST /auth/login/  POST /auth/refresh/  POST /auth/logout/  GET /auth/me/  POST /auth/change-password/
-PUBLIC    GET  /categories/  GET /courses/  GET /courses/{slug}/
-          GET  /site/  GET /announcements/  GET /media/  POST /contact/
+PUBLIC    GET  /courses/  GET /courses/categories/  GET /courses/{slug}/
+          GET  /site/  GET /announcements/  POST /contact/
           POST /admissions/validate/  POST /admissions/
           GET  /verify/{code}/
 STUDENT   GET  /me/dashboard/
-          GET|PATCH /me/profile/   PUT /me/qualifications/
-          GET|POST  /me/enrollments/   GET /me/enrollments/{code}/
-          PUT  /me/enrollments/{code}/lessons/{lesson_id}/
+          GET|PATCH /me/profile/
+          GET|POST  /me/enrollments/
           GET  /me/certificates/  GET /me/certificates/{code}/  GET /me/certificates/{code}/pdf/
 ADMIN     GET  /admin/dashboard/
           GET  /admin/enrollments/  GET /admin/enrollments/{code}/
           POST /admin/enrollments/{code}/approve|reject|complete/
           GET|POST /admin/students/  GET|PATCH|DELETE /admin/students/{code}/  POST /admin/students/{code}/reset-password/
-          GET|POST /admin/courses/   GET|PATCH|DELETE /admin/courses/{slug}/
-          PUT  /admin/courses/{slug}/syllabus/  POST /admin/courses/{slug}/image/
-          GET|POST /admin/categories/  PATCH|DELETE /admin/categories/{slug}/
-          GET|POST /admin/certificates/  GET /admin/certificates/{code}/pdf/
+          GET|POST /admin/courses/   GET|PATCH|DELETE /admin/courses/{slug}/  POST /admin/courses/{slug}/image/
+          GET  /admin/certificates/  GET /admin/certificates/{code}/pdf/
           GET|POST /admin/announcements/  PATCH|DELETE /admin/announcements/{id}/
-          GET|POST /admin/media/  PATCH|DELETE /admin/media/{id}/
-          GET|PATCH /admin/site/content/  GET|PATCH /admin/site/settings/
+          GET|PATCH /admin/site/
           GET  /admin/contact-messages/  PATCH /admin/contact-messages/{id}/
 DOCS      GET  /schema/   GET /docs/
 ```
@@ -547,9 +507,14 @@ All paths are prefixed with `/api/v1`.
 
 | Question | Affects | Default until answered |
 |---|---|---|
-| Auto-issue the certificate at 100% progress, or admin confirms? | Phase 7–8 | Admin confirms (`auto_issue_certificate=False`) |
-| Online fee payment (Razorpay/UPI)? | A new phase after 9 | Not built; fees are handled offline by the office |
-| Email/SMS notifications? | Phase 10 | Not built |
-| Password reset: email, or office-only? | Phase 10 | Office resets from the admin console |
-| Director name for certificates | Phase 8 | Placeholder, set via settings |
+| Online fee payment (Razorpay/UPI)? | A new phase after 8 | Not built; fees are handled offline by the office |
+| Email/SMS notifications? | Phase 9 | Not built |
+| Password reset: email, or office-only? | Phase 9 | Office resets from the admin console |
+| Director name for certificates | Phase 7 | Placeholder in `SiteSettings.director_name` |
 | Student becomes Graduated automatically when all courses are complete? | Phase 8 | Manual (the admin sets the status) |
+
+**Decided (25 Sep 2026):**
+- The site presents courses and takes enrollments; there are no online lessons and no progress tracking.
+- Students log in only for their profile, enrolled courses and certificates.
+- Certificates are issued only by an admin completing an enrollment.
+- There is no photo gallery.

@@ -1,1 +1,1 @@
-"""Students and qualifications — models are added in Phase 5 (see BUILD_PLAN.md)."""
+"""Students, enrollments and certificates — models are added in Phases 5–7."""

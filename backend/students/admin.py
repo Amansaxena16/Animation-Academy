@@ -1,1 +1,1 @@
-"""Students and qualifications — admin registrations are added in Phase 5."""
+"""Students, enrollments and certificates — admin registrations are added in Phases 5–7."""

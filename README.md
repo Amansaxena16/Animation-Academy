@@ -10,7 +10,7 @@ The website for **Animation Academy**, an ISO 9001:2000 certified multimedia ins
 The product has three parts:
 
 - **Public website:** courses with monthly fees and full syllabi, online admission that follows the institute's paper form, announcements, contact, and public certificate verification.
-- **Student portal:** admissions, course progress, and certificates to print or download.
+- **Student portal:** profile, enrolled courses with their admission status, and certificates to print or download. Teaching happens at the institute, so there are no online lessons.
 - **Admin console:** approve admissions, manage students and courses, issue certificates, post announcements, and edit website content and settings.
 
 > **Status:** Phase 1 (backend foundation and JWT auth) is complete. See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
@@ -29,8 +29,8 @@ The product has three parts:
 
 ```
 .
-├── backend/            Django project: config/ (settings/base|dev|prod), accounts, common,
-│                       courses, students, enrollments, certificates, content
+├── backend/            Django project: config/ (settings/base|dev|prod) + 5 apps:
+│                       accounts, common, courses, students, content
 ├── frontend/           Next.js app (src/app)
 ├── design-system/      Design tokens, reference component CSS, logo files
 ├── Images/             Source material: prospectus pamphlet, paper admission form, logo

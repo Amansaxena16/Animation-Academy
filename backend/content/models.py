@@ -1,1 +1,1 @@
-"""Site content — models are added in Phase 4 (see BUILD_PLAN.md)."""
+"""Site settings, announcements and contact messages — models are added in Phase 4."""
