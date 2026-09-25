@@ -71,18 +71,14 @@ class TestErrorShape:
 
 
 class TestIds:
-    def test_student_codes_are_sequential(self):
-        assert ids.student_code() == "AA-STU-1001"
-        assert ids.student_code() == "AA-STU-1002"
+    def test_student_code(self):
+        assert ids.student_code(1) == "AA-STU-1001"
+        assert ids.student_code(42) == "AA-STU-1042"
 
-    def test_enrollment_codes(self):
-        assert ids.enrollment_code() == "EN-2001"
+    def test_enrollment_code(self):
+        assert ids.enrollment_code(1) == "EN-2001"
+        assert ids.enrollment_code(107) == "EN-2107"
 
-    def test_certificate_counter_restarts_each_year(self):
-        assert ids.certificate_code(2026) == "AA-2026-000001"
-        assert ids.certificate_code(2026) == "AA-2026-000002"
-        assert ids.certificate_code(2027) == "AA-2027-000001"
-
-    def test_counters_are_independent(self):
-        ids.student_code()
-        assert ids.enrollment_code() == "EN-2001"
+    def test_certificate_code(self):
+        assert ids.certificate_code(123, 2026) == "AA-2026-000123"
+        assert ids.certificate_code(7, 2027) == "AA-2027-000007"

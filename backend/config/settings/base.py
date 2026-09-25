@@ -30,12 +30,10 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_filters",
     "drf_spectacular",
-    # Animation Academy
-    "common",
+    # Animation Academy (common/ is a plain helper package with no models)
     "accounts",
-    "courses",
+    "website",
     "students",
-    "content",
 ]
 
 MIDDLEWARE = [

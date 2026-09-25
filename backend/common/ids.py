@@ -1,39 +1,37 @@
-"""Human-readable IDs, allocated from a locked counter so concurrent requests never collide."""
+"""Human-readable IDs built from the database's own auto-increment primary key.
 
-from django.db import IntegrityError, transaction
-from django.utils import timezone
+The pk is unique and assigned by Postgres, so two requests can never get the same code.
+Numbers can skip (a rolled-back insert still uses up its pk), which is harmless for IDs.
 
-from .models import Sequence
+A model sets its code right after the first save, once the pk exists:
 
-# Where the counters start. If the institute's paper registers already go higher,
-# raise last_value in the Sequence admin before going live.
-STUDENT_START = 1000
-ENROLLMENT_START = 2000
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.code:
+            self.code = student_code(self.pk)
+            super().save(update_fields=["code"])
+"""
 
-
-def next_value(name: str, start: int = 0) -> int:
-    """Increment and return the counter `name`. The first value handed out is start + 1."""
-    try:
-        # Savepoint, so a lost creation race doesn't break the caller's transaction.
-        with transaction.atomic():
-            Sequence.objects.get_or_create(name=name, defaults={"last_value": start})
-    except IntegrityError:
-        pass  # Another request created the row first; it exists now.
-    with transaction.atomic():
-        seq = Sequence.objects.select_for_update().get(name=name)
-        seq.last_value += 1
-        seq.save(update_fields=["last_value"])
-        return seq.last_value
+# Where the numbering starts. If the institute's paper registers already go higher,
+# raise these before going live (they only change how new codes are printed).
+STUDENT_OFFSET = 1000
+ENROLLMENT_OFFSET = 2000
 
 
-def student_code() -> str:
-    return f"AA-STU-{next_value('student', STUDENT_START):04d}"
+def student_code(pk: int) -> str:
+    """AA-STU-1001 for the first student."""
+    return f"AA-STU-{STUDENT_OFFSET + pk:04d}"
 
 
-def enrollment_code() -> str:
-    return f"EN-{next_value('enrollment', ENROLLMENT_START):04d}"
+def enrollment_code(pk: int) -> str:
+    """EN-2001 for the first enrollment."""
+    return f"EN-{ENROLLMENT_OFFSET + pk:04d}"
 
 
-def certificate_code(year: int | None = None) -> str:
-    year = year or timezone.localdate().year
-    return f"AA-{year}-{next_value(f'certificate-{year}'):06d}"
+def certificate_code(enrollment_pk: int, year: int) -> str:
+    """AA-2026-000057: the issue year plus the enrollment's pk.
+
+    Each enrollment gets at most one certificate, so the code is unique. The number doesn't
+    restart each year and has gaps (not every enrollment is completed).
+    """
+    return f"AA-{year}-{enrollment_pk:06d}"

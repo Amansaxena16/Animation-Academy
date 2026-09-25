@@ -2,7 +2,7 @@
 
 The order we build in, step by step, with every API endpoint defined in the step that needs it. Design, content and data rules are in `PROJECT_GUIDE.md`; this file is about **sequence and API**.
 
-**Scope:** the website presents the courses and takes enrollments. Teaching happens at the institute, so there are no online lessons or progress tracking. The backend has **5 apps and 9 models** (PROJECT_GUIDE §10).
+**Scope:** the website presents the courses and takes enrollments. Teaching happens at the institute, so there are no online lessons or progress tracking. The backend has **3 apps with models and 7 models** (PROJECT_GUIDE §10).
 
 **Approach:** set up the foundations first (Phase 0–2). After that we build in **vertical slices**: each slice ships its models, API, tests and frontend pages together, so every phase ends with something working in the browser.
 
@@ -61,7 +61,7 @@ Installed: Django 6.1, DRF 3.18, simplejwt 5.5, Next.js 16.3, React 19.2, Tailwi
 **How it was built:**
 - **Settings:** `config/settings/{base,dev,prod}.py`.
 - **User model:** `accounts.User` (email login, `role`, `full_name`).
-- **Shared code in `common/`:** `exceptions.py` (error shape), `permissions.py` (`IsStudent`, `IsAdmin`, `IsOwner`), `pagination.py`, and `ids.py` with a `Sequence` table locked by `select_for_update`. Counters start at `AA-STU-1001` and `EN-2001`; certificates restart at 000001 each year.
+- **Shared code in `common/`:** `exceptions.py` (error shape), `permissions.py` (`IsStudent`, `IsAdmin`, `IsOwner`), `pagination.py`, and `ids.py`, which formats codes from the PK: `AA-STU-1001`, `EN-2001`, `AA-2026-000057`. (It started as a `Sequence` counter table; that was removed on 25 Sep 2026.)
 - **Refresh endpoint:** built by hand, so it reads the httpOnly cookie and rotates and blacklists the token.
 - **Change password:** blacklists every outstanding refresh token for the user.
 - **Tests:** 31 pytest tests.
@@ -77,12 +77,16 @@ Create project `config` and these apps (one per domain):
 | App | Owns |
 |---|---|
 | `accounts` | User, and the auth views |
-| `common` | Sequence (ID counters), permissions, pagination, error format |
-| `courses` | Course (syllabus stored as JSON) |
-| `students` | Student (qualifications stored as JSON), Enrollment, Certificate, verification, PDF |
-| `content` | SiteSettings, Announcement, ContactMessage |
+| `website` | Course (syllabus stored as JSON), SiteSettings, Announcement, ContactMessage |
+| `students` | Student (qualifications stored as JSON), Enrollment (including its certificate fields), verification, PDF |
+| `common/` | Not a Django app, and no models: permissions, pagination, error format, ID formatting |
 
-*(Reduced on 25 Sep 2026 from 7 apps and 17 models. The `enrollments` and `certificates` apps were folded into `students`; CourseCategory, CourseModule, Lesson, Qualification, LessonProgress and MediaItem were dropped.)*
+*(Reduced on 25 Sep 2026 from 7 apps and 17 models to 3 apps and 7 models.)*
+- `enrollments` and `certificates` were folded into `students`.
+- `courses` and `content` were merged into `website`.
+- Certificate became fields on Enrollment.
+- Sequence was replaced by PK-based codes.
+- CourseCategory, CourseModule, Lesson, Qualification, LessonProgress and MediaItem were dropped.
 
 ### 1.2 Settings
 - Split settings into `base.py`, `dev.py` and `prod.py`; read secrets from `.env`.
@@ -113,7 +117,7 @@ Create project `config` and these apps (one per domain):
 - **Pagination:** page-number style, default 20, max 100. Response: `{count, next, previous, results}`.
 - **Errors:** one shape everywhere: `{"detail": "...", "errors": {"field": ["message"]}}`. Field messages use the wording from PROJECT_GUIDE §8.
 - **IDs in URLs:** use the human codes (`AA-STU-1042`, `EN-2107`, `AA-2026-000123`) and course `slug`, never the internal PK.
-- **Human code generation** (`common/ids.py`): allocate inside `transaction.atomic()` with a counter row locked by `select_for_update()`, so two requests can't get the same number.
+- **Human code generation** (`common/ids.py`): built from the row's auto-increment PK right after the first save, so Postgres guarantees uniqueness.
   - `AA-STU-{n:04d}`
   - `EN-{n:04d}`
   - `AA-{year}-{n:06d}`
@@ -201,7 +205,7 @@ A `/dev/components` page shows every component in light and dark for visual chec
 
 ## Phase 3 — Courses catalogue
 
-### 3.1 Model (`courses`)
+### 3.1 Model (`website`)
 - `Course`: every field from PROJECT_GUIDE §10, including:
   - `category` and `level` as choices
   - the nullable `special_first_fee`, `special_rest_fee` and `special_rest_count` (PDM only)
@@ -238,7 +242,7 @@ The list serializer is light (card fields only); the detail serializer adds the 
 
 ## Phase 4 — Site content
 
-### 4.1 Models (`content`)
+### 4.1 Models (`website`)
 - `SiteSettings`: a singleton (`pk=1`, a `load()` classmethod) holding the hero headline and sub, `stat_1`…`stat_4`, `show_stats`, `about`, `phone`, `email`, `address`, `registration_fee` (250), `allow_registration`, `maintenance_mode` and `director_name`.
 - `Announcement`: title, text, category (choices), date, published.
 - `ContactMessage`: name, email, phone (optional), message, created_at, handled.
@@ -272,7 +276,7 @@ Seed: `seed_content` loads the settings defaults and the 7 sample announcements.
 
 ### 5.1 Models (`students`)
 - `Student`: `user` (1:1), `code`, name (stored uppercase), father_name, mobile, phone, dob, gender, address, pincode, city, state, country, photo, employment (choices), **`qualifications` (JSONField, the 4 rows of the paper form)**, status (Pending/Active/Inactive/Graduated), joined_at.
-- `Enrollment`: code, student, course, applied_at, status (Pending/Active/Completed/Cancelled), approved_at, completed_at, note (e.g. a rejection reason). Unique on (student, course) while not Cancelled.
+- `Enrollment`: code, student, course, applied_at, status (Pending/Active/Completed/Cancelled), approved_at, completed_at, note (e.g. a rejection reason), and the certificate fields `certificate_code`, `certificate_issued_on` and `certificate_issued_by` (empty until Phase 7). Unique on (student, course) while not Cancelled.
 
 ### 5.2 API
 
@@ -333,12 +337,12 @@ The portal is **read-mostly**: profile, enrolled courses with their status, and 
 
 ## Phase 7 — Certificates and verification
 
-### 7.1 Model and service (`students`)
-- `Certificate`: code `AA-{year}-{n:06d}`, enrollment (1:1), issued_on, issued_by. The student and course are read through the enrollment.
+### 7.1 Service (`students`)
+There is no new model: a certificate is the `certificate_*` fields on Enrollment (added in Phase 5).
 - `students.services.issue_certificate(enrollment, by)`:
   - it is idempotent
   - it sets the enrollment to Completed
-  - it creates the certificate
+  - it fills in `certificate_code` (`AA-{year}-{enrollment pk:06d}`), `certificate_issued_on` and `certificate_issued_by`
   - it never runs on its own: **only an admin action calls it** (Phase 8)
 
 ### 7.2 API

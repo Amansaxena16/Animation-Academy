@@ -290,19 +290,17 @@ Submitting creates a **Student (Pending)** and an **Enrollment (Pending)**. The 
 
 ## 10. Data model (Django)
 
-**5 apps, 9 models.** IDs are human-readable and shown in mono. Use an auto PK internally plus a unique `code` field.
+**3 apps with models, 7 models** (plus `common/`, a helper package with no models). IDs are human-readable and shown in mono. Each is built from the row's auto-increment PK (`common/ids.py`) and stored in a unique `code` field.
 
 | App | Model | Fields |
 |---|---|---|
 | `accounts` | **User** (custom, email login) | email (unique), password, full_name, role (`student` / `admin`), is_active |
-| `common` | **Sequence** | name, last_value: the counters behind the human-readable IDs |
-| `courses` | **Course** | slug, name, kind (Diploma/Certificate/PG Diploma/Professional Diploma), category (choices: Programming, Accounting, Design, Web Designing, Computer Basics, Multimedia), level (Beginner/Intermediate/Advanced), duration_label ("6 Months"), months, monthly_fee, special fee (first_fee, rest_fee, rest_count; nullable, PDM only), description, **syllabus (JSON)**, image, featured, tag, status (Published/Draft), schedule ("Mon–Fri, 10–11 AM"), next_batch_start, sort order |
+| `website` | **Course** | slug, name, kind (Diploma/Certificate/PG Diploma/Professional Diploma), category (choices: Programming, Accounting, Design, Web Designing, Computer Basics, Multimedia), level (Beginner/Intermediate/Advanced), duration_label ("6 Months"), months, monthly_fee, special fee (first_fee, rest_fee, rest_count; nullable, PDM only), description, **syllabus (JSON)**, image, featured, tag, status (Published/Draft), schedule ("Mon–Fri, 10–11 AM"), next_batch_start, sort order |
 | `students` | **Student** (1:1 User) | code `AA-STU-NNNN`, name, father_name, mobile, phone, dob, gender, address, pincode, city, state (default Uttar Pradesh), country (India), photo, employment (Student/Unemployed/Employed/Self-employed/Part-time), **qualifications (JSON)**, status (Pending/Active/Inactive/Graduated), joined date |
-| `students` | **Enrollment** | code `EN-NNNN`, student FK, course FK, applied date, status (Pending/Active/Completed/Cancelled), approved_at, completed_at, note |
-| `students` | **Certificate** | code `AA-YYYY-NNNNNN`, enrollment (1:1), issued date, issued_by. The student and course come from the enrollment |
-| `content` | **SiteSettings** (singleton) | hero headline, hero sub, stat1–4, show_stats, about, phone, email, address, registration_fee (250), allow_registration, maintenance_mode, director_name |
-| `content` | **Announcement** | title, text, category (General/Holiday/Course Update/Exam/Event/Important Notice), date, published |
-| `content` | **ContactMessage** | name, email, phone, message, created_at, handled |
+| `students` | **Enrollment** | code `EN-NNNN`, student FK, course FK, applied date, status (Pending/Active/Completed/Cancelled), approved_at, completed_at, note, **certificate_code** `AA-YYYY-NNNNNN` (unique, blank until issued), **certificate_issued_on**, **certificate_issued_by** |
+| `website` | **SiteSettings** (singleton) | hero headline, hero sub, stat1–4, show_stats, about, phone, email, address, registration_fee (250), allow_registration, maintenance_mode, director_name |
+| `website` | **Announcement** | title, text, category (General/Holiday/Course Update/Exam/Event/Important Notice), date, published |
+| `website` | **ContactMessage** | name, email, phone, message, created_at, handled |
 
 **JSON fields, and why they aren't separate tables:**
 - **`Course.syllabus`** is displayed, never tracked, so it is a list of groups:
@@ -317,6 +315,13 @@ Submitting creates a **Student (Pending)** and an **Enrollment (Pending)**. The 
   ```
   The serializer checks the exam names and that the High School row has a year and a board.
 
+**Certificates are part of Enrollment.** A completed enrollment has at most one certificate, so there is no separate table. "Has a certificate" means `certificate_code` is set. The Verify page looks up an enrollment by `certificate_code`.
+
+**ID formats** (from the PK, so they are unique without a counter table; numbers can skip):
+- Student: `AA-STU-{1000 + pk}`
+- Enrollment: `EN-{2000 + pk}`
+- Certificate: `AA-{issue year}-{enrollment pk:06d}`. It does not restart each year.
+
 **Computed:**
 - `total = monthly_fee × months`
 - For PDM: `total = first + rest × n` = 4000 + 3000 × 17 = **₹55,000**
@@ -328,6 +333,9 @@ Submitting creates a **Student (Pending)** and an **Enrollment (Pending)**. The 
 - **LessonProgress:** there are no online lessons.
 - **MediaItem:** there is no gallery.
 - **The separate `enrollments` and `certificates` apps:** they were folded into `students`.
+- **Certificate:** its fields moved onto Enrollment (1:1).
+- **Sequence:** codes come from the PK instead.
+- **`courses` and `content` apps:** merged into `website`, which holds everything public and office-edited.
 
 ---
 
@@ -341,7 +349,7 @@ Submitting creates a **Student (Pending)** and an **Enrollment (Pending)**. The 
 4. **Admin Reject:** a confirmation modal, then the enrollment is cancelled. Copy: "…will be cancelled and they will be informed by phone."
 5. **Studying happens at the institute.** The enrollment stays `Active` while the student attends. There is nothing to track online.
 6. **Admin Complete & issue:** Enrollment → `Completed`, and a certificate is issued if that enrollment doesn't have one. **Only an admin can complete a course**; nothing is issued automatically.
-7. **Certificate IDs** are sequential per year: `AA-2026-000124`, and so on.
+7. **Certificate IDs** are the issue year plus the enrollment number: `AA-2026-000057`. They are unique but not consecutive (see §10).
 8. **Verify:** a public lookup by ID returns the student name, course, duration and date, or a "not found" state.
 9. **Settings:**
    - `allow_registration = false` hides or disables admission.

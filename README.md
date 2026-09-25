@@ -29,8 +29,8 @@ The product has three parts:
 
 ```
 .
-├── backend/            Django project: config/ (settings/base|dev|prod) + 5 apps:
-│                       accounts, common, courses, students, content
+├── backend/            Django project: config/ (settings/base|dev|prod), 3 apps
+│                       (accounts, website, students) and common/ helpers
 ├── frontend/           Next.js app (src/app)
 ├── design-system/      Design tokens, reference component CSS, logo files
 ├── Images/             Source material: prospectus pamphlet, paper admission form, logo
