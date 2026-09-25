@@ -10,7 +10,8 @@
     "format": "prettier --write .",
     "tokens": "node scripts/build-tokens.mjs",
     "test": "vitest run",
-    "api-types": "openapi-typescript ${API_SCHEMA_URL:-http://localhost:8000/api/v1/schema/} -o src/types/api.ts"
+    "api-types": "openapi-typescript ${API_SCHEMA_URL:-http://localhost:8000/api/v1/schema/} -o src/types/api.ts",
+    "dev:fresh": "rm -rf .next/dev/cache/fetch-cache && next dev"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.103.2",

@@ -8,6 +8,7 @@ import {
   formatDateLong,
   formatDateShort,
   initials,
+  todayISO,
   inr,
 } from "./format";
 
@@ -64,5 +65,12 @@ describe("initials", () => {
     expect(initials("Aarav Mehta")).toBe("AM");
     expect(initials("  sneha  ")).toBe("S");
     expect(initials("Mohd. Farhan Ali")).toBe("MA");
+  });
+});
+
+describe("todayISO", () => {
+  it("uses the Indian calendar day", () => {
+    // 20:00 UTC on 25 Sep is 01:30 on 26 Sep in Kolkata.
+    expect(todayISO(new Date("2026-09-25T20:00:00Z"))).toBe("2026-09-26");
   });
 });

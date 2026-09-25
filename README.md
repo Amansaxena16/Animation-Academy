@@ -13,7 +13,7 @@ The product has three parts:
 - **Student portal:** profile, enrolled courses with their admission status, and certificates to print or download. Teaching happens at the institute, so there are no online lessons.
 - **Admin console:** approve admissions, manage students and courses, issue certificates, post announcements, and edit website content and settings.
 
-> **Status:** Phases 0–3 are complete (project setup, JWT auth, the frontend foundation, and the course catalogue). See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
+> **Status:** Phases 0–4 are complete (project setup, JWT auth, the frontend foundation, the course catalogue, and site content: home, about, updates, contact). See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
 
 ## Tech stack
 
@@ -74,6 +74,7 @@ source .venv/bin/activate
 pip install -r requirements-dev.txt
 python manage.py migrate
 python manage.py seed_courses      # the 9 prospectus courses (safe to re-run)
+python manage.py seed_content      # site settings + sample announcements (never overwrites settings)
 python manage.py createsuperuser   # email + password; gets the admin role
 python manage.py runserver
 ```
@@ -94,6 +95,7 @@ Frontend scripts:
 
 ```bash
 npm run dev         # http://localhost:3000
+npm run dev:fresh   # same, but clears the cached API responses first
 npm run build       # production build
 npm run lint        # eslint
 npm test            # vitest (formatting helpers)
@@ -102,6 +104,8 @@ npm run api-types   # regenerate src/types/api.ts from the running API's OpenAPI
 ```
 
 In development, http://localhost:3000/dev/components shows every UI component in light and dark.
+
+Public pages cache API data for 5 minutes, in development too, and the cache survives restarts. After changing data in Django admin, wait or run `npm run dev:fresh`.
 
 ### Make shortcuts
 

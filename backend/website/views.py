@@ -1,15 +1,23 @@
-from django.db.models import Count
+from django.db.models import Case, Count, F, Value, When
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema
-from rest_framework import generics
+from drf_spectacular.utils import OpenApiParameter, extend_schema, inline_serializer
+from rest_framework import generics, serializers, status
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .filters import CourseFilter
-from .models import Course
-from .serializers import CategorySerializer, CourseDetailSerializer, CourseListSerializer
+from .models import Announcement, Course, SiteSettings
+from .serializers import (
+    AnnouncementSerializer,
+    CategorySerializer,
+    ContactSerializer,
+    CourseDetailSerializer,
+    CourseListSerializer,
+    SiteSerializer,
+)
 
 
 class PublicView:
@@ -57,3 +65,68 @@ class CategoryListView(PublicView, APIView):
             for value, label in Course.Category.choices
         ]
         return Response(CategorySerializer(data, many=True).data)
+
+
+class SiteView(PublicView, APIView):
+    @extend_schema(responses=SiteSerializer)
+    def get(self, request):
+        return Response(SiteSerializer(SiteSettings.load()).data)
+
+
+class AnnouncementQuery(serializers.Serializer):
+    category = serializers.ChoiceField(choices=Announcement.Category.choices, required=False)
+    upcoming = serializers.BooleanField(required=False, default=False)
+    limit = serializers.IntegerField(required=False, min_value=1, max_value=50)
+
+
+class AnnouncementListView(PublicView, APIView):
+    """Published announcements as a notice board orders them: upcoming (today onwards) soonest
+    first, then past ones newest first. `upcoming=true` keeps only upcoming holidays and events."""
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("category", enum=Announcement.Category.values),
+            OpenApiParameter("upcoming", bool),
+            OpenApiParameter("limit", int, description="1–50"),
+        ],
+        responses=AnnouncementSerializer(many=True),
+    )
+    def get(self, request):
+        query = AnnouncementQuery(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        params = query.validated_data
+
+        today = timezone.localdate()
+        items = Announcement.objects.filter(published=True).order_by(
+            Case(When(date__gte=today, then=Value(0)), default=Value(1)),  # upcoming first
+            Case(When(date__gte=today, then=F("date"))),  # upcoming: soonest first
+            "-date",  # past: newest first
+            "-created_at",
+        )
+        if params.get("category"):
+            items = items.filter(category=params["category"])
+        if params["upcoming"]:
+            items = items.filter(
+                date__gte=today,
+                category__in=[Announcement.Category.HOLIDAY, Announcement.Category.EVENT],
+            )
+        if params.get("limit"):
+            items = items[: params["limit"]]
+        return Response(AnnouncementSerializer(items, many=True).data)
+
+
+class ContactView(PublicView, APIView):
+    throttle_scope = "contact"
+    SENT = "Message sent. Our counsellor will call you within one working day."
+
+    @extend_schema(
+        request=ContactSerializer,
+        responses={201: inline_serializer("ContactSent", {"detail": serializers.CharField()})},
+    )
+    def post(self, request):
+        serializer = ContactSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        honeypot = serializer.validated_data.pop("website", "")
+        if not honeypot:  # a bot gets the same answer, but nothing is saved
+            serializer.save()
+        return Response({"detail": self.SENT}, status=status.HTTP_201_CREATED)

@@ -18,7 +18,7 @@ import { CourseArt } from "@/components/ui/CourseArt";
 import { CourseCard, FeeBox } from "@/components/ui/CourseCard";
 import { getCourse, getCourses } from "@/lib/courses";
 import { courseTotal, feeLong, inr } from "@/lib/format";
-import { SITE } from "@/lib/site";
+import { getSite, telHref } from "@/lib/content";
 import { levelTone } from "@/lib/status";
 import type { Course, CourseDetail } from "@/types/course";
 
@@ -73,7 +73,11 @@ export default async function CoursePage({
 }: PageProps<"/courses/[slug]">) {
   await connection();
   const { slug } = await params;
-  const [course, all] = await Promise.all([getCourse(slug), getCourses()]);
+  const [course, all, site] = await Promise.all([
+    getCourse(slug),
+    getCourses(),
+    getSite(),
+  ]);
   if (!course) notFound();
 
   const topics = course.syllabus.reduce((n, g) => n + g.items.length, 0);
@@ -128,7 +132,7 @@ export default async function CoursePage({
           )}
           <li>
             A one-time registration fee of{" "}
-            <b className="text-ink">{inr(SITE.registrationFee)}</b> when you
+            <b className="text-ink">{inr(site.registration_fee)}</b> when you
             join.
           </li>
           <li>
@@ -183,7 +187,7 @@ export default async function CoursePage({
             )}
           </div>
           <div className="flex flex-col gap-4 px-5 pb-5">
-            <FeeBox fee={course} registrationFee={SITE.registrationFee} />
+            <FeeBox fee={course} registrationFee={site.registration_fee} />
             {course.next_batch_start && (
               <p className="text-ink-muted m-0 text-sm">
                 Next batch:{" "}
@@ -194,15 +198,17 @@ export default async function CoursePage({
             <ButtonLink href={enrollHref} variant="accent" size="lg" block>
               Enroll Now
             </ButtonLink>
-            <p className="text-ink-muted m-0 text-center text-[13px]">
-              Questions? Call{" "}
-              <a
-                href={`tel:+91${SITE.phones[0]}`}
-                className="text-navy-ink font-semibold"
-              >
-                {SITE.phones[0]}
-              </a>
-            </p>
+            {site.phones[0] && (
+              <p className="text-ink-muted m-0 text-center text-[13px]">
+                Questions? Call{" "}
+                <a
+                  href={telHref(site.phones[0])}
+                  className="text-navy-ink font-semibold"
+                >
+                  {site.phones[0]}
+                </a>
+              </p>
+            )}
           </div>
         </Card>
         <div className="min-w-0 lg:col-start-1">
@@ -219,7 +225,11 @@ export default async function CoursePage({
             <h2 className="type-h2 m-0">You might also consider</h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {more.map((c) => (
-                <CourseCard key={c.slug} course={c} />
+                <CourseCard
+                  key={c.slug}
+                  course={c}
+                  registrationFee={site.registration_fee}
+                />
               ))}
             </div>
           </div>

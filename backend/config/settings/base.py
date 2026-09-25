@@ -174,4 +174,9 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
+    # Two models have a `category` field with different choices; name them explicitly.
+    "ENUM_NAME_OVERRIDES": {
+        "CourseCategoryEnum": "website.models.Course.Category",
+        "AnnouncementCategoryEnum": "website.models.Announcement.Category",
+    },
 }

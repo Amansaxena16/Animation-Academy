@@ -298,7 +298,7 @@ Submitting creates a **Student (Pending)** and an **Enrollment (Pending)**. The 
 | `website` | **Course** | slug, name, kind (Diploma/Certificate/PG Diploma/Professional Diploma), category (choices: Programming, Accounting, Design, Web Designing, Computer Basics, Multimedia), level (Beginner/Intermediate/Advanced), duration_label ("6 Months"), months, monthly_fee, first_month_fee (nullable; only the PDM: ₹4,000, then monthly_fee ₹3,000 for the other 17 months), description, **syllabus (JSON)**, image, featured, tag, status (Published/Draft), schedule ("Mon–Fri, 10–11 AM"), next_batch_start, sort order |
 | `students` | **Student** (1:1 User) | code `AA-STU-NNNN`, name, father_name, mobile, phone, dob, gender, address, pincode, city, state (default Uttar Pradesh), country (India), photo, employment (Student/Unemployed/Employed/Self-employed/Part-time), **qualifications (JSON)**, status (Pending/Active/Inactive/Graduated), joined date |
 | `students` | **Enrollment** | code `EN-NNNN`, student FK, course FK, applied date, status (Pending/Active/Completed/Cancelled), approved_at, completed_at, note, **certificate_code** `AA-YYYY-NNNNNN` (unique, blank until issued), **certificate_issued_on**, **certificate_issued_by** |
-| `website` | **SiteSettings** (singleton) | hero headline, hero sub, stat1–4, show_stats, about, phone, email, address, registration_fee (250), allow_registration, maintenance_mode, director_name |
+| `website` | **SiteSettings** (singleton) | hero_headline, hero_sub, stat_students / stat_courses / stat_years / stat_certificates (text such as "500+"), show_stats, about, phones (comma-separated), email, address, registration_fee (250), director_name, allow_registration, maintenance_mode |
 | `website` | **Announcement** | title, text, category (General/Holiday/Course Update/Exam/Event/Important Notice), date, published |
 | `website` | **ContactMessage** | name, email, phone, message, created_at, handled |
 
@@ -447,7 +447,8 @@ The prototype also has 14 sample students (`AA-STU-1038`…`1121`), 21 enrollmen
 3. Should admission send an email or SMS notification to the office or the student?
 4. Who is the Director named on certificates? (The preview uses the placeholder "Anil Verma". The name is stored in `SiteSettings.director_name`.)
 5. Where does the course artwork come from? The prototype's images weren't embedded. Per the design system, use flat geometric illustrations in the palette until real Nehru Nagar lab photos exist; never staged stock. (A photo gallery is out of scope.)
-6. Prospectus spellings: keep "Swish Max" / "Swiss Max" and "MySQl" exactly as printed, or correct them?
+6. The home-page numbers (500+ students trained, 9+ years, 1,000+ certificates) come from the prototype and are placeholders. The office should confirm or change them in Settings before launch.
+7. Prospectus spellings: keep "Swish Max" / "Swiss Max" and "MySQl" exactly as printed, or correct them?
 
 ---
 

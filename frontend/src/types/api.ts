@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/api/v1/announcements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Published announcements, newest first. `upcoming=true` gives holidays and events from
+         *     today onwards, soonest first.
+         */
+        get: operations["announcements_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/change-password/": {
         parameters: {
             query?: never;
@@ -88,6 +108,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/contact/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Public endpoints: no authentication, so a stale token can never turn them into a 401. */
+        post: operations["contact_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/courses/": {
         parameters: {
             query?: never;
@@ -139,6 +176,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/site/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Public endpoints: no authentication, so a stale token can never turn them into a 401. */
+        get: operations["site_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -148,11 +202,48 @@ export interface components {
             access: string;
             user: components["schemas"]["User"];
         };
+        Announcement: {
+            readonly id: number;
+            readonly title: string;
+            /** @description One or two sentences. */
+            readonly text: string;
+            readonly category: components["schemas"]["AnnouncementCategoryEnum"];
+            /**
+             * Format: date
+             * @description The day it's about (holiday, exam, event) or posted.
+             */
+            readonly date: string;
+        };
+        /**
+         * @description * `General` - General
+         *     * `Holiday` - Holiday
+         *     * `Course Update` - Course Update
+         *     * `Exam` - Exam
+         *     * `Event` - Event
+         *     * `Important Notice` - Important
+         * @enum {string}
+         */
+        AnnouncementCategoryEnum: "General" | "Holiday" | "Course Update" | "Exam" | "Event" | "Important Notice";
         Category: {
             value: string;
             label: string;
             /** @description Published courses in this category. */
             count: number;
+        };
+        ChangePasswordRequest: {
+            old_password: string;
+            new_password: string;
+        };
+        ContactRequest: {
+            name: string;
+            /** Format: email */
+            email: string;
+            phone?: string;
+            message: string;
+            website?: string;
+        };
+        ContactSent: {
+            detail: string;
         };
         /**
          * @description * `Programming` - Programming
@@ -163,18 +254,14 @@ export interface components {
          *     * `Multimedia` - Multimedia
          * @enum {string}
          */
-        CategoryEnum: "Programming" | "Accounting" | "Design" | "Web Designing" | "Computer Basics" | "Multimedia";
-        ChangePasswordRequest: {
-            old_password: string;
-            new_password: string;
-        };
+        CourseCategoryEnum: "Programming" | "Accounting" | "Design" | "Web Designing" | "Computer Basics" | "Multimedia";
         /** @description Card fields for the catalogue. Fees are rupees; `total_fee` excludes registration. */
         CourseDetail: {
             readonly slug: string;
             /** @description Exactly as the prospectus prints it. */
             readonly name: string;
             readonly kind: components["schemas"]["KindEnum"];
-            readonly category: components["schemas"]["CategoryEnum"];
+            readonly category: components["schemas"]["CourseCategoryEnum"];
             readonly level: components["schemas"]["LevelEnum"];
             /** @description As printed: "6 Months", "1 Year". */
             readonly duration_label: string;
@@ -204,7 +291,7 @@ export interface components {
             /** @description Exactly as the prospectus prints it. */
             readonly name: string;
             readonly kind: components["schemas"]["KindEnum"];
-            readonly category: components["schemas"]["CategoryEnum"];
+            readonly category: components["schemas"]["CourseCategoryEnum"];
             readonly level: components["schemas"]["LevelEnum"];
             /** @description As printed: "6 Months", "1 Year". */
             readonly duration_label: string;
@@ -256,6 +343,28 @@ export interface components {
          * @enum {string}
          */
         RoleEnum: "student" | "admin";
+        /** @description Public institute details and homepage text. */
+        Site: {
+            readonly hero_headline: string;
+            readonly hero_sub: string;
+            readonly stats: components["schemas"]["Stat"][];
+            readonly about: string;
+            readonly phones: string[];
+            /** Format: email */
+            readonly email: string;
+            readonly address: string;
+            /** @description One-time, in rupees. */
+            readonly registration_fee: number;
+            /** @description Off: the admission form says registration is closed. */
+            readonly allow_registration: boolean;
+            /** @description On: the public site shows a maintenance page. */
+            readonly maintenance_mode: boolean;
+        };
+        Stat: {
+            /** @description As the office typed it: "500+". */
+            value: string;
+            label: string;
+        };
         SyllabusGroup: {
             title: string;
             duration: string;
@@ -278,6 +387,30 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    announcements_list: {
+        parameters: {
+            query?: {
+                category?: "Course Update" | "Event" | "Exam" | "General" | "Holiday" | "Important Notice";
+                /** @description 1–50 */
+                limit?: number;
+                upcoming?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Announcement"][];
+                };
+            };
+        };
+    };
     auth_change_password_create: {
         parameters: {
             query?: never;
@@ -384,6 +517,31 @@ export interface operations {
             };
         };
     };
+    contact_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ContactRequest"];
+                "multipart/form-data": components["schemas"]["ContactRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactSent"];
+                };
+            };
+        };
+    };
     courses_list: {
         parameters: {
             query?: {
@@ -462,6 +620,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Category"][];
+                };
+            };
+        };
+    };
+    site_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Site"];
                 };
             };
         };

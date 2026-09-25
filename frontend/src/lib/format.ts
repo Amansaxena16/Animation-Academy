@@ -116,3 +116,8 @@ export function initials(name: string): string {
     (parts[0]?.[0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")
   ).toUpperCase();
 }
+
+/** Today's date in India as "2026-09-26" (the same calendar day the API uses). */
+export function todayISO(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(now);
+}

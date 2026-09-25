@@ -57,10 +57,12 @@ export function CourseCatalogue({
   courses,
   categories,
   initial,
+  registrationFee,
 }: {
   courses: Course[];
   categories: Category[];
   initial: CatalogueFilters;
+  registrationFee: number;
 }) {
   const router = useRouter();
   const [filters, setFilters] = useState<CatalogueFilters>(initial);
@@ -177,7 +179,11 @@ export function CourseCatalogue({
       {shown.length ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((course) => (
-            <CourseCard key={course.slug} course={course} />
+            <CourseCard
+              key={course.slug}
+              course={course}
+              registrationFee={registrationFee}
+            />
           ))}
         </div>
       ) : (

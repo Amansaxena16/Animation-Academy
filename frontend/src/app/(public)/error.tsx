@@ -4,7 +4,7 @@ import { RefreshCw } from "lucide-react";
 
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { SITE } from "@/lib/site";
+import { FALLBACK_CONTACT } from "@/lib/site";
 
 /** Shown when a public page can't load its data (e.g. the API is unreachable). */
 export default function PublicError({
@@ -18,7 +18,7 @@ export default function PublicError({
       <EmptyState
         icon={<RefreshCw />}
         title="This page didn't load"
-        text={`Please try again in a moment. If it keeps happening, call us on ${SITE.phones[0]}.`}
+        text={`Please try again in a moment. If it keeps happening, call us on ${FALLBACK_CONTACT.phones[0]}.`}
         action={
           <div className="flex flex-wrap justify-center gap-3">
             <Button onClick={() => retry()}>Try Again</Button>

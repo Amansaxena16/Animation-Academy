@@ -7,5 +7,5 @@ export type Course = Schemas["CourseList"];
 export type CourseDetail = Schemas["CourseDetail"];
 export type SyllabusGroup = Schemas["SyllabusGroup"];
 export type Category = Schemas["Category"];
-export type CourseCategory = Schemas["CategoryEnum"];
+export type CourseCategory = Schemas["CourseCategoryEnum"];
 export type CourseLevel = Schemas["LevelEnum"];

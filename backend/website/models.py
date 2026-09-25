@@ -1,8 +1,7 @@
-"""Public, office-edited content: the course catalogue (site settings, announcements and
-contact messages arrive in Phase 4)."""
+"""Public, office-edited content: courses, site settings, announcements and contact messages."""
 
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
+from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
 
 
@@ -104,3 +103,126 @@ class Course(models.Model):
         if self.first_month_fee is not None:
             return self.first_month_fee + self.monthly_fee * (self.months - 1)
         return self.monthly_fee * self.months
+
+
+class SiteSettings(models.Model):
+    """One row (pk=1) of institute details and homepage text the office can edit."""
+
+    STAT_LABELS = [
+        "Students trained",
+        "Courses offered",
+        "Years of teaching",
+        "Certificates issued",
+    ]
+
+    hero_headline = models.CharField(max_length=80, default="Learn the tools. Build the work.")
+    hero_sub = models.TextField(
+        default=(
+            "An ISO 9001:2000 certified multimedia institute in Nehru Nagar, Kanpur — computer, "
+            "accounting, design and animation courses taught on real machines, from typing to an "
+            "eighteen-month multimedia diploma."
+        )
+    )
+    stat_students = models.CharField("Students trained", max_length=12, default="500+")
+    stat_courses = models.CharField("Courses offered", max_length=12, default="9")
+    stat_years = models.CharField("Years of teaching", max_length=12, default="9+")
+    stat_certificates = models.CharField("Certificates issued", max_length=12, default="1000+")
+    show_stats = models.BooleanField(
+        default=True, help_text="Show the numbers band on the home page."
+    )
+    about = models.TextField(
+        default=(
+            "Animation Academy is run by IOCSGT Computer Education at 107/235 Nehru Nagar, Kanpur. "
+            "Small batches, a machine for every student, and certificates carrying a verifiable ID."
+        )
+    )
+
+    phones = models.CharField(
+        max_length=80, default="8707447880, 9336202125", help_text="Comma-separated, first is main."
+    )
+    email = models.EmailField(default="info@animationacademy.in")
+    address = models.CharField(
+        max_length=200, default="107/235 Nehru Nagar, Kanpur, Uttar Pradesh 208012"
+    )
+    registration_fee = models.PositiveIntegerField(default=250, help_text="One-time, in rupees.")
+    director_name = models.CharField(
+        max_length=80, blank=True, help_text="Signs the certificates (Phase 7)."
+    )
+
+    allow_registration = models.BooleanField(
+        default=True, help_text="Off: the admission form says registration is closed."
+    )
+    maintenance_mode = models.BooleanField(
+        default=False, help_text="On: the public site shows a maintenance page."
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "site settings"
+        verbose_name_plural = "site settings"
+
+    def __str__(self):
+        return "Site settings"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1  # there is only ever one row
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError("Site settings can't be deleted.")
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @property
+    def phone_list(self):
+        return [p.strip() for p in self.phones.split(",") if p.strip()]
+
+    @property
+    def stats(self):
+        values = [self.stat_students, self.stat_courses, self.stat_years, self.stat_certificates]
+        return [
+            {"value": v, "label": label} for v, label in zip(values, self.STAT_LABELS, strict=True)
+        ]
+
+
+class Announcement(models.Model):
+    class Category(models.TextChoices):
+        GENERAL = "General"
+        HOLIDAY = "Holiday"
+        COURSE_UPDATE = "Course Update"
+        EXAM = "Exam"
+        EVENT = "Event"
+        IMPORTANT = "Important Notice"
+
+    title = models.CharField(max_length=120)
+    text = models.CharField(max_length=300, help_text="One or two sentences.")
+    category = models.CharField(max_length=20, choices=Category.choices, default=Category.GENERAL)
+    date = models.DateField(help_text="The day it's about (holiday, exam, event) or posted.")
+    published = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        indexes = [models.Index(fields=["published", "date"])]
+
+    def __str__(self):
+        return self.title
+
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=80, validators=[MinLengthValidator(2)])
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True)
+    message = models.TextField(max_length=2000)
+    handled = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["handled", "-created_at"]
+
+    def __str__(self):
+        return f"{self.name} <{self.email}>"

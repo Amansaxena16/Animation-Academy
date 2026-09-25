@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 
 import { getCategories, getCourses } from "@/lib/courses";
-import { SITE } from "@/lib/site";
+import { getSite } from "@/lib/content";
 
 import { CourseCatalogue, type CatalogueFilters } from "./CourseCatalogue";
 
@@ -19,9 +19,10 @@ export default async function CoursesPage({
   searchParams,
 }: PageProps<"/courses">) {
   await connection(); // render per request; the API data itself is cached (lib/courses.ts)
-  const [courses, categories, params] = await Promise.all([
+  const [courses, categories, site, params] = await Promise.all([
     getCourses(),
     getCategories(),
+    getSite(),
     searchParams,
   ]);
 
@@ -43,11 +44,12 @@ export default async function CoursesPage({
           <p className="type-body-lg text-ink-muted mt-4 mb-0 max-w-[620px]">
             {courses.length} courses, from computer fundamentals to an
             eighteen-month multimedia diploma. Fees are paid month by month
-            after a one-time ₹{SITE.registrationFee} registration.
+            after a one-time ₹{site.registration_fee} registration.
           </p>
         </div>
       </section>
       <CourseCatalogue
+        registrationFee={site.registration_fee}
         courses={courses}
         categories={categories}
         initial={initial}

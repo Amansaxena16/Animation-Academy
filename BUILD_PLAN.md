@@ -304,7 +304,33 @@ The list serializer is light (card fields only); the detail serializer adds the 
 
 ---
 
-## Phase 4 — Site content
+## Phase 4 — Site content ✅ done (26 Sep 2026)
+
+**How it was built** (differences from the plan below are marked ⚠):
+- **Models (`website`):**
+  - `SiteSettings` is a singleton: `save()` always writes pk=1, it can't be deleted, and `load()` creates it with defaults.
+    - The stats are four text fields (`stat_students`, `stat_courses`, `stat_years`, `stat_certificates`) with fixed labels.
+    - `phones` is comma-separated and returned as a list.
+    - It also holds `director_name`.
+  - `Announcement` and `ContactMessage` have Django admin screens.
+- **Seed:** `seed_content` is idempotent and **never overwrites** existing settings; it adds the 7 sample announcements.
+- **API:**
+  - `GET /site/`: stats are `[]` when hidden; `director_name` isn't exposed.
+  - `GET /announcements/`: ⚠ ordered like a notice board, **upcoming soonest first, then past newest first**. Supports `category`, `upcoming=true` (holidays and events) and `limit` (1–50); bad values return 400.
+  - `POST /contact/`: throttled to 5 an hour. The name is normalised, the phone is optional (10 digits, +91 accepted), and the message needs at least 10 characters. ⚠ A hidden **honeypot** field (`website`) makes bots get a 201 while nothing is saved.
+  - Enum names are set explicitly (`CourseCategoryEnum`, `AnnouncementCategoryEnum`).
+- **Tests:** 17 new, 68 in total.
+- **Frontend:**
+  - `lib/content.ts` (`getSite`, `getAnnouncements`, `telHref`), cached for 5 minutes with tags `site` and `announcements`.
+  - The public layout loads the settings (footer, maintenance page). The course pages now use the live registration fee and phone numbers; the hard-coded values remain only as `FALLBACK_CONTACT` for the error page.
+  - **Home:** hero (office-edited headline and sub; fee line from the cheapest course), count-up numbers band (only when scrolled into view; respects reduced motion), popular (featured) courses, the flagship PDM band with its 5 semesters, "Why" grid, the 4 most relevant notices plus a "Choosing a course?" card, and a CTA band.
+  - **About:** institute text, what we teach (category links), visit card, "Why" grid.
+  - **Updates:** category chips (in the URL); "Coming up" and "Earlier" groups, using India's date computed on the server (`todayISO`).
+  - **Contact:** call, visit (Google Maps link) and email cards; a form checked on blur with the same rules as the API, errors mapped from the API, honeypot, success toast, and a message after too many attempts.
+  - **Maintenance mode** replaces every public page (not `/login` or the dashboards).
+- **Development caching:** ⚠ the 5-minute API cache also applies in `next dev` and survives restarts (`.next/dev/cache/fetch-cache`). `npm run dev:fresh` clears it. Django admin edits take up to 5 minutes to appear until Phase 8 adds on-demand revalidation.
+- **Verified in Chrome:** every home section, the Updates groups and order, contact validation and a real send (the test message was deleted afterwards), About, and maintenance mode on and off.
+
 
 ### 4.1 Models (`website`)
 - `SiteSettings`: a singleton (`pk=1`, a `load()` classmethod) holding the hero headline and sub, `stat_1`…`stat_4`, `show_stats`, `about`, `phone`, `email`, `address`, `registration_fee` (250), `allow_registration`, `maintenance_mode` and `director_name`.
@@ -318,7 +344,7 @@ Seed: `seed_content` loads the settings defaults and the 7 sample announcements.
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
 | GET | `/api/v1/site/` | public | Public settings: hero, stats (only if `show_stats`), contact info, registration fee, `allow_registration`, `maintenance_mode` |
-| GET | `/api/v1/announcements/` | public | Published only. Filters: `category`, `upcoming=true` (Holiday + Event, date ≥ today), `limit` |
+| GET | `/api/v1/announcements/` | public | Published only; upcoming soonest first, then past newest first. Filters: `category`, `upcoming=true` (Holiday + Event, date ≥ today), `limit` |
 | POST | `/api/v1/contact/` | public, throttled | `{name, email, phone?, message}` → 201 |
 
 ### 4.3 Frontend
