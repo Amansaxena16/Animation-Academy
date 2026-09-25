@@ -13,7 +13,7 @@ The product has three parts:
 - **Student portal:** admissions, course progress, and certificates to print or download.
 - **Admin console:** approve admissions, manage students and courses, issue certificates, post announcements, and edit website content and settings.
 
-> **Status:** Phase 0 (project setup) is complete. See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
+> **Status:** Phase 1 (backend foundation and JWT auth) is complete. See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
 
 ## Tech stack
 
@@ -29,7 +29,8 @@ The product has three parts:
 
 ```
 .
-├── backend/            Django project (config/, apps are added from Phase 1)
+├── backend/            Django project: config/ (settings/base|dev|prod), accounts, common,
+│                       courses, students, enrollments, certificates, content
 ├── frontend/           Next.js app (src/app)
 ├── design-system/      Design tokens, reference component CSS, logo files
 ├── Images/             Source material: prospectus pamphlet, paper admission form, logo
@@ -72,8 +73,13 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.txt
 python manage.py migrate
+python manage.py createsuperuser   # email + password; gets the admin role
 python manage.py runserver
 ```
+
+- API docs (Swagger): http://localhost:8000/api/v1/docs/
+- Django admin: http://localhost:8000/django-admin/ (`/admin` is kept for the Next.js admin console)
+- Settings module: `config.settings.dev` locally, `config.settings.prod` in production (set `DJANGO_SETTINGS_MODULE`)
 
 ### 4. Frontend (http://localhost:3000)
 
@@ -94,6 +100,23 @@ make test        # backend tests
 make lint        # ruff + black + eslint
 make format      # auto-format everything
 ```
+
+## Authentication
+
+JWT via `djangorestframework-simplejwt`:
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /api/v1/auth/login/` | `{email, password}` → `{access, user}`; sets the refresh cookie |
+| `POST /api/v1/auth/refresh/` | Uses the cookie → new `{access, user}`; rotates the cookie |
+| `POST /api/v1/auth/logout/` | Blacklists the refresh token and clears the cookie |
+| `GET /api/v1/auth/me/` | The signed-in user |
+| `POST /api/v1/auth/change-password/` | Changes the password and signs out every other session |
+
+- The access token lasts 15 minutes and is sent as `Authorization: Bearer <token>`. The frontend keeps it in memory only.
+- The refresh token lasts 7 days and lives only in the httpOnly `aa_refresh` cookie (path `/api/v1/auth/`, SameSite=Lax). It is rotated on every refresh and blacklisted on logout.
+- The frontend must call the API with `credentials: "include"`.
+- Errors always look like `{"detail": "...", "errors": {"field": ["message"]}}`. An ended session returns 401 with `"code": "no_session"`.
 
 ## Documentation
 

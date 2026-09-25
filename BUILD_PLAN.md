@@ -55,7 +55,20 @@ Installed: Django 6.1, DRF 3.18, simplejwt 5.5, Next.js 16.3, React 19.2, Tailwi
 
 ---
 
-## Phase 1 — Backend foundation
+## Phase 1 — Backend foundation ✅ done (25 Sep 2026)
+
+**How it was built:**
+- **Settings:** `config/settings/{base,dev,prod}.py`.
+- **User model:** `accounts.User` (email login, `role`, `full_name`).
+- **Shared code in `common/`:** `exceptions.py` (error shape), `permissions.py` (`IsStudent`, `IsAdmin`, `IsOwner`), `pagination.py`, and `ids.py` with a `Sequence` table locked by `select_for_update`. Counters start at `AA-STU-1001` and `EN-2001`; certificates restart at 000001 each year.
+- **Refresh endpoint:** built by hand, so it reads the httpOnly cookie and rotates and blacklists the token.
+- **Change password:** blacklists every outstanding refresh token for the user.
+- **Tests:** 31 pytest tests.
+
+**Limits and follow-ups:**
+- An access token stays valid for up to 15 minutes after logout. This is accepted because the lifetime is short.
+- The OutstandingToken table grows over time. Schedule `python manage.py flushexpiredtokens` (a cron job, added in Phase 11).
+
 
 ### 1.1 Django project and apps
 Create project `config` and these apps (one per domain):
