@@ -1,5 +1,9 @@
 """Auth endpoints. The access token is returned in the body; the refresh token lives only in an
-httpOnly cookie scoped to /api/v1/auth/, so page scripts can never read it."""
+httpOnly cookie scoped to /api/v1/auth/, so page scripts can never read it.
+
+A second cookie, `aa_session`, holds only the role ("student" / "admin") with path "/". It is
+not a credential: the Next.js proxy reads it to redirect signed-out visitors away from the
+dashboards before rendering. Every API request is still checked with the access token."""
 
 from django.conf import settings
 from drf_spectacular.utils import extend_schema, inline_serializer
@@ -22,25 +26,23 @@ from .serializers import (
 SESSION_ENDED = "Your session has ended. Please log in again."
 
 
-def set_refresh_cookie(response, refresh):
+def set_refresh_cookie(response, refresh, role):
     cfg = settings.REFRESH_COOKIE
-    response.set_cookie(
-        cfg["NAME"],
-        str(refresh),
-        max_age=int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
-        path=cfg["PATH"],
-        domain=cfg["DOMAIN"],
-        secure=cfg["SECURE"],
-        httponly=True,
-        samesite=cfg["SAMESITE"],
-    )
+    common = {
+        "max_age": int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+        "domain": cfg["DOMAIN"],
+        "secure": cfg["SECURE"],
+        "httponly": True,
+        "samesite": cfg["SAMESITE"],
+    }
+    response.set_cookie(cfg["NAME"], str(refresh), path=cfg["PATH"], **common)
+    response.set_cookie(cfg["SESSION_NAME"], role, path="/", **common)
 
 
 def clear_refresh_cookie(response):
     cfg = settings.REFRESH_COOKIE
-    response.delete_cookie(
-        cfg["NAME"], path=cfg["PATH"], domain=cfg["DOMAIN"], samesite=cfg["SAMESITE"]
-    )
+    for name, path in [(cfg["NAME"], cfg["PATH"]), (cfg["SESSION_NAME"], "/")]:
+        response.delete_cookie(name, path=path, domain=cfg["DOMAIN"], samesite=cfg["SAMESITE"])
 
 
 def issue_tokens(user):
@@ -73,7 +75,7 @@ class LoginView(PublicAuthView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         response = Response({"access": data["access"], "user": data["user"]})
-        set_refresh_cookie(response, data["refresh"])
+        set_refresh_cookie(response, data["refresh"], data["user"]["role"])
         return response
 
 
@@ -100,7 +102,7 @@ class RefreshView(PublicAuthView):
 
         new_refresh, access = issue_tokens(user)
         response = Response({"access": access, "user": UserSerializer(user).data})
-        set_refresh_cookie(response, new_refresh)
+        set_refresh_cookie(response, new_refresh, user.role)
         return response
 
 
@@ -147,5 +149,5 @@ class ChangePasswordView(APIView):
 
         refresh, access = issue_tokens(user)
         response = Response({"access": access})
-        set_refresh_cookie(response, refresh)
+        set_refresh_cookie(response, refresh, user.role)
         return response

@@ -158,6 +158,7 @@ SIMPLE_JWT = {
 
 REFRESH_COOKIE = {
     "NAME": "aa_refresh",
+    "SESSION_NAME": "aa_session",  # role only, path "/", read by the Next.js proxy
     "PATH": "/api/v1/auth/",
     "SECURE": env.bool("REFRESH_COOKIE_SECURE", default=not DEBUG),
     "SAMESITE": "Lax",

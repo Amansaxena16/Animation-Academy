@@ -10,6 +10,7 @@ LOGOUT = "/api/v1/auth/logout/"
 ME = "/api/v1/auth/me/"
 CHANGE = "/api/v1/auth/change-password/"
 COOKIE = settings.REFRESH_COOKIE["NAME"]
+SESSION = settings.REFRESH_COOKIE["SESSION_NAME"]
 
 pytestmark = pytest.mark.django_db
 
@@ -33,6 +34,10 @@ class TestLogin:
         assert cookie["httponly"]
         assert cookie["path"] == "/api/v1/auth/"
         assert cookie["samesite"] == "Lax"
+        session = res.cookies[SESSION]
+        assert session.value == "student"
+        assert session["path"] == "/"
+        assert session["httponly"]
 
     def test_access_token_carries_role_and_name(self, api, admin_user):
         res = login(api, email=admin_user.email)
@@ -111,6 +116,7 @@ class TestRefresh:
         res = api.post(REFRESH)
         assert res.status_code == 401
         assert res.cookies[COOKIE].value == ""
+        assert res.cookies[SESSION].value == ""
 
     def test_deactivated_user_loses_session(self, api, student_user):
         login(api)
@@ -127,6 +133,7 @@ class TestLogout:
         res = api.post(LOGOUT)
         assert res.status_code == 204
         assert res.cookies[COOKIE].value == ""
+        assert res.cookies[SESSION].value == ""
 
         api.cookies[COOKIE] = token
         assert api.post(REFRESH).status_code == 401

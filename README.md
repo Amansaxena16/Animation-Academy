@@ -13,7 +13,7 @@ The product has three parts:
 - **Student portal:** profile, enrolled courses with their admission status, and certificates to print or download. Teaching happens at the institute, so there are no online lessons.
 - **Admin console:** approve admissions, manage students and courses, issue certificates, post announcements, and edit website content and settings.
 
-> **Status:** Phase 1 (backend foundation and JWT auth) is complete. See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
+> **Status:** Phases 0–2 are complete (project setup, backend foundation with JWT auth, and the frontend foundation). See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
 
 ## Tech stack
 
@@ -89,6 +89,19 @@ npm install
 npm run dev
 ```
 
+Frontend scripts:
+
+```bash
+npm run dev         # http://localhost:3000
+npm run build       # production build
+npm run lint        # eslint
+npm test            # vitest (formatting helpers)
+npm run tokens      # regenerate src/styles/tokens.css from design-system/tokens.json
+npm run api-types   # regenerate src/types/api.ts from the running API's OpenAPI schema
+```
+
+In development, http://localhost:3000/dev/components shows every UI component in light and dark.
+
 ### Make shortcuts
 
 ```bash
@@ -116,6 +129,7 @@ JWT via `djangorestframework-simplejwt`:
 - The access token lasts 15 minutes and is sent as `Authorization: Bearer <token>`. The frontend keeps it in memory only.
 - The refresh token lasts 7 days and lives only in the httpOnly `aa_refresh` cookie (path `/api/v1/auth/`, SameSite=Lax). It is rotated on every refresh and blacklisted on logout.
 - The frontend must call the API with `credentials: "include"`.
+- The API also sets `aa_session` (the role only, path `/`). The Next.js proxy (`src/proxy.ts`) uses it to redirect signed-out visitors away from `/student` and `/admin`. It is not a credential.
 - Errors always look like `{"detail": "...", "errors": {"field": ["message"]}}`. An ended session returns 401 with `"code": "no_session"`.
 
 ## Documentation

@@ -144,7 +144,46 @@ Password reset by email or OTP is left for later (see Phase 9).
 
 ---
 
-## Phase 2 — Frontend foundation
+## Phase 2 — Frontend foundation ✅ done (25 Sep 2026)
+
+**How it was built** (differences from the plan below are marked ⚠):
+- **Tokens:** `npm run tokens` (`frontend/scripts/build-tokens.mjs`) generates `src/styles/tokens.css` from `design-system/tokens.json`.
+  - Colours are CSS variables that switch with `data-theme`, exposed as `bg-brand`, `text-ink`, `border-line` and so on.
+  - Shadows: `shadow-sm`, `shadow-md`, `shadow-lg`. Radius: `rounded-sm` / `md` / `lg` / `xl` / `pill`. The `md` breakpoint is 720px.
+  - Every type style is a utility: `type-h1`, `type-body`, `type-mono` and so on.
+  - Tailwind's spacing already equals `space-*`, so it isn't remapped.
+- **Fonts:** `src/app/fonts.ts` (next/font, self-hosted).
+- **Components:** 17 in `src/components/ui/` (barrel `index.ts`). ⚠ Certificate is deferred to Phase 7.
+  - Course artwork is flat SVG in the palette, one motif per category, until real photos exist.
+- **Helpers:**
+  - `src/lib/format.ts`: `inr`, dates, fee helpers. It uses fixed three-letter months, because ICU's en-IN gives "Sept". It has vitest tests.
+  - `src/lib/status.ts`: status → badge tone.
+- **API client (`src/lib/api.ts`):**
+  - The access token is kept in memory.
+  - `credentials: "include"` is set on every call.
+  - One shared refresh on a 401, then a retry.
+  - Errors are an `ApiError` with `.field(name)`.
+  - Types are generated with `npm run api-types` (openapi-typescript → `src/types/api.ts`).
+- **Auth (`src/lib/auth.tsx`):** an `AuthProvider` with `ensureSession`, `login` and `logout`. Public pages never call refresh; only the dashboards and `/login` do.
+- **Route guard:** ⚠ Next.js 16 renamed `middleware.ts` to **`src/proxy.ts`**.
+  - The refresh cookie is limited to `/api/v1/auth/`, so the proxy can't see it. The API therefore also sets **`aa_session`** (the role only, path `/`, httpOnly, not a credential).
+  - The proxy uses it to redirect signed-out visitors to `/login?next=…` and to keep students out of `/admin`.
+  - The dashboard layout re-checks the role after restoring the session.
+- **Theme:** `src/lib/theme.ts` (useSyncExternalStore + localStorage). The dashboard puts `data-theme` on `<html>`, so modals and toasts follow it. Public pages stay light.
+- **Layouts:**
+  - `app/(public)/layout.tsx`: header with a mobile menu, navy footer.
+  - `app/student` and `app/admin`: DashboardShell, with the sidebar ≥1024px, a drawer below it, and the BottomNav <720px.
+  - A branded `not-found.tsx`.
+- **Login page:** ⚠ pulled forward from Phase 6 (`app/login`) so the shell could be tested end to end. The `next` parameter is checked to prevent open redirects.
+- **Showcase:** `/dev/components` shows every component in light and dark; it returns 404 in production.
+- **Verified in Chrome:**
+  - components in light and dark
+  - wrong password, then correct login, then redirect to `next`
+  - the session is restored after a reload
+  - a student opening `/admin` is redirected
+  - logout locks the dashboard again
+  - 390px mobile layout with the table stacked into cards
+
 
 ### 2.1 Design tokens
 - Generate `src/styles/tokens.css` from `design-system/tokens.json`: the colours as CSS variables under `:root` (light) and `[data-theme="dark"]`, plus spacing, radius and shadow.
