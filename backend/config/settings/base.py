@@ -120,6 +120,11 @@ MAILERS = {
 # The public website (Next.js). Printed on certificates as the verification address.
 PUBLIC_SITE_URL = env("PUBLIC_SITE_URL", default="http://localhost:3000")
 
+# On-demand refresh of the website's cached API data (see common/revalidate.py). Both empty
+# disables it; the website then refreshes within 5 minutes on its own.
+FRONTEND_REVALIDATE_URL = env("FRONTEND_REVALIDATE_URL", default="")
+REVALIDATE_SECRET = env("REVALIDATE_SECRET", default="")
+
 
 # CORS — the Next.js frontend calls the API with credentials (refresh cookie)
 

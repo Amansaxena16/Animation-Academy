@@ -3,20 +3,17 @@
 Four steps (account, personal, education, course), each a serializer the form can check on
 its own; AdmissionSerializer combines them for the final submit."""
 
-import io
 import json
 import re
-import uuid
 
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.core.files.base import ContentFile
 from django.utils import timezone
-from PIL import Image, UnidentifiedImageError
 from rest_framework import serializers
 
 from accounts.models import User
 from accounts.serializers import UserSerializer
+from common.images import reencode_image
 from website.models import Course
 from website.serializers import AnnouncementSerializer
 
@@ -189,20 +186,7 @@ class AdmissionSerializer(AccountStep, PersonalStep, EducationStep, CourseStep):
     def validate_photo(self, photo):
         if photo is None:
             return None
-        if photo.size > MAX_PHOTO_BYTES:
-            raise serializers.ValidationError("The photo must be 2 MB or smaller.")
-        # Re-encode: drops EXIF (location, camera) and anything hidden in the file.
-        try:
-            image = Image.open(photo)
-            if image.format not in {"JPEG", "PNG"}:
-                raise serializers.ValidationError("Choose a JPEG or PNG image.")
-            image = image.convert("RGB")
-        except (UnidentifiedImageError, OSError) as e:
-            raise serializers.ValidationError("That file isn't a readable image.") from e
-        image.thumbnail(PHOTO_SIZE)
-        out = io.BytesIO()
-        image.save(out, format="JPEG", quality=85)
-        return ContentFile(out.getvalue(), name=f"{uuid.uuid4().hex}.jpg")
+        return reencode_image(photo, max_bytes=MAX_PHOTO_BYTES, max_size=PHOTO_SIZE)
 
 
 class CourseRefSerializer(serializers.Serializer):
