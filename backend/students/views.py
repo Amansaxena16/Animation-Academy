@@ -1,6 +1,8 @@
 from django.db import IntegrityError, transaction
 from django.db.models import Count
+from django.http import HttpResponse
 from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiResponse,
@@ -8,7 +10,7 @@ from drf_spectacular.utils import (
     inline_serializer,
 )
 from rest_framework import serializers, status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -22,15 +24,20 @@ from website.models import Announcement, SiteSettings
 from website.serializers import AnnouncementSerializer
 
 from .models import Enrollment, Student
+from .pdf import certificate_pdf
 from .serializers import (
     STEPS,
     AdmissionResultSerializer,
     AdmissionSerializer,
     ApplySerializer,
+    CertificateListSerializer,
+    CertificateSerializer,
     DashboardSerializer,
     MyEnrollmentSerializer,
     ProfileSerializer,
+    VerificationSerializer,
 )
+from .services import certificate_data, certified
 
 REGISTRATION_CLOSED = "Online registration is closed right now. Please call the institute."
 EMAIL_TAKEN = "An account with this email already exists. Log in instead."
@@ -267,3 +274,83 @@ def already_enrolled():
         {"detail": ALREADY_ENROLLED, "errors": {}, "code": "already_enrolled"},
         status=status.HTTP_409_CONFLICT,
     )
+
+
+# ---------------------------------------------------------------------------------------------
+# Certificates
+
+
+def normalise_code(code: str) -> str:
+    return code.strip().upper()
+
+
+class MyCertificatesView(StudentView):
+    @extend_schema(responses=CertificateListSerializer(many=True))
+    def get(self, request):
+        items = certified().filter(student=self.get_student()).order_by("-certificate_issued_on")
+        return Response(CertificateListSerializer(items, many=True).data)
+
+
+class MyCertificateMixin:
+    def get_certificate(self, code):
+        try:
+            return certified().get(
+                student=self.get_student(), certificate_code=normalise_code(code)
+            )
+        except Enrollment.DoesNotExist as e:
+            raise NotFound("There's no certificate with this ID on your account.") from e
+
+
+class MyCertificateView(MyCertificateMixin, StudentView):
+    @extend_schema(responses=CertificateSerializer)
+    def get(self, request, code):
+        return Response(CertificateSerializer(certificate_data(self.get_certificate(code))).data)
+
+
+class MyCertificatePDFView(MyCertificateMixin, StudentView):
+    @extend_schema(responses={(200, "application/pdf"): OpenApiTypes.BINARY})
+    def get(self, request, code):
+        return pdf_response(certificate_data(self.get_certificate(code)))
+
+
+def pdf_response(data):
+    response = HttpResponse(certificate_pdf(data), content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="Certificate-{data.code}.pdf"'
+    response["Cache-Control"] = "private, no-store"
+    return response
+
+
+class VerifyView(PublicView):
+    """Public check of a certificate ID. Shows only the name, course, duration and date."""
+
+    throttle_scope = "verify"
+    NOT_FOUND = (
+        "No certificate with this ID was issued by Animation Academy. Check the ID and try again."
+    )
+
+    @extend_schema(
+        responses={
+            200: VerificationSerializer,
+            404: OpenApiResponse(description="No such certificate."),
+        }
+    )
+    def get(self, request, code):
+        enrollment = certified().filter(certificate_code=normalise_code(code)).first()
+        if enrollment is None:
+            return Response(
+                {"valid": False, "detail": self.NOT_FOUND, "errors": {}},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        c = certificate_data(enrollment)
+        return Response(
+            VerificationSerializer(
+                {
+                    "valid": True,
+                    "code": c.code,
+                    "student_name": c.student_name,
+                    "course_name": c.course_name,
+                    "duration": c.duration,
+                    "issued_on": c.issued_on,
+                }
+            ).data
+        )

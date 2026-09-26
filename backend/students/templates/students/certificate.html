@@ -1,0 +1,82 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Certificate {{ c.code }}</title>
+<style>
+  /* The design system's Certificate (PROJECT_GUIDE §9) at A4 landscape. Sizes are the
+     component's container-query units converted for a 297mm-wide page (1cqw = 2.97mm). */
+  @font-face { font-family: "Archivo"; font-weight: 600; src: url("fonts/Archivo-600.woff"); }
+  @font-face { font-family: "Archivo"; font-weight: 700; src: url("fonts/Archivo-700.woff"); }
+  @font-face { font-family: "Source Sans 3"; font-weight: 400; src: url("fonts/SourceSans3-400.woff"); }
+  @font-face { font-family: "Source Sans 3"; font-weight: 600; src: url("fonts/SourceSans3-600.woff"); }
+  @font-face { font-family: "EB Garamond"; font-style: italic; font-weight: 600; src: url("fonts/EBGaramond-600italic.woff"); }
+  @font-face { font-family: "JetBrains Mono"; font-weight: 500; src: url("fonts/JetBrainsMono-500.woff"); }
+
+  @page { size: A4 landscape; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 297mm; height: 210mm; }
+  body { font-family: "Source Sans 3", sans-serif; color: #111c2b; background: #fcfdff; }
+
+  .page { position: relative; width: 297mm; height: 210mm; overflow: hidden; }
+  .rule { position: absolute; inset: 4.6mm; border: 0.55mm solid #1e3a6b; }
+  .rule-inner { position: absolute; inset: 6.7mm; border: 0.15mm solid #f08030; }
+  .corner { position: absolute; top: 0; left: 0; width: 0; height: 0;
+            border-top: 67mm solid #1e3a6b; border-right: 71mm solid transparent; }
+  .corner-stroke { position: absolute; left: 17.8mm; top: 12.6mm; width: 20.8mm; height: 4.2mm;
+                   background: #f08030; border-radius: 3mm; transform: rotate(45deg); transform-origin: left center; }
+
+  .inner { position: absolute; left: 16.3mm; right: 16.3mm; top: 11.6mm; bottom: 11.6mm; text-align: center; }
+  .logo { margin-top: 2mm; }
+  .logo img { vertical-align: middle; }
+  .logo .mark { height: 23.8mm; }
+  .logo .type { height: 18.4mm; margin-left: 3mm; }
+  .iso { margin-top: 3.4mm; font: 700 3.3mm/1 "Archivo"; letter-spacing: 0.18em; color: #1e3a6b; text-transform: uppercase; }
+  .kicker { margin-top: 7mm; font: 700 4.5mm/1 "Archivo"; letter-spacing: 0.42em; color: #a8480d; text-transform: uppercase; }
+  .lead { margin-top: 6.5mm; font-size: 4.75mm; color: #55647a; }
+  .name { display: inline-block; margin-top: 2mm; padding: 0 12mm 1.2mm; border-bottom: 0.3mm solid #cdd8e4;
+          font: italic 600 {{ name_size_mm }}mm/1.1 "EB Garamond"; color: #111c2b; white-space: nowrap; }
+  .course { margin-top: 2.4mm; font: 700 7.4mm/1.25 "Archivo"; color: #1e3a6b; }
+  .meta { margin-top: 4.2mm; font: 500 3.6mm/1.4 "JetBrains Mono"; color: #55647a; }
+  .meta span { margin: 0 4.5mm; }
+  .meta b { color: #111c2b; font-weight: 500; }
+
+  .foot { position: absolute; left: 0; right: 0; bottom: 0; height: 38mm; }
+  .seal { position: absolute; left: 6mm; bottom: 1.5mm; width: 35.6mm; height: 35.6mm; border-radius: 50%;
+          background: #1e3a6b; border: 1.2mm solid #f08030; box-shadow: 0 0 0 1.5mm #fcfdff inset;
+          color: #fff; text-align: center; font: 700 3.1mm/1.2 "Archivo"; letter-spacing: 0.12em; text-transform: uppercase; }
+  .seal .tick { display: block; margin: 8.5mm auto 1.5mm; width: 11mm; height: 11mm; }
+  .verify { position: absolute; left: 0; right: 0; bottom: 1mm; text-align: center; font-size: 3.1mm; color: #55647a; }
+  .verify b { font: 500 3.1mm "JetBrains Mono"; color: #1e3a6b; }
+  .sig { position: absolute; right: 6mm; bottom: 1.5mm; width: 62mm; text-align: center; font-size: 3.9mm; color: #55647a; }
+  .sig .ink { display: block; min-height: 9mm; padding-bottom: 1.5mm; margin-bottom: 2.4mm; border-bottom: 0.3mm solid #7d8ca1;
+              font: italic 600 8.3mm/1 "EB Garamond"; color: #0a5c9c; }
+  .sig b { display: block; color: #111c2b; font-size: 4.3mm; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="corner"></div><div class="corner-stroke"></div>
+  <div class="rule"></div><div class="rule-inner"></div>
+  <div class="inner">
+    <div class="logo"><img class="mark" src="aa-mark.png" alt=""><img class="type" src="aa-wordmark.png" alt="Animation Academy"></div>
+    <div class="iso">IOCSGT Computer Education · Nehru Nagar, Kanpur</div>
+    <div class="kicker">Certificate of Completion</div>
+    <div class="lead">This certificate is proudly presented to</div>
+    <div class="name">{{ c.student_name }}</div>
+    <div class="lead">for successfully completing</div>
+    <div class="course">{{ c.course_name }}</div>
+    <div class="meta"><span>ID <b>{{ c.code }}</b></span><span>Duration <b>{{ c.duration }}</b></span><span>Completed <b>{{ issued_on_long }}</b></span></div>
+
+    <div class="foot">
+      <div class="seal">
+        <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="#f08030" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+        Verified
+      </div>
+      <div class="verify">Check this certificate at <b>{{ c.verify_url }}</b></div>
+      <div class="sig"><span class="ink">{{ c.director_name }}</span>{% if c.director_name %}<b>{{ c.director_name }}</b>{% endif %}Director</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

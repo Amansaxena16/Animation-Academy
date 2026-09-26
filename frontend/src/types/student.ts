@@ -9,3 +9,6 @@ export type ProfileUpdate = Schemas["PatchedProfileRequest"];
 export type MyEnrollment = Schemas["MyEnrollment"];
 export type EnrollmentStatus = Schemas["EnrollmentStatusEnum"];
 export type StudentStatus = Schemas["StudentStatusEnum"];
+export type CertificateItem = Schemas["CertificateList"];
+export type Certificate = Schemas["Certificate"];
+export type Verification = Schemas["Verification"];

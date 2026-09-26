@@ -213,6 +213,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/certificates/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["me_certificates_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/certificates/{code}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["me_certificates_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/certificates/{code}/pdf/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["me_certificates_pdf_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/dashboard/": {
         parameters: {
             query?: never;
@@ -270,6 +318,23 @@ export interface paths {
         };
         /** @description Public endpoints: no authentication, so a stale token can never turn them into a 401. */
         get: operations["site_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/verify/{code}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Public check of a certificate ID. Shows only the name, course, duration and date. */
+        get: operations["verify_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -361,6 +426,25 @@ export interface components {
             label: string;
             /** @description Published courses in this category. */
             count: number;
+        };
+        /** @description Everything printed on the certificate (from students.services.CertificateData). */
+        Certificate: {
+            code: string;
+            student_name: string;
+            course_name: string;
+            course_kind: string;
+            duration: string;
+            /** Format: date */
+            issued_on: string;
+            director_name: string;
+            /** Format: uri */
+            verify_url: string;
+        };
+        CertificateList: {
+            code: string;
+            /** Format: date */
+            issued_on: string;
+            course: components["schemas"]["EnrollmentCourse"];
         };
         ChangePasswordRequest: {
             old_password: string;
@@ -653,6 +737,16 @@ export interface components {
             readonly name: string;
             readonly role: components["schemas"]["RoleEnum"];
             readonly student_code: string | null;
+        };
+        /** @description What the public verify page may show: no contact or personal details beyond the name. */
+        Verification: {
+            valid: boolean;
+            code: string;
+            student_name: string;
+            course_name: string;
+            duration: string;
+            /** Format: date */
+            issued_on: string;
         };
     };
     responses: never;
@@ -956,6 +1050,67 @@ export interface operations {
             };
         };
     };
+    me_certificates_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificateList"][];
+                };
+            };
+        };
+    };
+    me_certificates_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Certificate"];
+                };
+            };
+        };
+    };
+    me_certificates_pdf_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
     me_dashboard_retrieve: {
         parameters: {
             query?: never;
@@ -1087,6 +1242,34 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Site"];
                 };
+            };
+        };
+    };
+    verify_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Verification"];
+                };
+            };
+            /** @description No such certificate. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

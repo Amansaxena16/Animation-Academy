@@ -55,7 +55,7 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
 
   return (
     <div className="bg-surface text-ink min-h-screen">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden lg:block">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden lg:block print:hidden">
         <Sidebar items={nav} rootHref={home} />
       </aside>
 
@@ -88,8 +88,8 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
         </div>
       )}
 
-      <div className="lg:pl-[260px]">
-        <header className="border-line bg-surface-raised sticky top-0 z-30 flex h-16 items-center gap-3 border-b px-4 md:px-6">
+      <div className="lg:pl-[260px] print:pl-0">
+        <header className="border-line bg-surface-raised sticky top-0 z-30 flex h-16 items-center gap-3 border-b px-4 md:px-6 print:hidden">
           <button
             type="button"
             aria-label="Open menu"
@@ -143,7 +143,7 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
           </div>
         </header>
 
-        <main className="mx-auto max-w-[1200px] px-4 py-6 pb-28 md:px-6 md:pb-10">
+        <main className="mx-auto max-w-[1200px] px-4 py-6 pb-28 md:px-6 md:pb-10 print:m-0 print:max-w-none print:p-0">
           {ready ? (
             children
           ) : (
@@ -160,7 +160,9 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
         </main>
       </div>
 
-      <BottomNav items={nav} rootHref={home} />
+      <div className="print:hidden">
+        <BottomNav items={nav} rootHref={home} />
+      </div>
     </div>
   );
 }

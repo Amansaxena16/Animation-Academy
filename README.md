@@ -13,7 +13,7 @@ The product has three parts:
 - **Student portal:** profile, enrolled courses with their admission status, and certificates to print or download. Teaching happens at the institute, so there are no online lessons.
 - **Admin console:** approve admissions, manage students and courses, issue certificates, post announcements, and edit website content and settings.
 
-> **Status:** Phases 0–6 are complete (project setup, JWT auth, the frontend foundation, the course catalogue, site content, online admission, and the student portal). See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
+> **Status:** Phases 0–7 are complete (project setup, JWT auth, the frontend foundation, the course catalogue, site content, online admission, the student portal, and certificates with public verification). See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
 
 ## Tech stack
 
@@ -41,7 +41,7 @@ The product has three parts:
 
 ## Getting started
 
-**Requirements:** Python 3.12+, Node.js 20+, and Docker or Podman (for PostgreSQL).
+**Requirements:** Python 3.12+, Node.js 20+, Docker or Podman (for PostgreSQL), and the Pango library for certificate PDFs (usually already installed on Linux desktops; on servers: `dnf install pango` or `apt install libpango-1.0-0 libpangoft2-1.0-0`).
 
 ### 1. Environment files
 

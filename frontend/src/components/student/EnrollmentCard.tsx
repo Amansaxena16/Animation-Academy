@@ -65,11 +65,14 @@ export function EnrollmentCard({
       )}
 
       {enrollment.certificate_code ? (
-        <p className="bg-success-soft text-success-ink m-0 inline-flex items-center gap-2 self-start rounded-md px-3 py-2 text-sm font-semibold">
+        <Link
+          href={`/student/certificates/${enrollment.certificate_code}`}
+          className="bg-success-soft text-success-ink inline-flex items-center gap-2 self-start rounded-md px-3 py-2 text-sm font-semibold no-underline hover:underline"
+        >
           <Award className="size-4" aria-hidden />
           Certificate{" "}
           <span className="type-mono">{enrollment.certificate_code}</span>
-        </p>
+        </Link>
       ) : (
         <p className="text-ink-muted m-0 text-sm">
           {STATUS_NOTE[enrollment.status]}

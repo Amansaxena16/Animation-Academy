@@ -477,7 +477,34 @@ The portal is **read-mostly**: profile, enrolled courses with their status, and 
 
 ---
 
-## Phase 7 — Certificates and verification
+## Phase 7 — Certificates and verification ✅ done (26 Sep 2026)
+
+**How it was built** (differences from the plan below are marked ⚠):
+- **Service (`students/services.py`):**
+  - `issue_certificate(enrollment, by)`: ⚠ **only Active enrollments** (Pending must be approved first; Cancelled never). It locks the row, is idempotent, and sets Completed, `completed_at`, `certificate_code` = `AA-{year}-{enrollment pk:06d}`, the issue date and `issued_by`.
+  - `certificate_data()` gathers everything printed on a certificate, including `director_name` from SiteSettings and `verify_url` from the new `PUBLIC_SITE_URL` setting.
+- **PDF (`students/pdf.py` + `templates/students/certificate.html`):**
+  - WeasyPrint 70, an exact A4 landscape copy of the design-system certificate.
+  - The fonts are vendored in `students/certificate/fonts/` (latin WOFF subsets, SIL OFL, `OFL.txt` included), along with the two logo files.
+  - Long names shrink to stay on one line (`name_size_mm`); the verification address is printed at the bottom.
+  - ⚠ The server needs **Pango** (e.g. `dnf install pango`, `apt install libpango-1.0-0 libpangoft2-1.0-0`).
+- **API:**
+  - `GET /me/certificates/`, `/me/certificates/{code}/` (any case) and `/me/certificates/{code}/pdf/` (attachment, not cached). Another student's code returns 404.
+  - `GET /verify/{code}/` (public, throttled at 30 a minute): `{valid, code, student_name, course_name, duration, issued_on}` only, or 404 `{valid:false}`.
+- **Django admin (until Phase 8):** ⚠ an Enrollment action, "Complete and issue certificates" (skips anything not Active and says so), a PDF link per certificate (staff only), and read-only certificate fields.
+- **Tests:** 15 new, 147 in total.
+- **Frontend:**
+  - `components/certificate/Certificate.tsx` + `certificate.css`: the design-system component in container-query units, always light, with the same long-name rule and print CSS (A4 landscape, no margins).
+  - `api.ts` was refactored around a shared `request()` (token and refresh-retry); `apiBlob` and `saveBlob` handle downloads.
+  - `/student/certificates` (list) and `/student/certificates/[code]` (the certificate, Download PDF, Print, Copy Verification Link).
+  - The dashboard shell hides itself when printing, and `EnrollmentCard` links to its certificate.
+  - `/verify` (checks the ID format, `AA-YYYY-NNNNNN`) and `/verify/[code]` (server-rendered, always fresh, `noindex`): verified, not found, or couldn't check.
+- **Verified:**
+  - Rendered PDFs for a short name, a long name and a real student (checked as images).
+  - In Chrome: login, the certificate list and view, the copy-link toast, verifying a real ID in lower case, an unknown ID, and a bad format.
+  - Not clicked in Chrome: Download (it saves a file) and Print (it opens a system dialog). The same PDF was fetched through the API instead.
+  - The test student was deleted afterwards.
+
 
 ### 7.1 Service (`students`)
 There is no new model: a certificate is the `certificate_*` fields on Enrollment (added in Phase 5).

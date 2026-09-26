@@ -119,14 +119,16 @@ interface RequestOptions {
   next?: { revalidate?: number | false; tags?: string[] };
 }
 
-export async function api<T>(
+/** Send a request (with the access token, and one refresh-and-retry on 401). */
+async function request(
   path: string,
-  options: RequestOptions = {},
-): Promise<T> {
+  options: RequestOptions,
+  accept: string,
+): Promise<Response> {
   const { method = "GET", body, auth = true, signal, next } = options;
 
   const send = () => {
-    const headers: Record<string, string> = { Accept: "application/json" };
+    const headers: Record<string, string> = { Accept: accept };
     const isForm = typeof FormData !== "undefined" && body instanceof FormData;
     if (body !== undefined && !isForm)
       headers["Content-Type"] = "application/json";
@@ -156,8 +158,38 @@ export async function api<T>(
       sessionEndedListeners.forEach((l) => l());
     }
   }
+  return res;
+}
 
+export async function api<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
+  const res = await request(path, options, "application/json");
   const data = await parse(res);
   if (!res.ok) throw toError(res.status, data);
   return data as T;
+}
+
+/** A file (e.g. a certificate PDF) as a Blob. */
+export async function apiBlob(
+  path: string,
+  options: RequestOptions = {},
+): Promise<Blob> {
+  const res = await request(path, options, "*/*");
+  if (!res.ok) throw toError(res.status, await parse(res));
+  return res.blob();
+}
+
+/** Save a Blob as a file in the browser. */
+export function saveBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const link = Object.assign(document.createElement("a"), {
+    href: url,
+    download: filename,
+  });
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

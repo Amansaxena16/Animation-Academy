@@ -4,8 +4,10 @@
 // shell only renders these pages once the session is restored.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { api } from "@/lib/api";
+import { api, apiBlob, saveBlob } from "@/lib/api";
 import type {
+  Certificate,
+  CertificateItem,
   Dashboard,
   EnrollmentStatus,
   MyEnrollment,
@@ -82,3 +84,25 @@ export const STATUS_NOTE: Record<EnrollmentStatus, string> = {
   Completed: "Course completed.",
   Cancelled: "This application was cancelled. You can apply again.",
 };
+
+export function useCertificates() {
+  return useQuery({
+    queryKey: ["me", "certificates"],
+    queryFn: () => api<CertificateItem[]>("/me/certificates/"),
+  });
+}
+
+export function useCertificate(code: string) {
+  return useQuery({
+    queryKey: ["me", "certificates", code],
+    queryFn: () =>
+      api<Certificate>(`/me/certificates/${encodeURIComponent(code)}/`),
+  });
+}
+
+export async function downloadCertificate(code: string) {
+  const blob = await apiBlob(
+    `/me/certificates/${encodeURIComponent(code)}/pdf/`,
+  );
+  saveBlob(blob, `Certificate-${code}.pdf`);
+}

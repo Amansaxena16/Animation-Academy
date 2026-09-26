@@ -1,0 +1,212 @@
+/* The design system's Certificate (design-system/bundle.css .aa-cert), unchanged in spirit:
+   fixed print colours in every theme, sizes in container-query units (cqw) so the same markup
+   works as a thumbnail, on screen and on paper. The PDF (backend students/pdf.py) mirrors it. */
+
+.aa-cert {
+  position: relative;
+  aspect-ratio: 1.414;
+  width: 100%;
+  background: #fcfdff;
+  color: #111c2b;
+  border-radius: 4px;
+  padding: 5.5%;
+  box-shadow: var(--elev-lg);
+  overflow: hidden;
+  font-family: var(--font-source-sans), sans-serif;
+  container-type: inline-size;
+}
+.aa-cert::before {
+  content: "";
+  position: absolute;
+  inset: 2.2%;
+  border: 2px solid #1e3a6b;
+  border-radius: 2px;
+  pointer-events: none;
+}
+.aa-cert::after {
+  content: "";
+  position: absolute;
+  inset: 3.2%;
+  border: 0.5px solid #f08030;
+  pointer-events: none;
+}
+.aa-cert__corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24%;
+  height: 32%;
+  background: #1e3a6b;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.aa-cert__corner i {
+  position: absolute;
+  left: 6%;
+  top: 6%;
+  width: 7cqw;
+  height: 1.4cqw;
+  background: #f08030;
+  border-radius: 999px;
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+.aa-cert__inner {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: space-between;
+}
+.aa-cert__logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6cqw;
+}
+.aa-cert__logo .mark {
+  height: 8cqw;
+  width: auto;
+}
+.aa-cert__logo .type {
+  height: 6.2cqw;
+  width: auto;
+}
+.aa-cert__logo .row {
+  display: flex;
+  align-items: center;
+  gap: 1cqw;
+}
+.aa-cert__iso {
+  font:
+    700 1.1cqw/1 var(--font-archivo),
+    sans-serif;
+  letter-spacing: 0.18em;
+  color: #1e3a6b;
+  text-transform: uppercase;
+}
+.aa-cert__kicker {
+  font:
+    700 1.5cqw/1 var(--font-archivo),
+    sans-serif;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: #a8480d;
+  margin-top: 2.4cqw;
+}
+.aa-cert__lead {
+  font-size: 1.6cqw;
+  color: #55647a;
+  margin: 2.4cqw 0 0.6cqw;
+}
+.aa-cert__name {
+  font:
+    italic 600 var(--name-size, 6.2cqw) / 1.1 var(--font-eb-garamond),
+    serif;
+  color: #111c2b;
+  padding: 0 4cqw 0.4cqw;
+  border-bottom: 1px solid #cdd8e4;
+  white-space: nowrap;
+}
+.aa-cert__course {
+  font:
+    700 2.5cqw/1.25 var(--font-archivo),
+    sans-serif;
+  color: #1e3a6b;
+  margin-top: 0.8cqw;
+}
+.aa-cert__meta {
+  display: flex;
+  gap: 3cqw;
+  justify-content: center;
+  font:
+    500 1.2cqw/1.4 var(--font-jetbrains-mono),
+    monospace;
+  color: #55647a;
+  margin-top: 1.4cqw;
+}
+.aa-cert__meta b {
+  color: #111c2b;
+  font-weight: 500;
+}
+.aa-cert__foot {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 3cqw;
+}
+.aa-cert__verify {
+  font-size: 1.05cqw;
+  color: #55647a;
+  padding-bottom: 0.4cqw;
+}
+.aa-cert__verify b {
+  font:
+    500 1.05cqw var(--font-jetbrains-mono),
+    monospace;
+  color: #1e3a6b;
+}
+.aa-cert__seal {
+  flex: none;
+  width: 12cqw;
+  height: 12cqw;
+  border-radius: 50%;
+  background: #1e3a6b;
+  display: grid;
+  place-items: center;
+  box-shadow:
+    0 0 0 0.5cqw #fcfdff,
+    0 0 0 0.9cqw #f08030;
+  color: #fff;
+  font:
+    700 1.05cqw/1.2 var(--font-archivo),
+    sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.aa-cert__seal svg {
+  width: 4.6cqw;
+  height: 4.6cqw;
+  margin: 0 auto 0.4cqw;
+  display: block;
+}
+.aa-cert__sig {
+  flex: none;
+  width: 21cqw;
+  text-align: center;
+  font-size: 1.3cqw;
+  color: #55647a;
+}
+.aa-cert__sig .ink {
+  font:
+    italic 600 2.8cqw/1 var(--font-eb-garamond),
+    serif;
+  color: #0a5c9c;
+  display: block;
+  min-height: 3cqw;
+  padding-bottom: 0.5cqw;
+  border-bottom: 1px solid #7d8ca1;
+  margin-bottom: 0.8cqw;
+}
+.aa-cert__sig b {
+  display: block;
+  color: #111c2b;
+  font-size: 1.45cqw;
+}
+
+/* Printing the certificate page: only the certificate, edge to edge on A4 landscape. */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+  .aa-cert {
+    box-shadow: none;
+    border-radius: 0;
+    width: 297mm;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

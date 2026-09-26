@@ -117,6 +117,10 @@ MAILERS = {
 }
 
 
+# The public website (Next.js). Printed on certificates as the verification address.
+PUBLIC_SITE_URL = env("PUBLIC_SITE_URL", default="http://localhost:3000")
+
+
 # CORS — the Next.js frontend calls the API with credentials (refresh cookie)
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:3000"])

@@ -346,3 +346,42 @@ class DashboardSerializer(serializers.Serializer):
     current = MyEnrollmentSerializer(many=True, help_text="Pending and active enrollments.")
     certificates = MyEnrollmentSerializer(many=True, help_text="The three most recent.")
     upcoming = AnnouncementSerializer(many=True, help_text="Holidays and events from today.")
+
+
+# ---------------------------------------------------------------------------------------------
+# Certificates (Phase 7). A certificate is the certificate_* fields of a completed Enrollment.
+
+
+class CertificateListSerializer(serializers.ModelSerializer):
+    code = serializers.CharField(source="certificate_code")
+    issued_on = serializers.DateField(source="certificate_issued_on")
+    course = EnrollmentCourseSerializer()
+
+    class Meta:
+        model = Enrollment
+        fields = ["code", "issued_on", "course"]
+        read_only_fields = fields
+
+
+class CertificateSerializer(serializers.Serializer):
+    """Everything printed on the certificate (from students.services.CertificateData)."""
+
+    code = serializers.CharField()
+    student_name = serializers.CharField()
+    course_name = serializers.CharField()
+    course_kind = serializers.CharField()
+    duration = serializers.CharField()
+    issued_on = serializers.DateField()
+    director_name = serializers.CharField(allow_blank=True)
+    verify_url = serializers.URLField()
+
+
+class VerificationSerializer(serializers.Serializer):
+    """What the public verify page may show: no contact or personal details beyond the name."""
+
+    valid = serializers.BooleanField()
+    code = serializers.CharField()
+    student_name = serializers.CharField()
+    course_name = serializers.CharField()
+    duration = serializers.CharField()
+    issued_on = serializers.DateField()

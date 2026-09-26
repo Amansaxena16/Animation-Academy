@@ -283,7 +283,8 @@ Submitting creates a **Student (Pending)** and an **Enrollment (Pending)**. The 
   - "for successfully completing" **[Course name as printed]**.
   - Meta: ID (mono) · Duration · Completed date ("24 September 2026").
   - A Verified seal and the Director's signature.
-- It scales with its container (container query units), so the same markup renders as thumbnail, screen and print. It also needs a print stylesheet and a PDF download.
+- It scales with its container (container query units), so the same markup renders as thumbnail, screen and print. The PDF is generated on the server (WeasyPrint) from the same design.
+- It prints the verification address (`animationacademy.in/verify/<ID>`). Long names shrink to stay on one line. If `SiteSettings.director_name` is blank, the signature line shows only "Director".
 - **Every certificate is verifiable** on the public `/verify` page by ID.
 
 ---
