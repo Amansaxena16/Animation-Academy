@@ -10,7 +10,13 @@ import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/cn";
 import { PUBLIC_NAV } from "@/lib/site";
 
-export function PublicHeader() {
+const DASHBOARD = { student: "/student", admin: "/admin" } as const;
+
+/** `role` comes from the aa_session cookie (read by the layout): signed-in visitors see
+ *  "My Dashboard" instead of Login and Register. */
+export function PublicHeader({ role }: { role?: string }) {
+  const dashboard =
+    role === "student" || role === "admin" ? DASHBOARD[role] : null;
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const isActive = (href: string) =>
@@ -41,16 +47,32 @@ export function PublicHeader() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
-          <ButtonLink href="/login" variant="ghost" className="max-sm:hidden">
-            Login
-          </ButtonLink>
-          <ButtonLink
-            href="/admission"
-            variant="primary"
-            className="max-sm:hidden"
-          >
-            Register
-          </ButtonLink>
+          {dashboard ? (
+            <ButtonLink
+              href={dashboard}
+              variant="primary"
+              className="max-sm:hidden"
+            >
+              My Dashboard
+            </ButtonLink>
+          ) : (
+            <>
+              <ButtonLink
+                href="/login"
+                variant="ghost"
+                className="max-sm:hidden"
+              >
+                Login
+              </ButtonLink>
+              <ButtonLink
+                href="/admission"
+                variant="primary"
+                className="max-sm:hidden"
+              >
+                Register
+              </ButtonLink>
+            </>
+          )}
           <button
             type="button"
             className="text-ink hover:bg-surface-sunken grid size-10 place-items-center rounded-md lg:hidden"
@@ -86,22 +108,35 @@ export function PublicHeader() {
             </Link>
           ))}
           <div className="mt-3 flex gap-2">
-            <ButtonLink
-              href="/login"
-              variant="secondary"
-              className="flex-1"
-              onClick={() => setOpen(false)}
-            >
-              Login
-            </ButtonLink>
-            <ButtonLink
-              href="/admission"
-              variant="primary"
-              className="flex-1"
-              onClick={() => setOpen(false)}
-            >
-              Register
-            </ButtonLink>
+            {dashboard ? (
+              <ButtonLink
+                href={dashboard}
+                variant="primary"
+                className="flex-1"
+                onClick={() => setOpen(false)}
+              >
+                My Dashboard
+              </ButtonLink>
+            ) : (
+              <>
+                <ButtonLink
+                  href="/login"
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={() => setOpen(false)}
+                >
+                  Login
+                </ButtonLink>
+                <ButtonLink
+                  href="/admission"
+                  variant="primary"
+                  className="flex-1"
+                  onClick={() => setOpen(false)}
+                >
+                  Register
+                </ButtonLink>
+              </>
+            )}
           </div>
         </nav>
       )}

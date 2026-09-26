@@ -24,13 +24,9 @@ export const EMPLOYMENT = [
 ] as const;
 export const GENDERS = ["Male", "Female", "Other"] as const;
 
-export interface Qualification {
-  exam: string;
-  year: string;
-  board: string;
-  subject: string;
-  percentage: string;
-}
+import type { Qualification } from "@/components/student/QualificationsTable";
+
+export type { Qualification };
 
 export interface Values {
   email: string;

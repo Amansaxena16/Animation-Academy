@@ -213,6 +213,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/dashboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["me_dashboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/enrollments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["me_enrollments_list"];
+        put?: never;
+        post: operations["me_enrollments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/profile/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["me_profile_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["me_profile_partial_update"];
+        trace?: never;
+    };
     "/api/v1/site/": {
         parameters: {
             query?: never;
@@ -301,6 +349,11 @@ export interface components {
          * @enum {string}
          */
         AnnouncementCategoryEnum: "General" | "Holiday" | "Course Update" | "Exam" | "Event" | "Important Notice";
+        /** @description A signed-in student applying for another course. */
+        ApplyRequest: {
+            course: string;
+            accept_no_refund: boolean;
+        };
         /** @enum {unknown} */
         BlankEnum: "";
         Category: {
@@ -397,6 +450,22 @@ export interface components {
             slug: string;
             name: string;
         };
+        /** @description Response shape of GET /me/dashboard/ (for the schema). */
+        Dashboard: {
+            counts: components["schemas"]["DashboardCounts"];
+            /** @description Pending and active enrollments. */
+            current: components["schemas"]["MyEnrollment"][];
+            /** @description The three most recent. */
+            certificates: components["schemas"]["MyEnrollment"][];
+            /** @description Holidays and events from today. */
+            upcoming: components["schemas"]["Announcement"][];
+        };
+        DashboardCounts: {
+            pending: number;
+            active: number;
+            completed: number;
+            certificates: number;
+        };
         /**
          * @description * `Student` - Student
          *     * `Unemployed` - Unemployed
@@ -406,6 +475,33 @@ export interface components {
          * @enum {string}
          */
         EmploymentEnum: "Student" | "Unemployed" | "Employed" | "Self-employed" | "Part-time";
+        EnrollmentCourse: {
+            readonly slug: string;
+            /** @description Exactly as the prospectus prints it. */
+            readonly name: string;
+            readonly kind: components["schemas"]["KindEnum"];
+            readonly category: components["schemas"]["CourseCategoryEnum"];
+            /** @description As printed: "6 Months", "1 Year". */
+            readonly duration_label: string;
+            readonly months: number;
+            /** @description Rupees per month. */
+            readonly monthly_fee: number;
+            /** @description Only if the first month costs more (PDM: ₹4,000, then ₹3,000 × 17). */
+            readonly first_month_fee: number | null;
+            readonly total_fee: number;
+            /** @description "Mon–Fri, 10–11 AM" */
+            readonly schedule: string;
+            /** @description Text, so "Every Monday" works too. */
+            readonly next_batch_start: string;
+        };
+        /**
+         * @description * `Pending` - Pending
+         *     * `Active` - Active
+         *     * `Completed` - Completed
+         *     * `Cancelled` - Cancelled
+         * @enum {string}
+         */
+        EnrollmentStatusEnum: "Pending" | "Active" | "Completed" | "Cancelled";
         /**
          * @description * `Male` - Male
          *     * `Female` - Female
@@ -433,8 +529,73 @@ export interface components {
             email: string;
             password: string;
         };
+        MyEnrollment: {
+            readonly code: string;
+            readonly status: components["schemas"]["EnrollmentStatusEnum"];
+            readonly course: components["schemas"]["EnrollmentCourse"];
+            /** Format: date-time */
+            readonly applied_at: string;
+            /** Format: date-time */
+            readonly approved_at: string | null;
+            /** Format: date-time */
+            readonly completed_at: string | null;
+            readonly certificate_code: string | null;
+            /** Format: date */
+            readonly certificate_issued_on: string | null;
+        };
         PasswordChanged: {
             access: string;
+        };
+        /**
+         * @description What a student sees and edits. Identity (name, father's name, date of birth), the code and
+         *     the status are read-only: the office changes those, because they print on certificates.
+         */
+        PatchedProfileRequest: {
+            gender?: components["schemas"]["GenderEnum"] | components["schemas"]["BlankEnum"];
+            mobile?: string;
+            phone?: string;
+            address?: string;
+            pincode?: string;
+            city?: string;
+            state?: string;
+            country?: string;
+            employment?: components["schemas"]["EmploymentEnum"];
+            qualifications?: unknown;
+            /** Format: binary */
+            photo?: string | null;
+        };
+        /**
+         * @description What a student sees and edits. Identity (name, father's name, date of birth), the code and
+         *     the status are read-only: the office changes those, because they print on certificates.
+         */
+        Profile: {
+            readonly code: string;
+            readonly status: components["schemas"]["StudentStatusEnum"];
+            /** Format: email */
+            readonly email: string;
+            /** @description In capitals, as it prints on certificates. */
+            readonly name: string;
+            /** Father's name */
+            readonly father_name: string;
+            /**
+             * Date of birth
+             * Format: date
+             */
+            readonly dob: string;
+            gender?: components["schemas"]["GenderEnum"] | components["schemas"]["BlankEnum"];
+            mobile?: string;
+            phone?: string;
+            address: string;
+            pincode?: string;
+            city?: string;
+            state?: string;
+            country?: string;
+            employment: components["schemas"]["EmploymentEnum"];
+            qualifications: unknown;
+            /** Format: uri */
+            photo?: string | null;
+            /** Format: date-time */
+            readonly joined_at: string;
         };
         /**
          * @description * `student` - Student
@@ -472,6 +633,14 @@ export interface components {
          * @enum {string}
          */
         StepEnum: "account" | "personal" | "education" | "course";
+        /**
+         * @description * `Pending` - Pending
+         *     * `Active` - Active
+         *     * `Inactive` - Inactive
+         *     * `Graduated` - Graduated
+         * @enum {string}
+         */
+        StudentStatusEnum: "Pending" | "Active" | "Inactive" | "Graduated";
         SyllabusGroup: {
             title: string;
             duration: string;
@@ -783,6 +952,121 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Category"][];
+                };
+            };
+        };
+    };
+    me_dashboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Dashboard"];
+                };
+            };
+        };
+    };
+    me_enrollments_list: {
+        parameters: {
+            query?: {
+                status?: "Active" | "Cancelled" | "Completed" | "Pending";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyEnrollment"][];
+                };
+            };
+        };
+    };
+    me_enrollments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplyRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ApplyRequest"];
+                "multipart/form-data": components["schemas"]["ApplyRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyEnrollment"];
+                };
+            };
+            /** @description Already applied for this course. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    me_profile_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"];
+                };
+            };
+        };
+    };
+    me_profile_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedProfileRequest"];
+                "multipart/form-data": components["schemas"]["PatchedProfileRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"];
                 };
             };
         };

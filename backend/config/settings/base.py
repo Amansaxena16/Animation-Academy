@@ -144,6 +144,7 @@ REST_FRAMEWORK = {
         "login": "10/min",
         "admission": "5/hour",
         "admission_check": "30/min",
+        "apply": "10/hour",
         "contact": "5/hour",
         "verify": "30/min",
     },
@@ -183,5 +184,8 @@ SPECTACULAR_SETTINGS = {
     "ENUM_NAME_OVERRIDES": {
         "CourseCategoryEnum": "website.models.Course.Category",
         "AnnouncementCategoryEnum": "website.models.Announcement.Category",
+        "EnrollmentStatusEnum": "students.models.Enrollment.Status",
+        "StudentStatusEnum": "students.models.Student.Status",
+        "CourseStatusEnum": "website.models.Course.Status",
     },
 }

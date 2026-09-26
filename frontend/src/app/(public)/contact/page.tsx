@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone } from "lucide-react";
 import type { Metadata } from "next";
+import { connection } from "next/server";
 
 import { Card } from "@/components/ui/Card";
 import { getSite, telHref } from "@/lib/content";
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
+  await connection(); // request-time: don't fetch the API during the build
   const site = await getSite();
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`Animation Academy, ${site.address}`)}`;
 

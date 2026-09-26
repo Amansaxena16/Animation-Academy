@@ -18,8 +18,9 @@ from rest_framework import serializers
 from accounts.models import User
 from accounts.serializers import UserSerializer
 from website.models import Course
+from website.serializers import AnnouncementSerializer
 
-from .models import Student, validate_qualifications
+from .models import Enrollment, Student, validate_qualifications
 
 MAX_PHOTO_BYTES = 2 * 1024 * 1024
 PHOTO_SIZE = (800, 800)
@@ -215,3 +216,133 @@ class AdmissionResultSerializer(serializers.Serializer):
     course = CourseRefSerializer()
     access = serializers.CharField()
     user = UserSerializer()
+
+
+# ---------------------------------------------------------------------------------------------
+# Student portal (/me/...). Validation is shared with the admission form above.
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    """What a student sees and edits. Identity (name, father's name, date of birth), the code and
+    the status are read-only: the office changes those, because they print on certificates."""
+
+    email = serializers.EmailField(source="user.email", read_only=True)
+    # Wider than the model columns: "+91 99580 11274" is accepted and normalised to 10 digits.
+    mobile = serializers.CharField(max_length=20, required=False)
+    phone = serializers.CharField(max_length=20, required=False, allow_blank=True)
+    pincode = serializers.CharField(max_length=10, required=False)
+    qualifications = JSONStringField()
+    photo = serializers.ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = Student
+        fields = [
+            "code",
+            "status",
+            "email",
+            "name",
+            "father_name",
+            "dob",
+            "gender",
+            "mobile",
+            "phone",
+            "address",
+            "pincode",
+            "city",
+            "state",
+            "country",
+            "employment",
+            "qualifications",
+            "photo",
+            "joined_at",
+        ]
+        read_only_fields = ["code", "status", "email", "name", "father_name", "dob", "joined_at"]
+
+    validate_mobile = PersonalStep.validate_mobile
+    validate_phone = PersonalStep.validate_phone
+    validate_pincode = PersonalStep.validate_pincode
+    validate_address = PersonalStep.validate_address
+    validate_city = PersonalStep.validate_city
+    validate_qualifications = EducationStep.validate_qualifications
+    validate_photo = AdmissionSerializer.validate_photo
+
+    def validate_state(self, value):
+        return " ".join(value.split()) or "Uttar Pradesh"
+
+    def validate_country(self, value):
+        return " ".join(value.split()) or "India"
+
+    def update(self, instance, validated_data):
+        if "photo" in validated_data and validated_data["photo"] is None:
+            instance.photo.delete(save=False)  # "photo": null removes it
+            validated_data["photo"] = ""
+        elif validated_data.get("photo") and instance.photo:
+            instance.photo.delete(save=False)  # replace: don't leave the old file behind
+        return super().update(instance, validated_data)
+
+
+class EnrollmentCourseSerializer(serializers.ModelSerializer):
+    total_fee = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Course
+        fields = [
+            "slug",
+            "name",
+            "kind",
+            "category",
+            "duration_label",
+            "months",
+            "monthly_fee",
+            "first_month_fee",
+            "total_fee",
+            "schedule",
+            "next_batch_start",
+        ]
+        read_only_fields = fields
+
+
+class MyEnrollmentSerializer(serializers.ModelSerializer):
+    course = EnrollmentCourseSerializer(read_only=True)
+
+    class Meta:
+        model = Enrollment
+        fields = [
+            "code",
+            "status",
+            "course",
+            "applied_at",
+            "approved_at",
+            "completed_at",
+            "certificate_code",
+            "certificate_issued_on",
+        ]
+        read_only_fields = fields
+
+
+class ApplySerializer(serializers.Serializer):
+    """A signed-in student applying for another course."""
+
+    course = serializers.SlugRelatedField(
+        slug_field="slug",
+        queryset=Course.objects.filter(status=Course.Status.PUBLISHED),
+        error_messages={"does_not_exist": "Choose a course from the list."},
+    )
+    accept_no_refund = serializers.BooleanField()
+    validate_accept_no_refund = CourseStep.validate_accept_no_refund
+
+
+class DashboardCountsSerializer(serializers.Serializer):
+    pending = serializers.IntegerField()
+    active = serializers.IntegerField()
+    completed = serializers.IntegerField()
+    certificates = serializers.IntegerField()
+
+
+class DashboardSerializer(serializers.Serializer):
+    """Response shape of GET /me/dashboard/ (for the schema)."""
+
+    counts = DashboardCountsSerializer()
+    current = MyEnrollmentSerializer(many=True, help_text="Pending and active enrollments.")
+    certificates = MyEnrollmentSerializer(many=True, help_text="The three most recent.")
+    upcoming = AnnouncementSerializer(many=True, help_text="Holidays and events from today.")

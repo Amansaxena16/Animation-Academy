@@ -1,5 +1,7 @@
 import { PhoneCall } from "lucide-react";
 import type { Metadata } from "next";
+import { connection } from "next/server";
+import { cookies } from "next/headers";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -8,6 +10,7 @@ import { getSite, telHref } from "@/lib/content";
 import { getCourses } from "@/lib/courses";
 
 import { AdmissionForm } from "./AdmissionForm";
+import { ApplyAsStudent } from "./ApplyAsStudent";
 
 export const metadata: Metadata = {
   title: "Apply for admission",
@@ -21,11 +24,17 @@ const one = (v: string | string[] | undefined) =>
 export default async function AdmissionPage({
   searchParams,
 }: PageProps<"/admission">) {
-  const [site, courses, params] = await Promise.all([
+  await connection(); // request-time: don't fetch the API during the build
+  const [site, courses, params, jar] = await Promise.all([
     getSite(),
     getCourses(),
     searchParams,
+    cookies(),
   ]);
+  // The role cookie (not a credential) says to offer the signed-in flow; ApplyAsStudent
+  // restores and checks the real session before anything is sent.
+  const signedIn = Boolean(jar.get("aa_session")?.value);
+  const Form = signedIn ? ApplyAsStudent : AdmissionForm;
   const requested = one(params.course);
   const initialCourse = courses.some((c) => c.slug === requested)
     ? requested
@@ -38,16 +47,16 @@ export default async function AdmissionPage({
           <span className="type-overline text-accent-ink">Admission</span>
           <h1 className="type-display mt-3 mb-0">Apply for admission</h1>
           <p className="type-body-lg text-ink-muted mt-4 mb-0 max-w-[640px]">
-            The same details as the institute&apos;s paper admission form, in
-            four short steps. It takes about five minutes; the office confirms
-            your seat within one working day.
+            {signedIn
+              ? "Choose a course and confirm — your details are already on record. The office confirms your seat within one working day."
+              : "The same details as the institute's paper admission form, in four short steps. It takes about five minutes; the office confirms your seat within one working day."}
           </p>
         </div>
       </section>
 
       <section className="mx-auto max-w-[1200px] px-4 py-10 md:px-6 md:py-12">
         {site.allow_registration ? (
-          <AdmissionForm
+          <Form
             courses={courses}
             initialCourse={initialCourse}
             registrationFee={site.registration_fee}

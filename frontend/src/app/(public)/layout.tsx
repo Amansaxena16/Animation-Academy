@@ -1,4 +1,5 @@
 import { Wrench } from "lucide-react";
+import { cookies } from "next/headers";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
 
@@ -13,7 +14,7 @@ export default async function PublicLayout({
   children: ReactNode;
 }) {
   await connection(); // render per request; the settings themselves are cached (lib/content.ts)
-  const site = await getSite();
+  const [site, jar] = await Promise.all([getSite(), cookies()]);
 
   if (site.maintenance_mode) {
     return (
@@ -55,7 +56,7 @@ export default async function PublicLayout({
       >
         Skip to content
       </a>
-      <PublicHeader />
+      <PublicHeader role={jar.get("aa_session")?.value} />
       <main id="main" className="flex-1">
         {children}
       </main>

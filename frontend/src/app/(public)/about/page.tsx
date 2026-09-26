@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone } from "lucide-react";
 import type { Metadata } from "next";
+import { connection } from "next/server";
 
 import { WhyGrid } from "@/components/home/WhyGrid";
 import { ButtonLink } from "@/components/ui/Button";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
+  await connection(); // request-time: don't fetch the API during the build
   const [site, categories] = await Promise.all([getSite(), getCategories()]);
   const taught = categories.filter((c) => c.count > 0);
 

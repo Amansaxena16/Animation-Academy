@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 
 import { getAnnouncements } from "@/lib/content";
 import { todayISO } from "@/lib/format";
@@ -17,6 +18,7 @@ const one = (v: string | string[] | undefined) =>
 export default async function UpdatesPage({
   searchParams,
 }: PageProps<"/updates">) {
+  await connection(); // request-time: don't fetch the API during the build
   const [items, params] = await Promise.all([getAnnouncements(), searchParams]);
   return (
     <>

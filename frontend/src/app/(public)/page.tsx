@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { ArrowRight, Phone } from "lucide-react";
 import Link from "next/link";
 
@@ -33,6 +34,7 @@ function SectionHead({
 }
 
 export default async function HomePage() {
+  await connection(); // request-time: don't fetch the API during the build
   const [site, courses, notices] = await Promise.all([
     getSite(),
     getCourses(),

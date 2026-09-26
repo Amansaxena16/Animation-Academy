@@ -1,5 +1,12 @@
 from django.db import IntegrityError, transaction
-from drf_spectacular.utils import OpenApiResponse, extend_schema, inline_serializer
+from django.db.models import Count
+from django.utils import timezone
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiResponse,
+    extend_schema,
+    inline_serializer,
+)
 from rest_framework import serializers, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
@@ -10,10 +17,20 @@ from rest_framework.views import APIView
 from accounts.models import User
 from accounts.serializers import UserSerializer
 from accounts.views import issue_tokens, set_refresh_cookie
-from website.models import SiteSettings
+from common.permissions import IsStudent
+from website.models import Announcement, SiteSettings
+from website.serializers import AnnouncementSerializer
 
 from .models import Enrollment, Student
-from .serializers import STEPS, AdmissionResultSerializer, AdmissionSerializer
+from .serializers import (
+    STEPS,
+    AdmissionResultSerializer,
+    AdmissionSerializer,
+    ApplySerializer,
+    DashboardSerializer,
+    MyEnrollmentSerializer,
+    ProfileSerializer,
+)
 
 REGISTRATION_CLOSED = "Online registration is closed right now. Please call the institute."
 EMAIL_TAKEN = "An account with this email already exists. Log in instead."
@@ -125,3 +142,128 @@ class AdmissionView(PublicView):
         )
         enrollment = Enrollment.objects.create(student=student, course=data["course"])
         return user, student, enrollment
+
+
+# ---------------------------------------------------------------------------------------------
+# Student portal: /me/... Only the signed-in student's own data is ever reachable here, because
+# every query starts from request.user.student.
+
+
+ALREADY_ENROLLED = "You've already applied for this course — find it under My Courses."
+
+
+class StudentView(APIView):
+    permission_classes = [IsStudent]
+
+    def get_student(self):
+        student = getattr(self.request.user, "student", None)
+        if student is None:
+            raise PermissionDenied(
+                "There's no student record for this login. Please contact the office."
+            )
+        return student
+
+
+class DashboardView(StudentView):
+    @extend_schema(responses=DashboardSerializer)
+    def get(self, request):
+        student = self.get_student()
+        enrollments = student.enrollments.select_related("course")
+        counts = {s.lower(): 0 for s in Enrollment.Status.values}
+        for row in enrollments.values("status").annotate(n=Count("id")):
+            counts[row["status"].lower()] = row["n"]
+        current = enrollments.filter(
+            status__in=[Enrollment.Status.PENDING, Enrollment.Status.ACTIVE]
+        )
+        certified = enrollments.exclude(certificate_code=None).order_by("-certificate_issued_on")
+        upcoming = Announcement.objects.filter(
+            published=True,
+            date__gte=timezone.localdate(),
+            category__in=[Announcement.Category.HOLIDAY, Announcement.Category.EVENT],
+        ).order_by("date")[:3]
+        data = {
+            "counts": {
+                "pending": counts["pending"],
+                "active": counts["active"],
+                "completed": counts["completed"],
+                "certificates": certified.count(),
+            },
+            "current": MyEnrollmentSerializer(current, many=True).data,
+            "certificates": MyEnrollmentSerializer(certified[:3], many=True).data,
+            "upcoming": AnnouncementSerializer(upcoming, many=True).data,
+        }
+        return Response(data)
+
+
+class ProfileView(StudentView):
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    @extend_schema(responses=ProfileSerializer)
+    def get(self, request):
+        return Response(ProfileSerializer(self.get_student(), context={"request": request}).data)
+
+    @extend_schema(
+        request={"application/json": ProfileSerializer, "multipart/form-data": ProfileSerializer},
+        responses=ProfileSerializer,
+    )
+    def patch(self, request):
+        serializer = ProfileSerializer(
+            self.get_student(), data=request.data, partial=True, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
+class MyEnrollmentsView(StudentView):
+    throttle_scope = "apply"
+
+    def get_throttles(self):
+        # Only applying is throttled; reading the list isn't.
+        return super().get_throttles() if self.request.method == "POST" else []
+
+    @extend_schema(
+        parameters=[OpenApiParameter("status", enum=Enrollment.Status.values)],
+        responses=MyEnrollmentSerializer(many=True),
+    )
+    def get(self, request):
+        items = self.get_student().enrollments.select_related("course")
+        wanted = request.query_params.get("status")
+        if wanted:
+            if wanted not in Enrollment.Status.values:
+                raise serializers.ValidationError(
+                    {"status": [f"Use one of: {', '.join(Enrollment.Status.values)}."]}
+                )
+            items = items.filter(status=wanted)
+        return Response(MyEnrollmentSerializer(items, many=True).data)
+
+    @extend_schema(
+        request=ApplySerializer,
+        responses={
+            201: MyEnrollmentSerializer,
+            409: OpenApiResponse(description="Already applied for this course."),
+        },
+    )
+    def post(self, request):
+        require_registration_open()
+        student = self.get_student()
+        serializer = ApplySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        course = serializer.validated_data["course"]
+
+        live = student.enrollments.filter(course=course).exclude(status=Enrollment.Status.CANCELLED)
+        if live.exists():
+            return already_enrolled()
+        try:
+            with transaction.atomic():
+                enrollment = Enrollment.objects.create(student=student, course=course)
+        except IntegrityError:  # a double click that got past the check above
+            return already_enrolled()
+        return Response(MyEnrollmentSerializer(enrollment).data, status=status.HTTP_201_CREATED)
+
+
+def already_enrolled():
+    return Response(
+        {"detail": ALREADY_ENROLLED, "errors": {}, "code": "already_enrolled"},
+        status=status.HTTP_409_CONFLICT,
+    )

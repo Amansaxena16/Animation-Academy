@@ -431,7 +431,27 @@ What `POST /admissions/` does, in **one transaction**:
 
 ---
 
-## Phase 6 — Login + student portal
+## Phase 6 — Login + student portal ✅ done (26 Sep 2026)
+
+**How it was built** (differences from the plan below are marked ⚠):
+- **API (`students`, `IsStudent`, every query starts from `request.user.student`):**
+  - `GET /me/dashboard/`: counts (pending, active, completed, certificates), current (pending and active) enrollments, the 3 latest certificates, and upcoming holidays and events.
+  - `GET` and `PATCH /me/profile/` (JSON or multipart): ⚠ **name, father's name, date of birth, code, status and email are read-only** (they print on certificates; the office corrects them). The mobile, pincode, address, qualification and photo rules are **shared with the admission serializers**. The photo is re-encoded; `photo: null` removes it and a replaced file is deleted.
+  - `GET /me/enrollments/?status=` returns nested course data.
+  - `POST /me/enrollments/` `{course, accept_no_refund}`: **409 `already_enrolled`** when a live enrollment exists (also on a double-click race), 403 when registration is closed, throttled at 10 an hour (applying only, not reading).
+  - A student login without a Student record gets a 403 with a clear message.
+  - Enum names are pinned (`EnrollmentStatusEnum`, `StudentStatusEnum`, `CourseStatusEnum`).
+- **Tests:** 24 new, 132 in total, including isolation (a student never sees another student's enrollments).
+- **Frontend:**
+  - `lib/student.ts`: TanStack Query hooks and mutations (`useDashboard`, `useProfile`, `useEnrollments`, `useUpdateProfile`, `useApply`, `useChangePassword`) and `STATUS_NOTE`.
+  - `/student`: greeting with the student ID, a pending notice, 4 stat cards, "Your courses" (`EnrollmentCard`), coming up, and a profile prompt.
+  - `/student/courses`: All / Pending / Active / Completed filter and "Apply for a Course".
+  - `/student/profile`: a read-only certificate block with a lock note; editable contact details, employment, gender, photo and the qualifications table (shared `QualificationsTable`, also used by admission); a change-password card (keeps this device signed in and signs out others).
+  - **Applying while signed in:** ⚠ every **Enroll Now** still links to `/admission?course=…`. The page reads the `aa_session` role cookie on the server; a signed-in student gets `ApplyAsStudent` (course select, fee card, confirmation popup with fee, batch and **no-refund** text, then "Admission requested", then My Courses; 409 shows "Already applied"). Staff get a note. If the session has actually ended, the full form is shown.
+  - The public header shows **My Dashboard** instead of Login and Register when the role cookie is present.
+  - ⚠ **Build fix:** every public page that fetches data calls `connection()` itself (the layout's call doesn't stop a page's fetches from running at build time). The build no longer calls the API.
+- **Verified in Chrome:** login, the dashboard, applying for DTP from the course page (popup, then My Courses), applying again (refused with "Already applied"), a profile pincode error then a successful save. The test student was deleted afterwards.
+
 
 The portal is **read-mostly**: profile, enrolled courses with their status, and certificates (Phase 7). There are no lessons and no progress tracking.
 
@@ -441,7 +461,7 @@ The portal is **read-mostly**: profile, enrolled courses with their status, and 
 |---|---|---|
 | GET | `/api/v1/me/dashboard/` | Counts (pending, active, completed, certificates), current enrollments, recent certificates, upcoming announcements |
 | GET | `/api/v1/me/profile/` | Profile + qualifications |
-| PATCH | `/api/v1/me/profile/` | Update the editable fields and the qualifications (not `code`, `name` or `status`; the name is printed on certificates, so only the office changes it); multipart for a new photo |
+| PATCH | `/api/v1/me/profile/` | Update contact details, employment, gender, qualifications and photo (not code, name, father's name, date of birth, email or status; the office changes those); multipart for a new photo |
 | GET | `/api/v1/me/enrollments/` | Filter `status` = all / Pending / Active / Completed |
 | POST | `/api/v1/me/enrollments/` | `{course, accept_no_refund}`. Returns **409** "Already enrolled — Find it under My Courses." if one exists; otherwise creates a Pending enrollment |
 
