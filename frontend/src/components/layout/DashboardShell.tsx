@@ -10,6 +10,7 @@ import { Logo } from "@/components/ui/Logo";
 import { BottomNav, Sidebar } from "@/components/ui/Sidebar";
 import { Skeleton } from "@/components/ui/EmptyState";
 import type { Role } from "@/lib/api";
+import { useAdminDashboard } from "@/lib/admin";
 import { useAuth } from "@/lib/auth";
 import { titleCase } from "@/lib/format";
 import { setTheme, useApplyTheme, useTheme } from "@/lib/theme";
@@ -35,7 +36,16 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
   const theme = useTheme();
   useApplyTheme(theme);
   const home = HOME[role];
-  const nav = NAV[role];
+  const ready = status === "authenticated" && user?.role === role;
+  // Staff see live counts on the menu (pending admissions, unread messages).
+  const { data: dashboard } = useAdminDashboard(ready && role === "admin");
+  const nav = NAV[role].map((item) =>
+    item.href === "/admin/enrollments"
+      ? { ...item, count: dashboard?.counts.pending_admissions }
+      : item.href === "/admin/messages"
+        ? { ...item, count: dashboard?.counts.unhandled_messages }
+        : item,
+  );
 
   useEffect(() => {
     ensureSession().then((u) => {
@@ -50,8 +60,6 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
     await logout();
     router.replace("/login");
   };
-
-  const ready = status === "authenticated" && user?.role === role;
 
   return (
     <div className="bg-surface text-ink min-h-screen">

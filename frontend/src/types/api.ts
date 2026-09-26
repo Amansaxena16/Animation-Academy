@@ -4,6 +4,315 @@
  */
 
 export interface paths {
+    "/api/v1/admin/announcements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_announcements_list"];
+        put?: never;
+        post: operations["admin_announcements_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/announcements/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_announcements_retrieve"];
+        put?: never;
+        post?: never;
+        delete: operations["admin_announcements_destroy"];
+        options?: never;
+        head?: never;
+        patch: operations["admin_announcements_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/certificates/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_certificates_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/certificates/{code}/pdf/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_certificates_pdf_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contact-messages/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_contact_messages_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contact-messages/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["admin_contact_messages_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/courses/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_courses_list"];
+        put?: never;
+        post: operations["admin_courses_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/courses/{slug}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_courses_retrieve"];
+        put?: never;
+        post?: never;
+        delete: operations["admin_courses_destroy"];
+        options?: never;
+        head?: never;
+        patch: operations["admin_courses_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/courses/{slug}/image/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Upload (multipart `image`) or remove (`image: null`) a course's artwork. */
+        post: operations["admin_courses_image_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/dashboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_dashboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/enrollments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_enrollments_list"];
+        put?: never;
+        post: operations["admin_enrollments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/enrollments/{code}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_enrollments_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/enrollments/{code}/approve/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Pending → Active. A pending student becomes Active too. */
+        post: operations["admin_enrollments_approve_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/enrollments/{code}/complete/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Active → Completed, and the certificate is issued. */
+        post: operations["admin_enrollments_complete_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/enrollments/{code}/reject/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Pending or Active → Cancelled (a rejected admission, or a student who left). */
+        post: operations["admin_enrollments_reject_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/site/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_site_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["admin_site_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/students/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_students_list"];
+        put?: never;
+        post: operations["admin_students_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/students/{code}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_students_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Deactivate (records are kept): status Inactive, login blocked, signed out. */
+        delete: operations["admin_students_destroy"];
+        options?: never;
+        head?: never;
+        patch: operations["admin_students_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/students/{code}/reset-password/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["admin_students_reset_password_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admissions/": {
         parameters: {
             query?: never;
@@ -352,6 +661,297 @@ export interface components {
             access: string;
             user: components["schemas"]["User"];
         };
+        AdminAnnouncement: {
+            readonly id: number;
+            title: string;
+            /** @description One or two sentences. */
+            text: string;
+            category?: components["schemas"]["AnnouncementCategoryEnum"];
+            /**
+             * Format: date
+             * @description The day it's about (holiday, exam, event) or posted.
+             */
+            date: string;
+            published?: boolean;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        AdminAnnouncementRequest: {
+            title: string;
+            /** @description One or two sentences. */
+            text: string;
+            category?: components["schemas"]["AnnouncementCategoryEnum"];
+            /**
+             * Format: date
+             * @description The day it's about (holiday, exam, event) or posted.
+             */
+            date: string;
+            published?: boolean;
+        };
+        AdminCertificate: {
+            code: string;
+            /** Format: date */
+            issued_on: string;
+            student: components["schemas"]["AdminStudentRef"];
+            course: components["schemas"]["AdminCourseRef"];
+            /** @default  */
+            issued_by: string | null;
+        };
+        AdminContactMessage: {
+            readonly id: number;
+            readonly name: string;
+            /** Format: email */
+            readonly email: string;
+            readonly phone: string;
+            readonly message: string;
+            handled?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        AdminCourse: {
+            slug?: string;
+            /** @description Exactly as the prospectus prints it. */
+            name: string;
+            kind: components["schemas"]["KindEnum"];
+            category: components["schemas"]["CourseCategoryEnum"];
+            level?: components["schemas"]["LevelEnum"];
+            status?: components["schemas"]["CourseStatusEnum"];
+            /** @description As printed: "6 Months", "1 Year". */
+            duration_label: string;
+            months: number;
+            /** @description Rupees per month. */
+            monthly_fee: number;
+            /** @description Only if the first month costs more (PDM: ₹4,000, then ₹3,000 × 17). */
+            first_month_fee?: number | null;
+            readonly total_fee: number;
+            /** @description One or two sentences for course cards. */
+            description: string;
+            syllabus: components["schemas"]["SyllabusGroupInput"][];
+            /** Format: uri */
+            readonly image: string | null;
+            /** @description Show on the home page. */
+            featured?: boolean;
+            /** @description "Most enrolled", "Flagship"… */
+            tag?: string;
+            /** @description "Mon–Fri, 10–11 AM" */
+            schedule?: string;
+            /** @description Text, so "Every Monday" works too. */
+            next_batch_start?: string;
+            /** @description Lower comes first. */
+            order?: number;
+            readonly enrollment_count: number;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        AdminCourseRef: {
+            readonly slug: string;
+            /** @description Exactly as the prospectus prints it. */
+            readonly name: string;
+            readonly kind: components["schemas"]["KindEnum"];
+            /** @description As printed: "6 Months", "1 Year". */
+            readonly duration_label: string;
+            readonly months: number;
+            /** @description Rupees per month. */
+            readonly monthly_fee: number;
+            /** @description Only if the first month costs more (PDM: ₹4,000, then ₹3,000 × 17). */
+            readonly first_month_fee: number | null;
+        };
+        AdminCourseRequest: {
+            slug?: string;
+            /** @description Exactly as the prospectus prints it. */
+            name: string;
+            kind: components["schemas"]["KindEnum"];
+            category: components["schemas"]["CourseCategoryEnum"];
+            level?: components["schemas"]["LevelEnum"];
+            status?: components["schemas"]["CourseStatusEnum"];
+            /** @description As printed: "6 Months", "1 Year". */
+            duration_label: string;
+            months: number;
+            /** @description Rupees per month. */
+            monthly_fee: number;
+            /** @description Only if the first month costs more (PDM: ₹4,000, then ₹3,000 × 17). */
+            first_month_fee?: number | null;
+            /** @description One or two sentences for course cards. */
+            description: string;
+            syllabus: components["schemas"]["SyllabusGroupInputRequest"][];
+            /** @description Show on the home page. */
+            featured?: boolean;
+            /** @description "Most enrolled", "Flagship"… */
+            tag?: string;
+            /** @description "Mon–Fri, 10–11 AM" */
+            schedule?: string;
+            /** @description Text, so "Every Monday" works too. */
+            next_batch_start?: string;
+            /** @description Lower comes first. */
+            order?: number;
+        };
+        AdminDashboard: {
+            counts: components["schemas"]["AdminDashboardCounts"];
+            /** @description The 5 oldest waiting. */
+            pending: components["schemas"]["AdminEnrollment"][];
+            recent_messages: components["schemas"]["AdminDashboardMessage"][];
+            upcoming: components["schemas"]["Announcement"][];
+        };
+        AdminDashboardCounts: {
+            /** @description Not inactive. */
+            students: number;
+            pending_admissions: number;
+            active_enrollments: number;
+            certificates: number;
+            admissions_this_month: number;
+            unhandled_messages: number;
+        };
+        AdminDashboardMessage: {
+            id: number;
+            name: string;
+            phone: string;
+            message: string;
+            /** Format: date-time */
+            created_at: string;
+        };
+        AdminEnrollment: {
+            readonly code: string;
+            /** @default Pending */
+            readonly status: components["schemas"]["EnrollmentStatusEnum"];
+            readonly student: components["schemas"]["AdminStudentRef"];
+            readonly course: components["schemas"]["AdminCourseRef"];
+            /** Format: date-time */
+            readonly applied_at: string;
+            /** Format: date-time */
+            readonly approved_at: string | null;
+            /** Format: date-time */
+            readonly completed_at: string | null;
+            /** @description E.g. why it was cancelled. */
+            readonly note: string;
+            readonly certificate_code: string | null;
+            /** Format: date */
+            readonly certificate_issued_on: string | null;
+        };
+        /** @description The office enrolling a student in person (e.g. a walk-in who has already paid). */
+        AdminEnrollmentCreateRequest: {
+            student: string;
+            course: string;
+            /** @default Active */
+            status: components["schemas"]["AdminEnrollmentCreateStatusEnum"];
+        };
+        /**
+         * @description * `Pending` - Pending
+         *     * `Active` - Active
+         * @enum {string}
+         */
+        AdminEnrollmentCreateStatusEnum: "Pending" | "Active";
+        AdminSite: {
+            hero_headline?: string;
+            hero_sub?: string;
+            /** Students trained */
+            stat_students?: string;
+            /** Courses offered */
+            stat_courses?: string;
+            /** Years of teaching */
+            stat_years?: string;
+            /** Certificates issued */
+            stat_certificates?: string;
+            /** @description Show the numbers band on the home page. */
+            show_stats?: boolean;
+            about?: string;
+            /** @description Comma-separated, first is main. */
+            phones?: string;
+            /** Format: email */
+            email?: string;
+            address?: string;
+            /** @description One-time, in rupees. */
+            registration_fee?: number;
+            /** @description Signs the certificates (Phase 7). */
+            director_name?: string;
+            /** @description Off: the admission form says registration is closed. */
+            allow_registration?: boolean;
+            /** @description On: the public site shows a maintenance page. */
+            maintenance_mode?: boolean;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description Full record. Unlike the student's own profile, staff can change identity fields, the
+         *     login email and the status (Inactive also blocks the login).
+         */
+        AdminStudent: {
+            readonly code: string;
+            status?: components["schemas"]["StudentStatusEnum"];
+            /** Format: email */
+            email?: string;
+            /** @description In capitals, as it prints on certificates. */
+            name: string;
+            /** Father's name */
+            father_name: string;
+            /**
+             * Date of birth
+             * Format: date
+             */
+            dob: string;
+            gender?: components["schemas"]["GenderEnum"] | components["schemas"]["BlankEnum"];
+            mobile?: string;
+            phone?: string;
+            address: string;
+            pincode?: string;
+            city?: string;
+            state?: string;
+            country?: string;
+            employment: components["schemas"]["EmploymentEnum"];
+            qualifications: unknown;
+            /** Format: uri */
+            photo?: string | null;
+            /** Format: date-time */
+            readonly joined_at: string;
+            readonly enrollments: components["schemas"]["StudentEnrollment"][];
+        };
+        /** @description Adding a student at the office. A temporary password is generated and shown once. */
+        AdminStudentCreateRequest: {
+            name: string;
+            father_name: string;
+            /** Format: date */
+            dob: string;
+            gender?: components["schemas"]["GenderEnum"] | components["schemas"]["BlankEnum"];
+            address: string;
+            pincode: string;
+            /** @default Kanpur */
+            city: string;
+            mobile: string;
+            /** @default  */
+            phone: string;
+            qualifications: unknown;
+            /** Format: email */
+            email: string;
+            employment: components["schemas"]["EmploymentEnum"];
+            course?: string | null;
+        };
+        AdminStudentCreated: {
+            student: components["schemas"]["AdminStudent"];
+            temporary_password: string;
+        };
+        AdminStudentList: {
+            readonly code: string;
+            /** @description In capitals, as it prints on certificates. */
+            readonly name: string;
+            /** Format: email */
+            readonly email: string;
+            readonly mobile: string;
+            readonly city: string;
+            readonly status: components["schemas"]["StudentStatusEnum"];
+            /** Format: uri */
+            readonly photo: string | null;
+            /** Format: date-time */
+            readonly joined_at: string;
+            readonly enrollment_count: number;
+        };
+        AdminStudentRef: {
+            readonly code: string;
+            /** @description In capitals, as it prints on certificates. */
+            readonly name: string;
+            readonly mobile: string;
+            /** Format: uri */
+            readonly photo: string | null;
+            readonly status: components["schemas"]["StudentStatusEnum"];
+        };
         /** @description All four steps plus an optional photo (JPEG or PNG, up to 2 MB). */
         AdmissionRequest: {
             /** Format: email */
@@ -501,6 +1101,10 @@ export interface components {
             readonly next_batch_start: string;
             readonly syllabus: components["schemas"]["SyllabusGroup"][];
         };
+        CourseImageRequest: {
+            /** Format: binary */
+            image: string | null;
+        };
         /** @description Card fields for the catalogue. Fees are rupees; `total_fee` excludes registration. */
         CourseList: {
             readonly slug: string;
@@ -534,6 +1138,12 @@ export interface components {
             slug: string;
             name: string;
         };
+        /**
+         * @description * `Published` - Published
+         *     * `Draft` - Draft
+         * @enum {string}
+         */
+        CourseStatusEnum: "Published" | "Draft";
         /** @description Response shape of GET /me/dashboard/ (for the schema). */
         Dashboard: {
             counts: components["schemas"]["DashboardCounts"];
@@ -627,8 +1237,185 @@ export interface components {
             /** Format: date */
             readonly certificate_issued_on: string | null;
         };
+        PaginatedAdminAnnouncementList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["AdminAnnouncement"][];
+        };
+        PaginatedAdminCertificateList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["AdminCertificate"][];
+        };
+        PaginatedAdminContactMessageList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["AdminContactMessage"][];
+        };
+        PaginatedAdminEnrollmentList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["AdminEnrollment"][];
+        };
+        PaginatedAdminStudentListList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["AdminStudentList"][];
+        };
         PasswordChanged: {
             access: string;
+        };
+        PatchedAdminAnnouncementRequest: {
+            title?: string;
+            /** @description One or two sentences. */
+            text?: string;
+            category?: components["schemas"]["AnnouncementCategoryEnum"];
+            /**
+             * Format: date
+             * @description The day it's about (holiday, exam, event) or posted.
+             */
+            date?: string;
+            published?: boolean;
+        };
+        PatchedAdminContactMessageRequest: {
+            handled?: boolean;
+        };
+        PatchedAdminCourseRequest: {
+            slug?: string;
+            /** @description Exactly as the prospectus prints it. */
+            name?: string;
+            kind?: components["schemas"]["KindEnum"];
+            category?: components["schemas"]["CourseCategoryEnum"];
+            level?: components["schemas"]["LevelEnum"];
+            status?: components["schemas"]["CourseStatusEnum"];
+            /** @description As printed: "6 Months", "1 Year". */
+            duration_label?: string;
+            months?: number;
+            /** @description Rupees per month. */
+            monthly_fee?: number;
+            /** @description Only if the first month costs more (PDM: ₹4,000, then ₹3,000 × 17). */
+            first_month_fee?: number | null;
+            /** @description One or two sentences for course cards. */
+            description?: string;
+            syllabus?: components["schemas"]["SyllabusGroupInputRequest"][];
+            /** @description Show on the home page. */
+            featured?: boolean;
+            /** @description "Most enrolled", "Flagship"… */
+            tag?: string;
+            /** @description "Mon–Fri, 10–11 AM" */
+            schedule?: string;
+            /** @description Text, so "Every Monday" works too. */
+            next_batch_start?: string;
+            /** @description Lower comes first. */
+            order?: number;
+        };
+        PatchedAdminSiteRequest: {
+            hero_headline?: string;
+            hero_sub?: string;
+            /** Students trained */
+            stat_students?: string;
+            /** Courses offered */
+            stat_courses?: string;
+            /** Years of teaching */
+            stat_years?: string;
+            /** Certificates issued */
+            stat_certificates?: string;
+            /** @description Show the numbers band on the home page. */
+            show_stats?: boolean;
+            about?: string;
+            /** @description Comma-separated, first is main. */
+            phones?: string;
+            /** Format: email */
+            email?: string;
+            address?: string;
+            /** @description One-time, in rupees. */
+            registration_fee?: number;
+            /** @description Signs the certificates (Phase 7). */
+            director_name?: string;
+            /** @description Off: the admission form says registration is closed. */
+            allow_registration?: boolean;
+            /** @description On: the public site shows a maintenance page. */
+            maintenance_mode?: boolean;
+        };
+        /**
+         * @description Full record. Unlike the student's own profile, staff can change identity fields, the
+         *     login email and the status (Inactive also blocks the login).
+         */
+        PatchedAdminStudentRequest: {
+            status?: components["schemas"]["StudentStatusEnum"];
+            /** Format: email */
+            email?: string;
+            /** @description In capitals, as it prints on certificates. */
+            name?: string;
+            /** Father's name */
+            father_name?: string;
+            /**
+             * Date of birth
+             * Format: date
+             */
+            dob?: string;
+            gender?: components["schemas"]["GenderEnum"] | components["schemas"]["BlankEnum"];
+            mobile?: string;
+            phone?: string;
+            address?: string;
+            pincode?: string;
+            city?: string;
+            state?: string;
+            country?: string;
+            employment?: components["schemas"]["EmploymentEnum"];
+            qualifications?: unknown;
+            /** Format: binary */
+            photo?: string | null;
         };
         /**
          * @description What a student sees and edits. Identity (name, father's name, date of birth), the code and
@@ -681,6 +1468,10 @@ export interface components {
             /** Format: date-time */
             readonly joined_at: string;
         };
+        RejectRequest: {
+            /** @default  */
+            reason: string;
+        };
         /**
          * @description * `student` - Student
          *     * `admin` - Admin
@@ -717,6 +1508,18 @@ export interface components {
          * @enum {string}
          */
         StepEnum: "account" | "personal" | "education" | "course";
+        StudentEnrollment: {
+            code: string;
+            status: string;
+            course: components["schemas"]["StudentEnrollmentCourse"];
+            /** Format: date-time */
+            applied_at: string;
+            certificate_code: string | null;
+        };
+        StudentEnrollmentCourse: {
+            slug: string;
+            name: string;
+        };
         /**
          * @description * `Pending` - Pending
          *     * `Active` - Active
@@ -730,6 +1533,27 @@ export interface components {
             duration: string;
             tools: string;
             items: string[];
+        };
+        SyllabusGroupInput: {
+            /** @default  */
+            title: string;
+            /** @default  */
+            duration: string;
+            /** @default  */
+            tools: string;
+            items: string[];
+        };
+        SyllabusGroupInputRequest: {
+            /** @default  */
+            title: string;
+            /** @default  */
+            duration: string;
+            /** @default  */
+            tools: string;
+            items: string[];
+        };
+        TemporaryPassword: {
+            temporary_password: string;
         };
         User: {
             /** Format: email */
@@ -757,6 +1581,748 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    admin_announcements_list: {
+        parameters: {
+            query?: {
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                published?: boolean;
+                /** @description A search term. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAdminAnnouncementList"];
+                };
+            };
+        };
+    };
+    admin_announcements_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminAnnouncementRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AdminAnnouncementRequest"];
+                "multipart/form-data": components["schemas"]["AdminAnnouncementRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnnouncement"];
+                };
+            };
+        };
+    };
+    admin_announcements_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnnouncement"];
+                };
+            };
+        };
+    };
+    admin_announcements_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    admin_announcements_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAdminAnnouncementRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAdminAnnouncementRequest"];
+                "multipart/form-data": components["schemas"]["PatchedAdminAnnouncementRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnnouncement"];
+                };
+            };
+        };
+    };
+    admin_certificates_list: {
+        parameters: {
+            query?: {
+                /** @description Course slug */
+                course?: string;
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /** @description Certificate code, student name or code */
+                q?: string;
+                /** @description A search term. */
+                search?: string;
+                year?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAdminCertificateList"];
+                };
+            };
+        };
+    };
+    admin_certificates_pdf_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
+    admin_contact_messages_list: {
+        parameters: {
+            query?: {
+                handled?: boolean;
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /** @description A search term. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAdminContactMessageList"];
+                };
+            };
+        };
+    };
+    admin_contact_messages_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAdminContactMessageRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAdminContactMessageRequest"];
+                "multipart/form-data": components["schemas"]["PatchedAdminContactMessageRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminContactMessage"];
+                };
+            };
+        };
+    };
+    admin_courses_list: {
+        parameters: {
+            query?: {
+                category?: "Accounting" | "Computer Basics" | "Design" | "Multimedia" | "Programming" | "Web Designing";
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                q?: string;
+                /** @description A search term. */
+                search?: string;
+                status?: "Draft" | "Published";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCourse"][];
+                };
+            };
+        };
+    };
+    admin_courses_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminCourseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AdminCourseRequest"];
+                "multipart/form-data": components["schemas"]["AdminCourseRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCourse"];
+                };
+            };
+        };
+    };
+    admin_courses_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCourse"];
+                };
+            };
+        };
+    };
+    admin_courses_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    admin_courses_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAdminCourseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAdminCourseRequest"];
+                "multipart/form-data": components["schemas"]["PatchedAdminCourseRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCourse"];
+                };
+            };
+        };
+    };
+    admin_courses_image_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["CourseImageRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CourseImageRequest"];
+                "application/json": components["schemas"]["CourseImageRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCourse"];
+                };
+            };
+        };
+    };
+    admin_dashboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDashboard"];
+                };
+            };
+        };
+    };
+    admin_enrollments_list: {
+        parameters: {
+            query?: {
+                /** @description Course slug */
+                course?: string;
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /** @description Student name or code, or enrollment code */
+                q?: string;
+                /** @description A search term. */
+                search?: string;
+                status?: "Active" | "Cancelled" | "Completed" | "Pending";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAdminEnrollmentList"];
+                };
+            };
+        };
+    };
+    admin_enrollments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminEnrollmentCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AdminEnrollmentCreateRequest"];
+                "multipart/form-data": components["schemas"]["AdminEnrollmentCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminEnrollment"];
+                };
+            };
+            /** @description Already enrolled. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    admin_enrollments_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminEnrollment"];
+                };
+            };
+        };
+    };
+    admin_enrollments_approve_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminEnrollment"];
+                };
+            };
+        };
+    };
+    admin_enrollments_complete_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminEnrollment"];
+                };
+            };
+        };
+    };
+    admin_enrollments_reject_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RejectRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RejectRequest"];
+                "multipart/form-data": components["schemas"]["RejectRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminEnrollment"];
+                };
+            };
+        };
+    };
+    admin_site_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSite"];
+                };
+            };
+        };
+    };
+    admin_site_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAdminSiteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAdminSiteRequest"];
+                "multipart/form-data": components["schemas"]["PatchedAdminSiteRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSite"];
+                };
+            };
+        };
+    };
+    admin_students_list: {
+        parameters: {
+            query?: {
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /** @description Name, student code, mobile or email */
+                q?: string;
+                /** @description A search term. */
+                search?: string;
+                status?: "Active" | "Graduated" | "Inactive" | "Pending";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAdminStudentListList"];
+                };
+            };
+        };
+    };
+    admin_students_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminStudentCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AdminStudentCreateRequest"];
+                "multipart/form-data": components["schemas"]["AdminStudentCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStudentCreated"];
+                };
+            };
+        };
+    };
+    admin_students_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStudent"];
+                };
+            };
+        };
+    };
+    admin_students_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    admin_students_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAdminStudentRequest"];
+                "multipart/form-data": components["schemas"]["PatchedAdminStudentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAdminStudentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStudent"];
+                };
+            };
+        };
+    };
+    admin_students_reset_password_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemporaryPassword"];
+                };
+            };
+        };
+    };
     admissions_create: {
         parameters: {
             query?: never;

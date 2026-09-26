@@ -3,6 +3,7 @@ import {
   BookOpen,
   ClipboardList,
   LayoutDashboard,
+  Mail,
   Megaphone,
   PanelsTopLeft,
   Settings,
@@ -50,5 +51,6 @@ export const ADMIN_NAV: NavItem[] = [
     group: "Website",
   },
   { label: "Website Content", href: "/admin/content", icon: PanelsTopLeft },
+  { label: "Messages", href: "/admin/messages", icon: Mail },
   { label: "Settings", href: "/admin/settings", icon: Settings, mobile: true },
 ];

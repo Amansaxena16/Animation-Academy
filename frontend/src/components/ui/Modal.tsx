@@ -53,7 +53,7 @@ export function ConfirmModal({
       if (e.key === "Escape" && !loading) onCancel();
       if (e.key !== "Tab" || !dialog.current) return;
       const focusable = dialog.current.querySelectorAll<HTMLElement>(
-        "button:not([disabled])",
+        "button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href]",
       );
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
