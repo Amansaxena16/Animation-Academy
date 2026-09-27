@@ -1,6 +1,7 @@
 """Public, office-edited content: courses, site settings, announcements and contact messages."""
 
 from django.core.exceptions import ValidationError
+from django.core.files.storage import storages
 from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
 
@@ -27,6 +28,12 @@ def validate_syllabus(value):
             raise ValidationError(f"Group {i} needs at least one topic in items.")
         if not all(isinstance(item, str) and item.strip() for item in items):
             raise ValidationError(f"Group {i}: every topic must be non-empty text.")
+
+
+def course_image_storage():
+    """Course images have their own storage: in production their signed links last 7 days
+    (student photos: 1 hour), because public pages cache the course data with the link in it."""
+    return storages["course_images"]
 
 
 class Course(models.Model):
@@ -70,7 +77,7 @@ class Course(models.Model):
 
     description = models.TextField(help_text="One or two sentences for course cards.")
     syllabus = models.JSONField(validators=[validate_syllabus])
-    image = models.ImageField(upload_to="courses/", blank=True)
+    image = models.ImageField(upload_to="courses/", blank=True, storage=course_image_storage)
 
     featured = models.BooleanField(default=False, help_text="Show on the home page.")
     tag = models.CharField(max_length=30, blank=True, help_text='"Most enrolled", "Flagship"…')

@@ -17,7 +17,7 @@ Phase 6  Login + student portal       → Student dashboard, My Courses, Profile
 Phase 7  Certificates + verify        → Certificates, print/PDF, public Verify
 Phase 8  Admin console                → all admin screens
 Phase 9  Hardening                    → security, performance, accessibility, tests
-Phase 10 Deployment
+Phase 10 Deployment                  → Vercel + Render (DEPLOY.md)
 ```
 
 ---
@@ -717,7 +717,36 @@ Pages under `/admin/…`, in the same order as above: Dashboard → Enrollments 
 
 ---
 
-## Phase 10 — Deployment
+## Phase 10 — Deployment 🟡 prepared (27 Sep 2026); goes live once the hosting accounts exist
+
+Hosting chosen by the user: **Vercel** (website) + **Render** (API, Postgres, cron). No domain yet. The step-by-step guide is [`DEPLOY.md`](DEPLOY.md).
+
+**How it was built** (differences from the plan below are marked ⚠):
+- ⚠ **Same-origin API.** In production the website passes `/api/v1/*` through to Render (`rewrites()` in `next.config.ts`, active when `NEXT_PUBLIC_API_URL=/api/v1`; the server side uses `API_INTERNAL_URL`).
+  - The login cookies are first-party, so they work on `*.vercel.app` before a domain exists. No cookie domain and no cross-site settings are needed, which replaces plan step 3's shared cookie domain.
+  - `skipTrailingSlashRedirect` keeps Django's trailing slashes; a `redirects()` rule still strips them from page URLs.
+- **Backend image** (`backend/Dockerfile`): Python 3.14 slim with Pango for WeasyPrint, gunicorn (2 workers × 4 threads), WhiteNoise for the Django admin's static files, and a non-root user. `GET /healthz` checks the database.
+- **Uploads:** django-storages → any S3-compatible bucket (Cloudflare R2), private, with signed links.
+  - Student photos: 1-hour links.
+  - Course images have their own storage (`course_images`) with 7-day links, because public pages cache course data, links included.
+  - `NEXT_PUBLIC_MEDIA_ORIGIN` adds the bucket to the CSP.
+- **`render.yaml` Blueprint:**
+  - `aa-db` (Postgres 16) and `aa-api` (Docker, Singapore), with a migrate pre-deploy step, deploy only after CI passes, and a `/healthz` health check
+  - the `aa-flush-tokens` cron job, nightly at 02:00 IST
+- **`frontend/vercel.json`:** server functions in `sin1` (Singapore), next to the API.
+- **CI** (`.github/workflows/ci.yml`), on every push and PR:
+  - backend: ruff, black, the migrations check, pytest with the 90% coverage gate, pip-audit, and a Docker build
+  - frontend: lint, tsc, vitest, build, npm audit
+  - e2e: the Playwright suite against Postgres
+- **Rate limits behind proxies:** `TRUSTED_PROXY_COUNT` sets DRF's `NUM_PROXIES`; DEPLOY.md says how to check it once live.
+- **Verified locally with podman:**
+  - the production image, with prod settings, ran behind a production build of the website in proxy mode; all 25 browser tests passed (Secure cookies, production CSP)
+  - uploads went to a local S3 emulator; signed links worked, unsigned ones were refused, and the image loaded under the CSP
+- **Backups:** Render's point-in-time recovery, plus a monthly `pg_dump` kept privately. Never in the public repo, and not as a CI artifact, because it holds personal data.
+
+**Still to do (needs the user's accounts):** create the R2 bucket, the Render Blueprint and the Vercel project, run the one-time seeds and `createsuperuser`, then the go-live checks in DEPLOY.md §5.
+
+**The original plan:**
 
 1. **Backend:** gunicorn behind nginx (or a PaaS), `collectstatic`, and `migrate` + the seed commands on first deploy. Uploads (student photos, course images) go to S3-compatible storage or a mounted volume.
 2. **Frontend:** `next build` running on Node (or Vercel); `NEXT_PUBLIC_API_URL` points at the API domain.

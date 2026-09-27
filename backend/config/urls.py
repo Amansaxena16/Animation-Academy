@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from common.health import healthz
+
 admin.site.site_header = "Animation Academy — Django admin"
 admin.site.site_title = "Animation Academy"
 
@@ -20,6 +22,7 @@ urlpatterns = [
     # /admin is left free for the Next.js admin console.
     path("django-admin/", admin.site.urls),
     path("api/v1/", include(api_v1)),
+    path("healthz", healthz),
 ]
 
 if settings.DEBUG:

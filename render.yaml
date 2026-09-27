@@ -1,0 +1,68 @@
+# Render Blueprint: the API, its Postgres database and the nightly token clean-up.
+# In Render: New → Blueprint → pick this repo. Step-by-step in DEPLOY.md.
+# Values marked `sync: false` are asked for when the Blueprint is created.
+
+databases:
+  - name: aa-db
+    databaseName: animation_academy
+    user: aa_user
+    plan: basic-256mb
+    region: singapore # closest Render region to Kanpur
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: aa-api
+    runtime: docker
+    plan: starter # the free plan sleeps after 15 minutes idle
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /healthz
+    preDeployCommand: python manage.py migrate --noinput
+    autoDeployTrigger: checksPass # deploy main only after GitHub CI passes
+    buildFilter:
+      paths: ["backend/**"]
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: aa-db, property: connectionString }
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      # The website's address, e.g. https://animation-academy.vercel.app
+      - key: PUBLIC_SITE_URL
+        sync: false
+      - key: CSRF_TRUSTED_ORIGINS # the website's address (for the Django admin's forms)
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS # the website's address
+        sync: false
+      - key: FRONTEND_REVALIDATE_URL # <website>/api/revalidate
+        sync: false
+      - key: REVALIDATE_SECRET # the same value as on Vercel
+        sync: false
+      # Uploads bucket (Cloudflare R2 or any S3-compatible storage)
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_ENDPOINT_URL
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+
+  # Deletes expired refresh tokens every night at 02:00 IST.
+  - type: cron
+    name: aa-flush-tokens
+    runtime: docker
+    plan: starter
+    region: singapore
+    schedule: "30 20 * * *"
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    dockerCommand: python manage.py flushexpiredtokens
+    buildFilter:
+      paths: ["backend/**"]
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: aa-db, property: connectionString }
+      - key: DJANGO_SECRET_KEY
+        fromService: { type: web, name: aa-api, envVarKey: DJANGO_SECRET_KEY }
