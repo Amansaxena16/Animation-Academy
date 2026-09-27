@@ -12,7 +12,8 @@
     "test": "vitest run src",
     "api-types": "openapi-typescript ${API_SCHEMA_URL:-http://localhost:8000/api/v1/schema/} -o src/types/api.ts",
     "dev:fresh": "rm -rf .next/dev/cache/fetch-cache && next dev",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.103.2",

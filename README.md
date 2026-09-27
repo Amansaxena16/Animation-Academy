@@ -98,6 +98,7 @@ npm run dev         # http://localhost:3000
 npm run dev:fresh   # same, but clears the cached API responses first
 npm run build       # production build
 npm run lint        # eslint
+npm run typecheck   # generate route types, then tsc
 npm test            # vitest (formatting helpers)
 npm run e2e         # Playwright in the system Chrome: accessibility on every page + the admission → certificate journey
 npm run tokens      # regenerate src/styles/tokens.css from design-system/tokens.json
