@@ -19,8 +19,9 @@ RUN pip install -r requirements.txt
 COPY . .
 # Settings need a key and a database URL to load; neither is used by collectstatic.
 RUN DJANGO_SECRET_KEY=build DATABASE_URL=sqlite:///:memory: python manage.py collectstatic --noinput \
-    && useradd --system app
+    && useradd --system --create-home app
 USER app
 
-# Render sets PORT. Two workers × four threads fits the smallest paid instance (512 MB).
-CMD ["sh", "-c", "exec gunicorn config.wsgi --bind 0.0.0.0:${PORT:-8000} --workers 2 --threads 4 --timeout 60 --access-logfile -"]
+# On every start: migrate, drop expired tokens, and on the first start seed the data and create
+# the admin (manage.py bootstrap). Render sets PORT; WEB_CONCURRENCY sets the worker count.
+CMD ["sh", "-c", "python manage.py bootstrap && exec gunicorn config.wsgi --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-2} --threads 4 --timeout 60 --access-logfile -"]

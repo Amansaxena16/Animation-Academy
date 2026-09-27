@@ -719,7 +719,7 @@ Pages under `/admin/…`, in the same order as above: Dashboard → Enrollments 
 
 ## Phase 10 — Deployment 🟡 prepared (27 Sep 2026); goes live once the hosting accounts exist
 
-Hosting chosen by the user: **Vercel** (website) + **Render** (API, Postgres, cron). No domain yet. The step-by-step guide is [`DEPLOY.md`](DEPLOY.md).
+Hosting chosen by the user: first **Vercel** + **Render**; then (27 Sep) **everything on Render's free plans** for a trial, since Render wanted a card for paid services. No domain yet. ⚠ On the free plan there is no Shell, pre-deploy step or cron: `manage.py bootstrap` runs on every container start (migrate, flush expired tokens, seed and create the admin on the first start only). `frontend/vercel.json` is kept for a later move to Vercel. The step-by-step guide is [`DEPLOY.md`](DEPLOY.md).
 
 **How it was built** (differences from the plan below are marked ⚠):
 - ⚠ **Same-origin API.** In production the website passes `/api/v1/*` through to Render (`rewrites()` in `next.config.ts`, active when `NEXT_PUBLIC_API_URL=/api/v1`; the server side uses `API_INTERNAL_URL`).

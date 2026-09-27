@@ -13,7 +13,7 @@ The product has three parts:
 - **Student portal:** profile, enrolled courses with their admission status, and certificates to print or download. Teaching happens at the institute, so there are no online lessons.
 - **Admin console:** approve admissions, manage students and courses, issue certificates, post announcements, and edit website content and settings.
 
-> **Status:** Phases 0–9 are complete: project setup, JWT auth, the frontend foundation, the course catalogue, site content, online admission, the student portal, certificates with public verification, the admin console at `/admin`, and hardening (security headers, SEO, accessibility checks, end-to-end tests), and deployment setup for Vercel + Render (see [`DEPLOY.md`](DEPLOY.md)). The live site goes up once the hosting accounts exist. See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
+> **Status:** Phases 0–9 are complete: project setup, JWT auth, the frontend foundation, the course catalogue, site content, online admission, the student portal, certificates with public verification, the admin console at `/admin`, and hardening (security headers, SEO, accessibility checks, end-to-end tests), and deployment on Render's free plans (see [`DEPLOY.md`](DEPLOY.md)). See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
 
 ## Tech stack
 
@@ -148,7 +148,7 @@ JWT via `djangorestframework-simplejwt`:
   - institute details and tone
   - design tokens (colours, type, spacing), component rules, content and fee rules
   - the admission form spec, certificate spec, data model, and all course and syllabus data
-- [`DEPLOY.md`](DEPLOY.md): putting the site live on Vercel (website), Render (API + Postgres) and Cloudflare R2 (photos), plus backups, domain and troubleshooting.
+- [`DEPLOY.md`](DEPLOY.md): putting the site live on Render (website, API and Postgres), moving to paid plans, photo storage, backups, domain and troubleshooting.
 - [`BUILD_PLAN.md`](BUILD_PLAN.md) covers:
   - the phase-by-phase build order
   - every API endpoint, and when it gets built
