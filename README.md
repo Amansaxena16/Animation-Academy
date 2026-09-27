@@ -13,7 +13,7 @@ The product has three parts:
 - **Student portal:** profile, enrolled courses with their admission status, and certificates to print or download. Teaching happens at the institute, so there are no online lessons.
 - **Admin console:** approve admissions, manage students and courses, issue certificates, post announcements, and edit website content and settings.
 
-> **Status:** Phases 0–7 are complete (project setup, JWT auth, the frontend foundation, the course catalogue, site content, online admission, the student portal, and certificates with public verification). See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
+> **Status:** Phases 0–8 are complete: project setup, JWT auth, the frontend foundation, the course catalogue, site content, online admission, the student portal, certificates with public verification, and the admin console at `/admin`. See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
 
 ## Tech stack
 
@@ -105,7 +105,9 @@ npm run api-types   # regenerate src/types/api.ts from the running API's OpenAPI
 
 In development, http://localhost:3000/dev/components shows every UI component in light and dark.
 
-Public pages cache API data for 5 minutes, in development too, and the cache survives restarts. After changing data in Django admin, wait or run `npm run dev:fresh`.
+Public pages cache API data for 5 minutes, in development too, and the cache survives restarts.
+
+**Instant refresh after edits:** set the same `REVALIDATE_SECRET` in `backend/.env` and `frontend/.env.local`, and `FRONTEND_REVALIDATE_URL=http://localhost:3000/api/revalidate` in `backend/.env`. Every change to courses, settings or announcements (admin console or Django admin) then shows on the next page load. Without these settings, changes appear within 5 minutes, or straight away after `npm run dev:fresh`.
 
 ### Make shortcuts
 

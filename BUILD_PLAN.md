@@ -536,7 +536,60 @@ There is no new model: a certificate is the `certificate_*` fields on Enrollment
 
 ---
 
-## Phase 8 — Admin console
+## Phase 8 — Admin console ✅ done (27 Sep 2026)
+
+**How it was built** (differences from the plan below are marked ⚠):
+- **API (`students/console.py`, `website/console.py`, routed in `config/console_urls.py`; `IsAdmin` throughout; paginated lists use `page` and `page_size`):**
+  - **Dashboard:** counts (students not inactive, pending, active, certificates, applications this month, unanswered messages), the 5 oldest pending admissions, the latest unanswered messages, and upcoming notices.
+  - **Enrollments:**
+    - Lists filter by `status`, `course` and `q`; the pending list is oldest first.
+    - ⚠ `POST /admin/enrollments/` enrolls a student at the office (Active by default; 409 if they're already enrolled).
+    - `approve`: Pending → Active, and the student becomes Active too.
+    - `reject`: ⚠ also cancels an **Active** enrollment (a student who left); the reason is kept in `note`.
+    - `complete`: Active → Completed and issues the certificate (409 for anything else).
+  - **Students:**
+    - Search by name, code, mobile or email.
+    - `POST` adds a student with a **12-character temporary password shown once** and an optional course (Active).
+    - `PATCH` covers everything, **including name, father's name, date of birth and login email** (unique). Status Inactive blocks the login and signs them out everywhere; setting them Active again re-enables it.
+    - `DELETE` deactivates (records are kept); `reset-password` returns a new temporary password and signs them out.
+  - **Certificates:** list (filter by `course`, `year`, `q`) and PDF.
+  - **Courses:**
+    - All statuses, with enrollment counts. `POST` makes a slug from the name when none is given (numbering duplicates).
+    - The syllabus is cleaned (blank topics dropped) and validated.
+    - `DELETE` is refused (409 `has_enrollments`) once anyone has applied.
+    - `POST /image/` re-encodes uploads to at most 1600px (5 MB limit); `image: null` removes it.
+  - **Announcements:** create, read, update and delete (with a `published` filter).
+  - **Site:** a single `GET`/`PATCH /admin/site/` (⚠ one endpoint for both Website Content and Settings); phone numbers are validated and normalised.
+  - **Messages:** list (filter `handled`); `PATCH` only changes `handled`.
+  - ⚠ The planned AuditLog was not built. The records already say who issued certificates and when things were approved.
+- **Instant website refresh:**
+  - `website/signals.py` catches any save or delete of Course, SiteSettings or Announcement, whether from the console, Django admin or the shell.
+  - After the database commit, `common/revalidate.py` POSTs `{tags}` to the frontend in a background thread, with a 3-second timeout, and never blocks or fails the request.
+  - `frontend/src/app/api/revalidate/route.ts` checks the shared secret in constant time, allows only the three tags, and calls `revalidateTag(tag, { expire: 0 })`.
+  - Settings: `FRONTEND_REVALIDATE_URL` + `REVALIDATE_SECRET` (backend) and `REVALIDATE_SECRET` (frontend). If they're missing, the site refreshes within 5 minutes as before.
+- `common/images.reencode_image` is shared by photos and course images.
+- **Tests:** 49 new, 196 in total, including access (401 when not logged in, 403 for students) on every console list and the refresh calls.
+- **Frontend (`/admin/...`):**
+  - **Shared:**
+    - `lib/admin.ts`: `useAdminPage`, `useAdmin` and `useAdminAction`, which refreshes all admin data after any write; the dashboard polls every 60 seconds.
+    - Sidebar badges show pending admissions and unanswered messages; ⚠ there's a new **Messages** page.
+    - The confirmation popup now keeps keyboard focus on its text fields too.
+  - **Dashboard:** 6 stat cards; waiting admissions with Approve and Reject; messages; coming up.
+  - **Enrollments:** status tabs (kept in the URL), search, course filter, and the `EnrollmentActions` buttons (Approve, Reject or Cancel with a reason, Complete & Issue, PDF).
+  - **Students:** list and search; **Add Student** (shared `StudentForm`, optional course, temporary-password screen); the student record (edit everything, courses and add to a course, reset password with a one-time display, deactivate or reactivate).
+  - **Courses:** list; add/edit with a **syllabus editor** (one topic per line, optional semesters), live fee total, image upload or remove, and delete (explained when refused).
+  - **Certificates:** list and search, year filter, PDF.
+  - **Announcements:** inline add/edit form, publish/hide toggle, delete with confirmation.
+  - **Website Content** and **Settings** share `useSiteForm` over `/admin/site/`.
+  - **Messages:** filtered list; call or email links; handled toggle.
+- **Verified in Chrome:**
+  - approve from the dashboard (counts and badge updated); Complete & Issue (certificate recorded with the issuer)
+  - student record with reset password; course fee edit shown on the public page at once
+  - Add Student with a course (temporary password screen)
+  - announcement added (live on /updates at once) and deleted (gone at once)
+  - Certificates, Settings, Website Content and Messages render correctly
+- All test data was deleted and the DTP fee restored afterwards.
+
 
 All endpoints live under `/api/v1/admin/`, with the `IsAdmin` permission, pagination and `django-filter`. We build them in this order, **one screen at a time: API → tests → page**.
 
