@@ -65,6 +65,9 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm audit --omit=dev
+      - name: Production image (website + API in one container) builds
+        working-directory: .
+        run: docker build -t aa-site .
 
   # The whole site in Chrome: accessibility on every page and the admission → certificate journey.
   e2e:

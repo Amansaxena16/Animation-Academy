@@ -56,6 +56,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // The production container runs the minimal standalone server (see /Dockerfile).
+  output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
   // Django's URLs end in "/", so Next must not strip the slash from /api/v1/... requests.
   // Pages keep the usual redirect through the rule in redirects() below.
   skipTrailingSlashRedirect: true,
@@ -65,7 +67,7 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: "/:path((?!api/).+)/",
+        source: "/:path((?!api/|django-admin).+)/",
         destination: "/:path",
         permanent: true,
       },
@@ -74,8 +76,20 @@ const nextConfig: NextConfig = {
   async rewrites() {
     if (!proxied) return [];
     const target = apiTarget!.replace(/\/$/, "");
-    // :path* drops the trailing slash, and every Django API URL ends in one.
-    return [{ source: "/api/v1/:path*", destination: `${target}/:path*/` }];
+    const origin = new URL(target).origin;
+    // :path* drops the trailing slash; Django API and admin URLs end in one.
+    return [
+      { source: "/api/v1/:path*", destination: `${target}/:path*/` },
+      // When both apps share one address (the Render container), the Django admin, its
+      // static files and the health check are passed through as well.
+      { source: "/django-admin", destination: `${origin}/django-admin/` },
+      {
+        source: "/django-admin/:path*",
+        destination: `${origin}/django-admin/:path*/`,
+      },
+      { source: "/static/:path*", destination: `${origin}/static/:path*` },
+      { source: "/healthz", destination: `${origin}/healthz` },
+    ];
   },
 };
 

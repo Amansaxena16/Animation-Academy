@@ -1,10 +1,13 @@
-# Render Blueprint: the website, the API and its Postgres database, all on Render's free plans.
+# Render Blueprint: the whole site as one free web service, plus its free Postgres database.
 # In Render: New → Blueprint → pick this repo. Step-by-step in DEPLOY.md.
-# Values marked `sync: false` are asked for when the Blueprint is created.
 #
-# Free plan limits: services sleep after 15 minutes idle (the next visit waits ~1 minute), and
-# the free database is deleted after 30 days. Before real students use the site, switch every
-# `plan: free` to a paid plan (DEPLOY.md, "Moving to paid plans").
+# Why one service: on the free plan a sleeping service is woken by visitors, but not by another
+# Render service. With the website and the API in separate services, the website could not wake
+# the API. The root Dockerfile runs both (Next.js on $PORT, Django behind it on 127.0.0.1:8000).
+#
+# Free plan limits: the service sleeps after 15 minutes idle (the next visit waits ~1 minute),
+# and the free database is deleted after 30 days. Before real students use the site, switch to
+# paid plans (DEPLOY.md, "Moving to paid plans").
 
 databases:
   - name: aa-db
@@ -16,62 +19,34 @@ databases:
 
 services:
   - type: web
-    name: animation-academy-api
+    name: animation-academy
     runtime: docker
     plan: free
     region: singapore
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /healthz
     autoDeployTrigger: checksPass # deploy main only after GitHub CI passes
-    buildFilter:
-      paths: ["backend/**"]
     envVars:
       - key: DATABASE_URL
         fromDatabase: { name: aa-db, property: connectionString }
       - key: DJANGO_SECRET_KEY
         generateValue: true
-      - key: REVALIDATE_SECRET # shared with the website below
+      - key: REVALIDATE_SECRET # shared by both apps in the container
         generateValue: true
-      - key: WEB_CONCURRENCY # one worker fits the free instance's memory
+      - key: WEB_CONCURRENCY # one Django worker fits the free instance's memory
         value: "1"
+      # The public address. NEXT_PUBLIC_SITE_URL is also a Docker build argument.
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://animation-academy.onrender.com
       - key: PUBLIC_SITE_URL # printed on certificates as the verification link
         value: https://animation-academy.onrender.com
-      - key: CSRF_TRUSTED_ORIGINS
-        value: https://animation-academy.onrender.com,https://animation-academy-api.onrender.com
-      - key: CORS_ALLOWED_ORIGINS
+      - key: CSRF_TRUSTED_ORIGINS # for the Django admin at /django-admin/
         value: https://animation-academy.onrender.com
-      - key: FRONTEND_REVALIDATE_URL
-        value: https://animation-academy.onrender.com/api/revalidate
-      # The office's admin login, created on the first start only. Remove the password
-      # from Render once you've logged in.
+      - key: FRONTEND_REVALIDATE_URL # Django tells the website (same container) to refresh
+        value: http://127.0.0.1:10000/api/revalidate
+      # The office's admin login, created on the first start only (skipped if an admin exists).
       - key: DJANGO_SUPERUSER_EMAIL
         sync: false
       - key: DJANGO_SUPERUSER_PASSWORD
         sync: false
-
-  - type: web
-    name: animation-academy
-    runtime: node
-    plan: free
-    region: singapore
-    rootDir: frontend
-    buildCommand: npm ci && npm run build
-    startCommand: npm start
-    healthCheckPath: /robots.txt
-    autoDeployTrigger: checksPass
-    buildFilter:
-      paths: ["frontend/**"]
-    envVars:
-      - key: NODE_VERSION
-        value: "22"
-      # The browser calls /api/v1 on this site, which passes it on to the API (next.config.ts).
-      - key: NEXT_PUBLIC_API_URL
-        value: /api/v1
-      - key: API_INTERNAL_URL
-        value: https://animation-academy-api.onrender.com/api/v1
-      - key: NEXT_PUBLIC_SITE_URL
-        value: https://animation-academy.onrender.com
-      - key: REVALIDATE_SECRET
-        fromService:
-          { type: web, name: animation-academy-api, envVarKey: REVALIDATE_SECRET }
