@@ -154,7 +154,3 @@ class Enrollment(models.Model):
         if not self.code:
             self.code = ids.enrollment_code(self.pk)
             super().save(update_fields=["code"])
-
-    @property
-    def owner_user(self):
-        return self.student.user

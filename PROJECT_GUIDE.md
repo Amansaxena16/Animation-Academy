@@ -119,6 +119,7 @@ Copies: `design-system/tokens.json` (source of truth) and `design-system/bundle.
 | `navy-deep` | `#142949` | `#17325c` | Navy hover, footer band |
 | `navy-soft` | `#e3e9f4` | `#17203a` | Info badges, selected nav |
 | `on-navy` | `#ffffff` | `#ffffff` | Text on navy |
+| `accent-on-navy` | `#f7ab63` | `#fbbf85` | Orange text on navy bands (plain `accent` fails contrast there) |
 | `navy-ink` | `#1e3a6b` | `#a3bae4` | Links, tab labels |
 | `accent` | `#f08030` | `#f08030` | Orange. **Only** for Enroll/pay, ribbons, ratings, the active-nav bar |
 | `on-accent` | `#111c2b` | `#111c2b` | Text on accent: **never white** |

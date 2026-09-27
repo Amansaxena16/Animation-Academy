@@ -1,23 +1,46 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test as base, type Page } from "@playwright/test";
+import {
+  expect,
+  test as base,
+  type BrowserContext,
+  type Page,
+} from "@playwright/test";
 
-/** Every test fails if the page logs a Content-Security-Policy violation or throws. */
-export const test = base.extend<{ problems: string[] }>({
+/** Records Content-Security-Policy violations and uncaught errors a page logs. */
+export function watch(page: Page, problems: string[]) {
+  page.on("console", (msg) => {
+    if (/Content[- ]Security[- ]Policy|Refused to/i.test(msg.text()))
+      problems.push(`CSP: ${msg.text()}`);
+  });
+  page.on("pageerror", (err) => problems.push(`Page error: ${err.message}`));
+}
+
+/** Every test fails if a watched page logs a CSP violation or throws. Extra pages opened with
+ *  `newPage` (a separate login) are watched too. */
+export const test = base.extend<{
+  problems: string[];
+  newPage: () => Promise<Page>;
+}>({
   problems: [
-    async ({ page }, use) => {
+    async ({ page }, provide) => {
       const problems: string[] = [];
-      page.on("console", (msg) => {
-        if (/Content[- ]Security[- ]Policy|Refused to/i.test(msg.text()))
-          problems.push(`CSP: ${msg.text()}`);
-      });
-      page.on("pageerror", (err) =>
-        problems.push(`Page error: ${err.message}`),
-      );
-      await use(problems);
+      watch(page, problems);
+      await provide(problems);
       expect(problems, "console problems").toEqual([]);
     },
     { auto: true },
   ],
+  newPage: async ({ browser, problems }, provide) => {
+    const contexts: BrowserContext[] = [];
+    await provide(async () => {
+      const context = await browser.newContext();
+      contexts.push(context);
+      const page = await context.newPage();
+      watch(page, problems);
+      return page;
+    });
+    for (const c of contexts) await c.close();
+  },
 });
 
 export { expect };

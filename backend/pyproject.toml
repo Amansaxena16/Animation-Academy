@@ -14,3 +14,12 @@ select = ["E", "F", "I", "B", "UP", "DJ"]
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.dev"
 python_files = ["tests.py", "test_*.py"]
+
+[tool.coverage.run]
+source = ["."]
+omit = [".venv/*", "*/tests/*", "*/migrations/*", "manage.py", "config/asgi.py", "config/wsgi.py", "config/settings/*"]
+
+[tool.coverage.report]
+fail_under = 90
+skip_covered = true
+show_missing = true

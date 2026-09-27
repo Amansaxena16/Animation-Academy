@@ -1,4 +1,4 @@
-.PHONY: db db-stop backend-install frontend-install install backend frontend migrate test lint format
+.PHONY: db db-stop backend-install frontend-install install backend frontend migrate test e2e lint format
 
 # Postgres (docker compose, or podman compose)
 COMPOSE ?= docker compose
@@ -21,7 +21,9 @@ migrate:
 	cd backend && .venv/bin/python manage.py migrate
 
 test:
-	cd backend && .venv/bin/pytest
+	cd backend && .venv/bin/pytest --cov
+e2e:
+	cd frontend && npm run e2e
 
 lint:
 	cd backend && .venv/bin/ruff check . && .venv/bin/black --check .

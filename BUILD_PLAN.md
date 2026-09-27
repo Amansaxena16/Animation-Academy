@@ -61,7 +61,7 @@ Installed: Django 6.1, DRF 3.18, simplejwt 5.5, Next.js 16.3, React 19.2, Tailwi
 **How it was built:**
 - **Settings:** `config/settings/{base,dev,prod}.py`.
 - **User model:** `accounts.User` (email login, `role`, `full_name`).
-- **Shared code in `common/`:** `exceptions.py` (error shape), `permissions.py` (`IsStudent`, `IsAdmin`, `IsOwner`), `pagination.py`, and `ids.py`, which formats codes from the PK: `AA-STU-1001`, `EN-2001`, `AA-2026-000057`. (It started as a `Sequence` counter table; that was removed on 25 Sep 2026.)
+- **Shared code in `common/`:** `exceptions.py` (error shape), `permissions.py` (`IsStudent`, `IsAdmin`), `pagination.py`, and `ids.py`, which formats codes from the PK: `AA-STU-1001`, `EN-2001`, `AA-2026-000057`. (It started as a `Sequence` counter table; that was removed on 25 Sep 2026.)
 - **Refresh endpoint:** built by hand, so it reads the httpOnly cookie and rotates and blacklists the token.
 - **Change password:** blacklists every outstanding refresh token for the user.
 - **Tests:** 31 pytest tests.
@@ -113,7 +113,7 @@ Create project `config` and these apps (one per domain):
   - `/api/v1/…`: public
   - `/api/v1/me/…`: logged-in student
   - `/api/v1/admin/…`: admin only
-- **Permissions** (`common/permissions.py`): `IsStudent`, `IsAdmin`, and `IsOwner` (a student can only reach their own data).
+- **Permissions** (`common/permissions.py`): `IsStudent` and `IsAdmin`. A student only ever reaches their own data because every `/me/` view filters by `request.user` (there is no object-level owner check to forget).
 - **Pagination:** page-number style, default 20, max 100. Response: `{count, next, previous, results}`.
 - **Errors:** one shape everywhere: `{"detail": "...", "errors": {"field": ["message"]}}`. Field messages use the wording from PROJECT_GUIDE §8.
 - **IDs in URLs:** use the human codes (`AA-STU-1042`, `EN-2107`, `AA-2026-000123`) and course `slug`, never the internal PK.
@@ -659,7 +659,39 @@ Pages under `/admin/…`, in the same order as above: Dashboard → Enrollments 
 
 ---
 
-## Phase 9 — Hardening
+## Phase 9 — Hardening ✅ done (27 Sep 2026)
+
+**How it was built** (differences from the plan below are marked ⚠):
+- **Security:**
+  - `config/settings/prod.py` passes `manage.py check --deploy`:
+    - HTTPS redirect and HSTS for 1 year (preload is opt-in via `SECURE_HSTS_PRELOAD`)
+    - secure, HttpOnly cookies; `X_FRAME_OPTIONS=DENY`, COOP, Referrer-Policy
+    - JSON-only renderer; Swagger and the schema for admins only
+    - SMTP email from `EMAIL_*` variables; errors logged to the console
+  - `common/tests/test_access_map.py` walks every `/api/v1/` route. It fails if a new route is public without being listed, if an `/admin/` route isn't admin-only, or if a `/me/` route isn't student-only.
+  - The website sends a Content-Security-Policy (scripts and data only from the site and the API), plus nosniff, `X-Frame-Options: DENY`, Referrer-Policy, Permissions-Policy, and HSTS in production (`next.config.ts`).
+  - `pip-audit` and `npm audit`: 0 known vulnerabilities.
+  - Removed the unused `IsOwner` permission: every `/me/` view filters by `request.user`.
+- **Performance:** `common/tests/test_query_counts.py` checks that every list endpoint (13 admin, public and student lists) runs the same number of queries for 3 rows as for 15, so there is no N+1. The existing `select_related`/`prefetch_related` and indexes already passed. ⚠ `next/image` waits for real course photos (courses show SVG art today).
+- **SEO:**
+  - `app/sitemap.ts` lists the public pages and every published course, built per request.
+  - `app/robots.ts` blocks `/admin`, `/student`, `/login`, `/verify/<code>` and `/dev`.
+  - JSON-LD: `EducationalOrganization` on the home page, `Course` (fee in INR, onsite, duration) on each course page. Course pages have a canonical link.
+  - `NEXT_PUBLIC_SITE_URL` sets the public address.
+- **Accessibility:**
+  - axe-core (WCAG 2.1 A + AA) runs on every public, admin and student page, in light and dark.
+  - It found orange text on the navy band at 4.2:1. The new `accent-on-navy` token (`#f7ab63` light, `#fbbf85` dark) passes.
+  - JS smooth scrolls now respect `prefers-reduced-motion` (`lib/motion.ts`).
+  - A keyboard test checks that the skip link reaches the content.
+- **Tests:**
+  - Backend: 212 pytest tests, 97.5% coverage of app code; `pytest --cov` fails below 90%.
+  - `npm run e2e`: Playwright in the system Chrome (25 tests). It includes the whole journey: apply on the website, office approves, completes and issues the certificate, the student sees it, and the public verify page confirms it.
+  - Every browser test also fails on any CSP violation or page error. A deliberate violation was used to prove this check works.
+  - The tests create or refresh the `e2e-admin@example.test` login (random password each run) and leave one `e2e-*@example.test` student per run in the dev database.
+- **Bug fixed:** the "Manage in Enrollments" link on a student record now opens the list filtered to that student.
+- ⚠ **Not done, waiting on the institute:** password reset by email (the office reset from Phase 8 covers it for now) and email/SMS notifications. Production SMTP is ready for both.
+
+**The original plan:**
 
 1. **Security:**
    - Permission tests for every endpoint (anonymous, student, other student, admin).

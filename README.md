@@ -13,7 +13,7 @@ The product has three parts:
 - **Student portal:** profile, enrolled courses with their admission status, and certificates to print or download. Teaching happens at the institute, so there are no online lessons.
 - **Admin console:** approve admissions, manage students and courses, issue certificates, post announcements, and edit website content and settings.
 
-> **Status:** Phases 0–8 are complete: project setup, JWT auth, the frontend foundation, the course catalogue, site content, online admission, the student portal, certificates with public verification, and the admin console at `/admin`. See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
+> **Status:** Phases 0–9 are complete: project setup, JWT auth, the frontend foundation, the course catalogue, site content, online admission, the student portal, certificates with public verification, the admin console at `/admin`, and hardening (security headers, SEO, accessibility checks, end-to-end tests). Next is deployment. See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
 
 ## Tech stack
 
@@ -48,7 +48,7 @@ The product has three parts:
 ```bash
 cp .env.example .env                              # Postgres container settings
 cp backend/.env.example backend/.env              # Django settings
-cp frontend/.env.example frontend/.env.local      # API URL for Next.js
+cp frontend/.env.example frontend/.env.local      # API URL and public site URL for Next.js
 ```
 
 Set a strong `POSTGRES_PASSWORD` and use the same one in `DATABASE_URL` in `backend/.env`. Generate a `DJANGO_SECRET_KEY` with:
@@ -99,6 +99,7 @@ npm run dev:fresh   # same, but clears the cached API responses first
 npm run build       # production build
 npm run lint        # eslint
 npm test            # vitest (formatting helpers)
+npm run e2e         # Playwright in the system Chrome: accessibility on every page + the admission → certificate journey
 npm run tokens      # regenerate src/styles/tokens.css from design-system/tokens.json
 npm run api-types   # regenerate src/types/api.ts from the running API's OpenAPI schema
 ```
@@ -116,7 +117,8 @@ make install     # backend venv + frontend node_modules
 make db          # start Postgres (COMPOSE="podman compose" make db for Podman)
 make backend     # Django dev server
 make frontend    # Next.js dev server
-make test        # backend tests
+make test        # backend tests with coverage (fails below 90%)
+make e2e         # browser tests (starts the dev servers if they aren't running)
 make lint        # ruff + black + eslint
 make format      # auto-format everything
 ```
