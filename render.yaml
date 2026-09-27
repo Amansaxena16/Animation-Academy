@@ -37,8 +37,8 @@ services:
         sync: false
       - key: FRONTEND_REVALIDATE_URL # <website>/api/revalidate
         sync: false
-      - key: REVALIDATE_SECRET # the same value as on Vercel
-        sync: false
+      - key: REVALIDATE_SECRET # generated here; copy the same value into Vercel
+        generateValue: true
       # Uploads bucket (Cloudflare R2 or any S3-compatible storage)
       - key: S3_BUCKET
         sync: false
