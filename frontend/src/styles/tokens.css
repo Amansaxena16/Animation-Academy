@@ -11,6 +11,7 @@
   --navy-deep: #142949;
   --navy-soft: #e3e9f4;
   --on-navy: #ffffff;
+  --accent-on-navy: #f7ab63;
   --navy-ink: #1e3a6b;
   --accent: #f08030;
   --on-accent: #111c2b;
@@ -45,6 +46,7 @@
   --navy-deep: #17325c;
   --navy-soft: #17203a;
   --on-navy: #ffffff;
+  --accent-on-navy: #fbbf85;
   --navy-ink: #a3bae4;
   --accent: #f08030;
   --on-accent: #111c2b;
@@ -80,6 +82,7 @@
   --color-navy-deep: var(--navy-deep);
   --color-navy-soft: var(--navy-soft);
   --color-on-navy: var(--on-navy);
+  --color-accent-on-navy: var(--accent-on-navy);
   --color-navy-ink: var(--navy-ink);
   --color-accent: var(--accent);
   --color-on-accent: var(--on-accent);

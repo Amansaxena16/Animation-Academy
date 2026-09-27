@@ -34,7 +34,7 @@ function EnrollmentsPage() {
   const router = useRouter();
   const initial = STATUSES.find((s) => s === params.get("status")) ?? "All";
   const [status, setStatus] = useState<Status>(initial);
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(params.get("q") ?? "");
   const [course, setCourse] = useState("");
   const [page, setPage] = useState(1);
 

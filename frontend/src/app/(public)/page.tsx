@@ -116,7 +116,7 @@ export default async function HomePage() {
         <section className="bg-navy text-on-navy">
           <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-12 md:px-6 md:py-20 lg:grid-cols-[1fr_1.1fr] lg:items-center">
             <div className="flex flex-col gap-4">
-              <span className="type-overline text-accent">
+              <span className="type-overline text-accent-on-navy">
                 Flagship · {flagship.duration_label}
               </span>
               <h2 className="type-display m-0">{flagship.name}</h2>
@@ -157,7 +157,7 @@ export default async function HomePage() {
                       {sem.tools}
                     </span>
                   </div>
-                  <span className="text-accent shrink-0 text-[13px] font-semibold">
+                  <span className="text-accent-on-navy shrink-0 text-[13px] font-semibold">
                     {sem.duration}
                   </span>
                 </li>

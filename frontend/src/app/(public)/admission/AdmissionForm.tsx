@@ -19,6 +19,7 @@ import {
 import { QualificationsTable } from "@/components/student/QualificationsTable";
 import { Stepper } from "@/components/ui/Stepper";
 import { api, ApiError, type Schemas } from "@/lib/api";
+import { scrollBehavior } from "@/lib/motion";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/cn";
 import { inr, todayISO } from "@/lib/format";
@@ -88,7 +89,10 @@ export function AdmissionForm({
   // Bring the success card into view once it has replaced the form.
   useEffect(() => {
     if (result)
-      top.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      top.current?.scrollIntoView({
+        behavior: scrollBehavior(),
+        block: "start",
+      });
   }, [result]);
 
   const course = courses.find((c) => c.slug === values.course);
@@ -122,7 +126,7 @@ export function AdmissionForm({
   };
 
   const scrollTop = () =>
-    top.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    top.current?.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
 
   const apiErrors = (err: unknown): Errors | null => {
     if (!(err instanceof ApiError)) {

@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/Card";
 import { Field, Select } from "@/components/ui/Form";
 import { useToast } from "@/components/ui/Toast";
 import { useAdmin, useAdminAction } from "@/lib/admin";
+import { scrollBehavior } from "@/lib/motion";
 import { ApiError } from "@/lib/api";
 import { titleCase } from "@/lib/format";
 import type { AdminCourse, AdminStudentCreated } from "@/types/admin";
@@ -43,7 +44,7 @@ export default function NewStudentPage() {
     void _ignored;
     try {
       setCreated(await create.mutateAsync({ ...body, course: course || null }));
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: scrollBehavior() });
     } catch (err) {
       if (err instanceof ApiError && Object.keys(err.errors).length) {
         setErrors(errorsFrom(err.errors));
