@@ -81,6 +81,7 @@ Open https://animation-academy.onrender.com in a private window. Allow a minute 
 | Symptom | Likely cause |
 |---|---|
 | First page load takes about a minute | Free services were asleep. This is normal on the free plan. |
+| The very first API deploy says "Timed Out" | On the free plan, Render can take ~15 minutes to start the container, and first-start seeding then runs past its deadline. Check the Logs for "Created the admin login": the data is in place. Press **Manual Deploy → Deploy latest commit** and it goes live in under a minute. |
 | Website build fails: "API_INTERNAL_URL must give the API's full URL" | `API_INTERNAL_URL` is missing on the website. |
 | `/api/v1/...` gives 404 or 502 | `API_INTERNAL_URL` is wrong, or the API is down (`/healthz` on the API). Redeploy the website after fixing it. |
 | Logging in returns to the login page | The site must be opened over `https://`, and `NEXT_PUBLIC_API_URL` must be `/api/v1`. |
