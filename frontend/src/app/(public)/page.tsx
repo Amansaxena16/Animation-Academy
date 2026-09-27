@@ -2,6 +2,7 @@ import { connection } from "next/server";
 import { ArrowRight, Phone } from "lucide-react";
 import Link from "next/link";
 
+import { JsonLd } from "@/components/seo/JsonLd";
 import { HeroArt } from "@/components/home/HeroArt";
 import { StatsBand } from "@/components/home/StatsBand";
 import { WhyGrid } from "@/components/home/WhyGrid";
@@ -12,6 +13,7 @@ import { CourseCard } from "@/components/ui/CourseCard";
 import { getAnnouncements, getSite, telHref } from "@/lib/content";
 import { getCourse, getCourses } from "@/lib/courses";
 import { inr } from "@/lib/format";
+import { organizationLd } from "@/lib/seo";
 
 function SectionHead({
   overline,
@@ -51,6 +53,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={organizationLd(site)} />
       {/* Hero */}
       <section className="border-line bg-surface-raised overflow-hidden border-b">
         <div className="mx-auto grid max-w-[1200px] items-center gap-12 px-4 pt-12 pb-16 md:px-6 md:pt-20 md:pb-24 lg:grid-cols-[1.1fr_1fr]">

@@ -16,9 +16,11 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CourseArt } from "@/components/ui/CourseArt";
 import { CourseCard, FeeBox } from "@/components/ui/CourseCard";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { getCourse, getCourses } from "@/lib/courses";
 import { courseTotal, feeLong, inr } from "@/lib/format";
 import { getSite, telHref } from "@/lib/content";
+import { courseLd } from "@/lib/seo";
 import { levelTone } from "@/lib/status";
 import type { Course, CourseDetail } from "@/types/course";
 
@@ -33,6 +35,8 @@ export async function generateMetadata({
   return {
     title: `${course.name} — ${course.duration_label}`,
     description: `${course.description} ${feeLong(course)}.`,
+    alternates: { canonical: `/courses/${course.slug}` },
+    openGraph: { url: `/courses/${course.slug}` },
   };
 }
 
@@ -147,6 +151,7 @@ export default async function CoursePage({
 
   return (
     <>
+      <JsonLd data={courseLd(course)} />
       {/* DOM order header → fees → tabs suits phones; on desktop the fee card is a sticky right column. */}
       <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-10 md:px-6 lg:grid-cols-[1fr_380px] lg:grid-rows-[auto_1fr] lg:py-14">
         <header className="flex min-w-0 flex-col gap-4 lg:col-start-1">
