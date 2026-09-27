@@ -14,6 +14,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
+        self.stdout.write("bootstrap: migrating the database…")
         call_command("migrate", interactive=False, verbosity=1)
         call_command("flushexpiredtokens")
 
@@ -25,6 +26,7 @@ class Command(BaseCommand):
         email = os.environ.get("DJANGO_SUPERUSER_EMAIL", "").strip()
         password = os.environ.get("DJANGO_SUPERUSER_PASSWORD", "")
         if User.objects.filter(role=User.Role.ADMIN).exists():
+            self.stdout.write("bootstrap: done.")
             return
         if email and password:
             User.objects.create_superuser(email, password, full_name="Office")

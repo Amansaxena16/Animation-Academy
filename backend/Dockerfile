@@ -24,4 +24,4 @@ USER app
 
 # On every start: migrate, drop expired tokens, and on the first start seed the data and create
 # the admin (manage.py bootstrap). Render sets PORT; WEB_CONCURRENCY sets the worker count.
-CMD ["sh", "-c", "python manage.py bootstrap && exec gunicorn config.wsgi --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-2} --threads 4 --timeout 60 --access-logfile -"]
+CMD ["sh", "-c", "echo \"Starting on port ${PORT:-8000}\" && python manage.py bootstrap && exec gunicorn config.wsgi --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-2} --threads 4 --timeout 60 --access-logfile -"]

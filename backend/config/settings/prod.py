@@ -3,9 +3,15 @@
 Checked with: python manage.py check --deploy (with the production environment variables)."""
 
 from .base import *  # noqa: F401,F403
-from .base import ALLOWED_HOSTS, MIDDLEWARE, SPECTACULAR_SETTINGS, STORAGES, env
+from .base import ALLOWED_HOSTS, DATABASES, MIDDLEWARE, SPECTACULAR_SETTINGS, STORAGES, env
 
 DEBUG = False
+
+# Fail fast (and say so in the logs) if the database can't be reached, instead of hanging.
+# Keep connections open between requests, checking them before reuse.
+DATABASES["default"].setdefault("OPTIONS", {})["connect_timeout"] = 10
+DATABASES["default"]["CONN_MAX_AGE"] = 60
+DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
 # Render sets RENDER_EXTERNAL_HOSTNAME (e.g. aa-api.onrender.com) on every web service.
 if env("RENDER_EXTERNAL_HOSTNAME", default=""):
