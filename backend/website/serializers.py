@@ -1,7 +1,8 @@
-import re
 
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+
+from common.phones import MOBILE_RE, normalise_mobile
 
 from .models import Announcement, ContactMessage, Course, SiteSettings
 
@@ -129,10 +130,8 @@ class ContactSerializer(serializers.ModelSerializer):
         return value
 
     def validate_phone(self, value):
-        digits = re.sub(r"\D", "", value)
-        if digits.startswith("91") and len(digits) == 12:
-            digits = digits[2:]
-        if len(digits) != 10 or digits[0] not in "6789":
+        digits = normalise_mobile(value)
+        if not MOBILE_RE.fullmatch(digits):
             raise serializers.ValidationError("Enter a 10-digit mobile number, e.g. 98110 45236.")
         return digits
 

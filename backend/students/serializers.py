@@ -11,6 +11,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from common.images import reencode_image
+from common.phones import MOBILE_RE, normalise_mobile
 from website.models import Course
 from website.serializers import AnnouncementSerializer
 
@@ -19,14 +20,10 @@ from .models import Enrollment, Student, validate_qualifications
 MAX_PHOTO_BYTES = 2 * 1024 * 1024
 PHOTO_SIZE = (800, 800)
 
-
-def normalise_mobile(value: str) -> str:
-    digits = re.sub(r"\D", "", value)
-    if len(digits) == 12 and digits.startswith("91"):
-        digits = digits[2:]
-    elif len(digits) == 11 and digits.startswith("0"):
-        digits = digits[1:]
-    return digits
+# Names print on certificates: English letters, spaces, and . ' - (D'Souza, Ram-Kumar).
+NAME_RE = re.compile(r"[A-Za-z][A-Za-z .'-]*")
+# City, state, country: letters, spaces, and . ' - ( ) (e.g. "Kanpur (Nagar)").
+PLACE_RE = re.compile(r"[A-Za-z][A-Za-z .'()-]*")
 
 
 class JSONStringField(serializers.JSONField):
@@ -50,13 +47,14 @@ class PersonalStep(serializers.Serializer):
     )
     address = serializers.CharField(max_length=250)
     pincode = serializers.CharField(max_length=10)
-    city = serializers.CharField(max_length=60, required=False, default="Kanpur")
+    # Blank falls back to Kanpur (validate_city), so blank must get past DRF's own check.
+    city = serializers.CharField(max_length=60, required=False, allow_blank=True, default="Kanpur")
     mobile = serializers.CharField(max_length=20)
     phone = serializers.CharField(max_length=20, required=False, allow_blank=True, default="")
 
     def validate_name(self, value):
         value = " ".join(value.split())
-        if len(value) < 3 or not re.fullmatch(r"[A-Za-z .']+", value):
+        if len(value) < 3 or not NAME_RE.fullmatch(value):
             raise serializers.ValidationError(
                 "Enter your full name in capitals, as it should appear on the certificate."
             )
@@ -66,6 +64,8 @@ class PersonalStep(serializers.Serializer):
         value = " ".join(value.split())
         if len(value) < 3:
             raise serializers.ValidationError("Father's name is required.")
+        if not NAME_RE.fullmatch(value):
+            raise serializers.ValidationError("Use letters only in the father's name.")
         return value.upper()
 
     def validate_dob(self, value):
@@ -88,11 +88,14 @@ class PersonalStep(serializers.Serializer):
         return value
 
     def validate_city(self, value):
-        return " ".join(value.split()) or "Kanpur"
+        value = " ".join(value.split())
+        if value and not PLACE_RE.fullmatch(value):
+            raise serializers.ValidationError("Enter a city name.")
+        return value or "Kanpur"
 
     def validate_mobile(self, value):
         digits = normalise_mobile(value)
-        if not re.fullmatch(r"[6-9]\d{9}", digits):
+        if not MOBILE_RE.fullmatch(digits):
             raise serializers.ValidationError("Enter a 10-digit mobile number.")
         return digits
 
@@ -144,6 +147,10 @@ class ProfileSerializer(serializers.ModelSerializer):
     mobile = serializers.CharField(max_length=20, required=False)
     phone = serializers.CharField(max_length=20, required=False, allow_blank=True)
     pincode = serializers.CharField(max_length=10, required=False)
+    # Blank falls back to Kanpur / Uttar Pradesh / India in the validators below.
+    city = serializers.CharField(max_length=60, required=False, allow_blank=True)
+    state = serializers.CharField(max_length=60, required=False, allow_blank=True)
+    country = serializers.CharField(max_length=60, required=False, allow_blank=True)
     qualifications = JSONStringField()
     photo = serializers.ImageField(required=False, allow_null=True)
 
@@ -182,10 +189,16 @@ class ProfileSerializer(serializers.ModelSerializer):
         return validate_photo(photo)
 
     def validate_state(self, value):
-        return " ".join(value.split()) or "Uttar Pradesh"
+        value = " ".join(value.split())
+        if value and not PLACE_RE.fullmatch(value):
+            raise serializers.ValidationError("Enter a state name.")
+        return value or "Uttar Pradesh"
 
     def validate_country(self, value):
-        return " ".join(value.split()) or "India"
+        value = " ".join(value.split())
+        if value and not PLACE_RE.fullmatch(value):
+            raise serializers.ValidationError("Enter a country name.")
+        return value or "India"
 
     def update(self, instance, validated_data):
         if "photo" in validated_data and validated_data["photo"] is None:

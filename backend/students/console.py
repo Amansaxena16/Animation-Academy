@@ -371,7 +371,7 @@ class AdminStudentSerializer(ProfileSerializer):
     """Full record. Unlike the student's own profile, staff can change identity fields, the
     login email and the status (Inactive also blocks the login)."""
 
-    email = serializers.EmailField(source="user.email", required=False)
+    email = serializers.EmailField(source="user.email", required=False, max_length=254)
     enrollments = serializers.SerializerMethodField()
 
     class Meta(ProfileSerializer.Meta):
@@ -430,7 +430,7 @@ class AdminStudentSerializer(ProfileSerializer):
 class AdminStudentCreateSerializer(PersonalStep, EducationStep):
     """Adding a student at the office. A temporary password is generated and shown once."""
 
-    email = serializers.EmailField()
+    email = serializers.EmailField(max_length=254)
     employment = serializers.ChoiceField(choices=Student.Employment.choices)
     course = serializers.SlugRelatedField(
         slug_field="slug", queryset=Course.objects.all(), required=False, allow_null=True

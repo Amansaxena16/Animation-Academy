@@ -33,10 +33,12 @@ def bool_param(request, name):
 
 
 class SyllabusGroupInput(serializers.Serializer):
-    title = serializers.CharField(allow_blank=True, required=False, default="")
-    duration = serializers.CharField(allow_blank=True, required=False, default="")
-    tools = serializers.CharField(allow_blank=True, required=False, default="")
-    items = serializers.ListField(child=serializers.CharField(allow_blank=True))
+    title = serializers.CharField(allow_blank=True, required=False, default="", max_length=120)
+    duration = serializers.CharField(allow_blank=True, required=False, default="", max_length=40)
+    tools = serializers.CharField(allow_blank=True, required=False, default="", max_length=200)
+    items = serializers.ListField(
+        child=serializers.CharField(allow_blank=True, max_length=200), max_length=60
+    )
 
 
 class AdminCourseSerializer(serializers.ModelSerializer):
@@ -73,6 +75,11 @@ class AdminCourseSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["total_fee", "enrollment_count", "image", "updated_at"]
+        # A ₹0 fee is almost always a typo; the website would show "₹0/month".
+        extra_kwargs = {
+            "monthly_fee": {"min_value": 1},
+            "first_month_fee": {"min_value": 1},
+        }
 
     def validate_slug(self, value):
         taken = Course.objects.filter(slug=value)

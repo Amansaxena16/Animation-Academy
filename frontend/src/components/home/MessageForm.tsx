@@ -18,7 +18,8 @@ function check(field: keyof Values, value: string): string | null {
   if (field === "name")
     return v.length < 2 ? "Tell us your name so we know who to call." : null;
   if (field === "phone") {
-    const digits = v.replace(/\D/g, "").replace(/^91(?=\d{10}$)/, "");
+    // Same rule as the API: +91 / 0 prefixes are dropped, then a 10-digit Indian mobile.
+    const digits = v.replace(/\D/g, "").replace(/^(91|0)(?=\d{10}$)/, "");
     return /^[6-9]\d{9}$/.test(digits)
       ? null
       : "Enter a 10-digit mobile number, e.g. 98110 45236.";

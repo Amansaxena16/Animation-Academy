@@ -61,6 +61,29 @@ test("office admission to verified certificate", async ({ page, newPage }) => {
   await login(page, email, password);
   await page.waitForURL("**/student");
   await expect(page.getByText("Desk Top Publishing").first()).toBeVisible();
+
+  // Their own profile and password forms reject bad values, field by field.
+  await page.goto("/student/profile");
+  await page.getByLabel(/^Pincode/).fill("008012");
+  await page.getByLabel(/^Mobile/).fill("12345");
+  await page.getByLabel(/^State/).fill("123");
+  await page.getByRole("button", { name: "Save Changes" }).click();
+  await expect(page.getByLabel(/^Pincode/)).toHaveAccessibleDescription(
+    /6-digit pincode/,
+  );
+  await expect(page.getByLabel(/^Mobile/)).toHaveAccessibleDescription(
+    /10-digit mobile/,
+  );
+  await expect(page.getByLabel(/^State/)).toHaveAccessibleDescription(
+    /state name/,
+  );
+  await page.getByLabel("Current password").fill(password);
+  await page.getByLabel("New password", { exact: true }).fill("12345678");
+  await page.getByLabel("Confirm new password").fill("12345678");
+  await page.getByRole("button", { name: "Change Password" }).click();
+  await expect(
+    page.getByLabel("New password", { exact: true }),
+  ).toHaveAccessibleDescription(/too common|entirely numeric/);
   await page.goto("/student/apply?course=ccc");
   await expect(page.getByLabel("Course")).toHaveValue("ccc");
   await page.getByRole("button", { name: "Apply Now" }).click();

@@ -27,6 +27,9 @@ def validate_qualifications(value):
             raise ValidationError(f"The {exam} row is malformed.")
         if not all(isinstance(row[k], str) for k in QUALIFICATION_KEYS):
             raise ValidationError(f"The {exam} row must be text.")
+        for key in ("board", "subject"):
+            if len(row[key]) > 100:
+                raise ValidationError(f"{exam}: keep the {key} under 100 characters.")
         year, pct = row["year"].strip(), row["percentage"].strip()
         if year and (not re.fullmatch(r"\d{4}", year) or not 1950 <= int(year) <= current_year):
             raise ValidationError(f"{exam}: enter the year you passed, e.g. 2020.")
