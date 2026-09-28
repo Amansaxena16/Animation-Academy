@@ -72,10 +72,9 @@ const nextConfig: NextConfig = {
       { source: "/about", destination: "/#about", permanent: false },
       { source: "/contact", destination: "/#contact", permanent: false },
       { source: "/updates", destination: "/#updates", permanent: false },
-      { source: "/courses", destination: "/#courses", permanent: false },
       {
         source: "/courses/:slug",
-        destination: "/#course-:slug",
+        destination: "/courses#course-:slug",
         permanent: false,
       },
       {

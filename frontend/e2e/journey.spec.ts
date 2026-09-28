@@ -1,5 +1,9 @@
 import { admin, expect, expectAccessible, login, test } from "./fixtures";
 
+// A small valid PNG (16×16), for the office's photo upload.
+const PHOTO_PNG =
+  "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGUlEQVR4nGP80GDAQApgIkn1qIZRDUNKAwAr2wHAaozGDwAAAABJRU5ErkJggg==";
+
 /** The whole life of a student: the office admits them in the console → the student signs in
  *  and asks for a second course → the office completes the first course and issues the
  *  certificate → the student sees it → anyone can verify it. Runs against the dev database and
@@ -26,6 +30,11 @@ test("office admission to verified certificate", async ({ page, newPage }) => {
   await office.getByLabel("High School subject").fill("Science");
   await office.getByLabel("Login email").fill(email);
   await office.getByLabel("Enroll in a course").selectOption("dtp");
+  await office.locator("input[type=file]").setInputFiles({
+    name: "photo.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(PHOTO_PNG, "base64"),
+  });
   await office.getByRole("button", { name: "Add Student" }).click();
 
   await expect(
@@ -37,6 +46,15 @@ test("office admission to verified certificate", async ({ page, newPage }) => {
     .textContent())!.trim();
   expect(studentCode).toMatch(/^AA-STU-\d+$/);
   const password = (await office.locator("code").textContent())!.trim();
+
+  // The photo was uploaded with the new record.
+  await office.getByRole("link", { name: "Open Student" }).click();
+  await expect(
+    office.locator("img[src*='students/photos']").first(),
+  ).toBeVisible();
+  // …and "View Website" leads from the console back to the public site.
+  await office.getByRole("link", { name: "View Website" }).click();
+  await expect(office).toHaveURL(/\/$/);
 
   // 2. The student signs in with the temporary password, sees the course, and asks for a
   //    second one from the portal; it waits for the office.

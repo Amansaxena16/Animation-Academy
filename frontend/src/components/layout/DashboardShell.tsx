@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOut, Menu, X } from "lucide-react";
+import { Globe, LogOut, Menu, X } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -110,6 +111,14 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
             <Logo size="sm" markOnly href={home} />
           </span>
           <div className="ml-auto flex items-center gap-2">
+            {/* Back to the public website from any dashboard page. */}
+            <Link
+              href="/"
+              className="text-ink-muted hover:bg-surface-sunken hover:text-ink touch:h-11 touch:min-w-11 inline-flex h-10 items-center justify-center gap-2 rounded-md px-3 text-sm font-semibold no-underline"
+            >
+              <Globe className="size-[18px]" aria-hidden />
+              <span className="max-sm:sr-only">View Website</span>
+            </Link>
             <ThemeToggle className="border-transparent" />
             {user && (
               <span className="flex items-center gap-2.5 pl-1">

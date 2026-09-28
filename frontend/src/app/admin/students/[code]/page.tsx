@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import {
   errorsFrom,
+  photoForm,
   StudentForm,
   type StudentErrors,
   type StudentValues,
@@ -81,9 +82,15 @@ function StudentRecord({ student }: { student: AdminStudent }) {
   const [course, setCourse] = useState("");
   const [courseStatus, setCourseStatus] = useState("Active");
 
+  const [photo, setPhoto] = useState<File | null>(null);
   const save = useAdminAction<StudentValues>(
     "PATCH",
     () => `students/${student.code}/`,
+  );
+  const upload = useAdminAction<File>(
+    "PATCH",
+    () => `students/${student.code}/`,
+    photoForm,
   );
   const reset = useAdminAction<void, { temporary_password: string }>(
     "POST",
@@ -119,6 +126,10 @@ function StudentRecord({ student }: { student: AdminStudent }) {
     setErrors({});
     try {
       await save.mutateAsync(values);
+      if (photo) {
+        await upload.mutateAsync(photo);
+        setPhoto(null);
+      }
       toast({
         title: "Student saved",
         text: `${titleCase(values.name)}'s record is up to date.`,
@@ -303,9 +314,16 @@ function StudentRecord({ student }: { student: AdminStudent }) {
           errors={errors}
           onChange={(patch) => setValues((v) => ({ ...v, ...patch }))}
           showStatus
+          photo={photo}
+          onPhoto={setPhoto}
+          currentPhoto={student.photo}
         />
         <div className="flex justify-end">
-          <Button type="submit" size="lg" loading={save.isPending}>
+          <Button
+            type="submit"
+            size="lg"
+            loading={save.isPending || upload.isPending}
+          >
             Save Changes
           </Button>
         </div>

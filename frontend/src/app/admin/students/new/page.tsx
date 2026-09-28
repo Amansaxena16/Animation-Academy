@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import {
   emptyStudent,
   errorsFrom,
+  photoForm,
   StudentForm,
   type StudentErrors,
   type StudentValues,
@@ -27,6 +28,7 @@ export default function NewStudentPage() {
   const [values, setValues] = useState<StudentValues>(emptyStudent);
   const [course, setCourse] = useState("");
   const [errors, setErrors] = useState<StudentErrors>({});
+  const [photo, setPhoto] = useState<File | null>(null);
   const [created, setCreated] = useState<AdminStudentCreated | null>(null);
   const { data: courses } = useAdmin<AdminCourse[]>("courses/", {
     status: "Published",
@@ -35,6 +37,11 @@ export default function NewStudentPage() {
     "POST",
     () => "students/",
   );
+  const upload = useAdminAction<{ code: string; photo: File }>(
+    "PATCH",
+    (b) => `students/${b.code}/`,
+    (b) => photoForm(b.photo),
+  );
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +49,27 @@ export default function NewStudentPage() {
     const { status: _ignored, ...body } = values;
     void _ignored;
     try {
-      setCreated(await create.mutateAsync({ ...body, course: course || null }));
+      const result = await create.mutateAsync({
+        ...body,
+        course: course || null,
+      });
+      // The photo goes up once the record exists. If it fails, the student is still added.
+      if (photo) {
+        try {
+          await upload.mutateAsync({ code: result.student.code, photo });
+        } catch (err) {
+          toast({
+            title: "Student added, but the photo didn't upload",
+            text:
+              err instanceof ApiError && err.errors.photo
+                ? err.errors.photo[0]
+                : "Open the student and add the photo again.",
+            tone: "warning",
+          });
+        }
+      }
+      setCreated(result);
+      setPhoto(null);
       window.scrollTo({ top: 0, behavior: scrollBehavior() });
     } catch (err) {
       if (err instanceof ApiError && Object.keys(err.errors).length) {
@@ -137,6 +164,8 @@ export default function NewStudentPage() {
         values={values}
         errors={errors}
         onChange={(patch) => setValues((v) => ({ ...v, ...patch }))}
+        photo={photo}
+        onPhoto={setPhoto}
         extra={
           <Field
             label="Enroll in a course"
@@ -164,7 +193,11 @@ export default function NewStudentPage() {
         <ButtonLink href="/admin/students" variant="secondary">
           Cancel
         </ButtonLink>
-        <Button type="submit" size="lg" loading={create.isPending}>
+        <Button
+          type="submit"
+          size="lg"
+          loading={create.isPending || upload.isPending}
+        >
           Add Student
         </Button>
       </div>

@@ -23,16 +23,24 @@ const chip = (on: boolean) =>
       : "border-line text-ink-muted hover:border-line-hover hover:text-ink",
   );
 
-/** Every published course on the home page: a category filter, and cards that open in place
- *  to show the syllabus (there are no separate course pages). /#course-<slug> opens one. */
+/** Course cards that open in place to show the syllabus; /courses#course-<slug> opens one.
+ *  The Courses page lists them all with a category filter; the home page shows four.
+ *  Enquire fills in the message form: on the home page directly, from /courses via
+ *  /?course=<slug>#admission. */
 export function CourseSection({
   courses,
   categories,
   registrationFee,
+  formOnPage = true,
+  columns = 3,
 }: {
   courses: CourseDetail[];
-  categories: Category[];
+  /** Shows the category filter when given. */
+  categories?: Category[];
   registrationFee: number;
+  /** Whether the message form is on this page (the home page). */
+  formOnPage?: boolean;
+  columns?: 3 | 4;
 }) {
   const [category, setCategory] = useState("");
   const [open, setOpen] = useState<string | null>(null);
@@ -63,40 +71,48 @@ export function CourseSection({
 
   return (
     <div className="flex flex-col gap-8">
-      <div
-        role="group"
-        aria-label="Filter by category"
-        className="flex flex-wrap gap-2"
-      >
-        <button
-          type="button"
-          aria-pressed={!category}
-          className={chip(!category)}
-          onClick={() => setCategory("")}
+      {categories && (
+        <div
+          role="group"
+          aria-label="Filter by category"
+          className="flex flex-wrap gap-2"
         >
-          All · {courses.length}
-        </button>
-        {categories
-          .filter((c) => c.count > 0)
-          .map((c) => (
-            <button
-              key={c.value}
-              type="button"
-              aria-pressed={category === c.value}
-              className={chip(category === c.value)}
-              onClick={() => setCategory(c.value)}
-            >
-              {c.label} · {c.count}
-            </button>
-          ))}
-      </div>
+          <button
+            type="button"
+            aria-pressed={!category}
+            className={chip(!category)}
+            onClick={() => setCategory("")}
+          >
+            All · {courses.length}
+          </button>
+          {categories
+            .filter((c) => c.count > 0)
+            .map((c) => (
+              <button
+                key={c.value}
+                type="button"
+                aria-pressed={category === c.value}
+                className={chip(category === c.value)}
+                onClick={() => setCategory(c.value)}
+              >
+                {c.label} · {c.count}
+              </button>
+            ))}
+        </div>
+      )}
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        className={cn(
+          "grid gap-6 sm:grid-cols-2",
+          columns === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3",
+        )}
+      >
         {shown.map((course) => (
           <CourseTile
             key={course.slug}
             course={course}
             registrationFee={registrationFee}
+            formOnPage={formOnPage}
             open={open === course.slug}
             onToggle={() =>
               setOpen((o) => (o === course.slug ? null : course.slug))
@@ -111,11 +127,13 @@ export function CourseSection({
 function CourseTile({
   course,
   registrationFee,
+  formOnPage,
   open,
   onToggle,
 }: {
   course: CourseDetail;
   registrationFee: number;
+  formOnPage: boolean;
   open: boolean;
   onToggle: () => void;
 }) {
@@ -199,14 +217,17 @@ function CourseTile({
                 className={cn("transition-transform", open && "rotate-180")}
               />
             </Button>
-            {/* A plain anchor: the browser jumps to the form itself (Next's Link scrolled back). */}
+            {/* A plain anchor: the browser jumps to the form itself (Next's Link scrolled back).
+                From /courses it loads the home page with the course filled in. */}
             <a
-              href="#admission"
+              href={
+                formOnPage ? "#admission" : `/?course=${course.slug}#admission`
+              }
               className={cn(
                 buttonClasses({ variant: "accent", size: "sm" }),
                 "flex-1",
               )}
-              onClick={() => enquireAbout(course.slug)}
+              onClick={formOnPage ? () => enquireAbout(course.slug) : undefined}
             >
               <MessageSquare aria-hidden /> Enquire
             </a>

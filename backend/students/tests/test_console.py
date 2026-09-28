@@ -280,3 +280,36 @@ class TestCertificates:
 
         pdf = office.get(f"{A}/certificates/{e.certificate_code}/pdf/")
         assert pdf.status_code == 200 and pdf.content.startswith(b"%PDF")
+
+
+class TestStudentPhoto:
+    """The office adds or replaces a student's photo (multipart PATCH on the record)."""
+
+    @staticmethod
+    def png(size=(400, 500)):
+        import io
+
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from PIL import Image
+
+        buf = io.BytesIO()
+        Image.new("RGB", size, "orange").save(buf, "PNG")
+        return SimpleUploadedFile("photo.png", buf.getvalue(), content_type="image/png")
+
+    def test_upload_and_replace(self, office, student):
+        url = f"{A}/students/{student.code}/"
+        res = office.patch(url, {"photo": self.png()}, format="multipart")
+        assert res.status_code == 200 and res.data["photo"]
+        student.refresh_from_db()
+        first = student.photo.name
+        res = office.patch(url, {"photo": self.png((300, 300))}, format="multipart")
+        assert res.status_code == 200
+        student.refresh_from_db()
+        assert student.photo.name != first
+
+    def test_not_an_image_is_rejected(self, office, student):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        bad = SimpleUploadedFile("x.png", b"not an image", content_type="image/png")
+        res = office.patch(f"{A}/students/{student.code}/", {"photo": bad}, format="multipart")
+        assert res.status_code == 400 and "photo" in res.data["errors"]

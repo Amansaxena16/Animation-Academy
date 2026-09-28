@@ -8,7 +8,13 @@ import {
 } from "@/components/student/QualificationsTable";
 import { Alert } from "@/components/ui/Alert";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
-import { Field, Input, Select, Textarea } from "@/components/ui/Form";
+import {
+  Field,
+  Input,
+  PhotoUpload,
+  Select,
+  Textarea,
+} from "@/components/ui/Form";
 import { todayISO } from "@/lib/format";
 
 export const EXAMS = [
@@ -46,8 +52,15 @@ export interface StudentValues {
 }
 
 export type StudentErrors = Partial<
-  Record<keyof StudentValues | "course", string>
+  Record<keyof StudentValues | "course" | "photo", string>
 >;
+
+/** Sends a new photo for a student (multipart PATCH; the API resizes it). */
+export function photoForm(photo: File): FormData {
+  const form = new FormData();
+  form.append("photo", photo);
+  return form;
+}
 
 export const emptyStudent = (): StudentValues => ({
   email: "",
@@ -80,10 +93,17 @@ export function StudentForm({
   onChange,
   showStatus,
   extra,
+  photo,
+  onPhoto,
+  currentPhoto,
 }: {
   values: StudentValues;
   errors: StudentErrors;
   onChange: (patch: Partial<StudentValues>) => void;
+  /** A newly chosen photo (not uploaded yet), and the saved one's URL when editing. */
+  photo: File | null;
+  onPhoto: (photo: File | null) => void;
+  currentPhoto?: string | null;
   /** Edit only: the record status (Inactive blocks the login). */
   showStatus?: boolean;
   /** Extra card content at the end of "Account" (e.g. the course to enroll in). */
@@ -159,6 +179,19 @@ export function StudentForm({
               </Select>
             )}
           </Field>
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <span className="text-ink text-sm font-semibold">Photo</span>
+            <PhotoUpload
+              value={photo}
+              onChange={onPhoto}
+              currentUrl={currentPhoto ?? undefined}
+              error={errors.photo}
+            />
+            <span className="text-ink-muted text-[13px]">
+              Optional. Passport-size, JPG or PNG; it&apos;s resized
+              automatically.
+            </span>
+          </div>
         </CardBody>
       </Card>
 

@@ -21,9 +21,9 @@ export const INSTITUTE = {
   runByFull: "Institute of Computer Science & Graphics' Technology",
 } as const;
 
-/** The public site is one page; these are its sections (ids on the home page). */
+/** Home-page sections (ids on the home page), plus the full course list. */
 export const PUBLIC_NAV = [
-  { label: "Courses", href: "/#courses" },
+  { label: "Courses", href: "/courses" },
   { label: "About", href: "/#about" },
   { label: "Admission", href: "/#admission" },
   { label: "Contact", href: "/#contact" },

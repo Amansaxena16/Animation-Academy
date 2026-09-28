@@ -43,16 +43,25 @@ export function MessageForm({
   const [sent, setSent] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
 
-  useEffect(
-    () =>
-      onEnquire((slug) => {
-        setSent(false);
-        setValues((v) => ({ ...v, course: slug }));
-        // After the jump to #admission, put the cursor in the first field.
-        setTimeout(() => nameRef.current?.focus({ preventScroll: true }), 400);
-      }),
-    [],
-  );
+  useEffect(() => {
+    const choose = (slug: string) => {
+      if (!courses.some((c) => c.slug === slug)) return;
+      setSent(false);
+      setValues((v) => ({ ...v, course: slug }));
+      // After the jump to #admission, put the cursor in the first field.
+      setTimeout(() => nameRef.current?.focus({ preventScroll: true }), 400);
+    };
+    // Enquire on the Courses page arrives as /?course=<slug>#admission.
+    const frame = requestAnimationFrame(() => {
+      const slug = new URLSearchParams(window.location.search).get("course");
+      if (slug) choose(slug);
+    });
+    const stop = onEnquire(choose); // Enquire on a home-page card
+    return () => {
+      cancelAnimationFrame(frame);
+      stop();
+    };
+  }, [courses]);
 
   const set =
     (field: keyof Values) =>

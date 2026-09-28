@@ -37,7 +37,7 @@ export function courseLd(course: CourseDetail) {
     "@type": "Course",
     name: course.name,
     description: course.description,
-    url: `${SITE_URL}/#course-${course.slug}`,
+    url: `${SITE_URL}/courses#course-${course.slug}`,
     provider: {
       "@type": "EducationalOrganization",
       "@id": ORG_ID,

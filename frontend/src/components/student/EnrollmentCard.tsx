@@ -27,7 +27,7 @@ export function EnrollmentCard({
           </span>
           <h3 className="type-h3 m-0">
             <Link
-              href={`/#course-${course.slug}`}
+              href={`/courses#course-${course.slug}`}
               className="text-ink hover:text-brand-ink touch:min-h-11 touch:inline-flex touch:items-center no-underline"
             >
               {course.name}

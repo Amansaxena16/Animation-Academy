@@ -16,11 +16,12 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { getAnnouncements, getSite, telHref } from "@/lib/content";
-import { getCategories, getCourse, getCourses } from "@/lib/courses";
+import { getCourseDetails } from "@/lib/courses";
 import { formatDateShort, inr } from "@/lib/format";
-import { courseLd, organizationLd } from "@/lib/seo";
+import { organizationLd } from "@/lib/seo";
 import { INSTITUTE } from "@/lib/site";
-import type { CourseDetail } from "@/types/course";
+
+const HOME_COURSES = 4;
 
 function SectionHead({
   overline,
@@ -56,20 +57,20 @@ const STEPS = [
   "The office enrolls you and gives you your student login.",
 ];
 
-/** The whole public website on one page: courses, about, admission with the message form,
+/** The public website's home: four popular courses (all of them on /courses), about, admission with the message form,
  *  and contact. Section ids are the header's anchors. */
 export default async function HomePage() {
   await connection(); // request-time: don't fetch the API during the build
-  const [site, list, notices, categories] = await Promise.all([
+  const [site, courses, notices] = await Promise.all([
     getSite(),
-    getCourses(),
+    getCourseDetails(),
     getAnnouncements({ limit: 2 }), // upcoming first, then the most recent
-    getCategories(),
   ]);
-  // Syllabus for every card; each course is cached, and the API sits in the same container.
-  const courses = (
-    await Promise.all(list.map((c) => getCourse(c.slug)))
-  ).filter((c): c is CourseDetail => c !== null);
+  // Four on the home page, featured first; the rest are on /courses.
+  const shown = [
+    ...courses.filter((c) => c.featured),
+    ...courses.filter((c) => !c.featured),
+  ].slice(0, HOME_COURSES);
 
   const lowestFee = courses.length
     ? Math.min(...courses.map((c) => c.monthly_fee))
@@ -81,9 +82,6 @@ export default async function HomePage() {
   return (
     <>
       <JsonLd data={organizationLd(site)} />
-      {courses.map((c) => (
-        <JsonLd key={c.slug} data={courseLd(c)} />
-      ))}
 
       {/* Hero: pulled up under the transparent header so the glow runs behind it. */}
       <section className="-mt-[73px] bg-[radial-gradient(ellipse_55%_60%_at_50%_40%,var(--glow),transparent_72%)] lg:-mt-[81px]">
@@ -155,15 +153,20 @@ export default async function HomePage() {
       {/* Courses */}
       <section id="courses" className="scroll-mt-20">
         <div className="mx-auto flex max-w-[1200px] flex-col gap-10 px-4 py-16 md:px-6 md:py-20">
-          <SectionHead
-            overline="Courses and fees"
-            title={`All ${courses.length} courses`}
-            text="Fees are paid month by month. Open a course to see its syllabus."
-          />
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <SectionHead
+              overline="Courses and fees"
+              title="Popular courses"
+              text="Fees are paid month by month. Open a course to see its syllabus."
+            />
+            <ButtonLink href="/courses" variant="secondary">
+              View All {courses.length} Courses <ArrowRight aria-hidden />
+            </ButtonLink>
+          </div>
           <CourseSection
-            courses={courses}
-            categories={categories}
+            courses={shown}
             registrationFee={site.registration_fee}
+            columns={4}
           />
         </div>
       </section>

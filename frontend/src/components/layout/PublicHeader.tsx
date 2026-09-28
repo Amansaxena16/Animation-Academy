@@ -32,7 +32,9 @@ export function PublicHeader({
   const [scrolled, setScrolled] = useState(false);
   const [section, setSection] = useState<string | null>(null);
   const isActive = (href: string) =>
-    pathname === "/" && href === `/#${section}`;
+    href.startsWith("/#")
+      ? pathname === "/" && href === `/#${section}`
+      : pathname.startsWith(href);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -44,7 +46,9 @@ export function PublicHeader({
   // Which section is in view (home page only).
   useEffect(() => {
     if (pathname !== "/") return;
-    const ids = PUBLIC_NAV.map((item) => item.href.slice(2));
+    const ids = PUBLIC_NAV.filter((item) => item.href.startsWith("/#")).map(
+      (item) => item.href.slice(2),
+    );
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries.find((e) => e.isIntersecting);

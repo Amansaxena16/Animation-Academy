@@ -84,7 +84,7 @@ export function PublicFooter({ site }: { site: Site }) {
       {/* Decorative: CSS-generated, so it is not text for screen readers or contrast checks. */}
       <div
         aria-hidden
-        className="font-display text-brand/10 dark:text-brand/20 mx-auto max-w-[1280px] pt-10 text-center text-[clamp(44px,10.4vw,136px)] leading-none font-bold tracking-[-0.045em] whitespace-nowrap select-none before:-mb-[0.18em] before:block before:content-['Animation_Academy'] md:pt-14"
+        className="font-display text-brand/10 dark:text-brand/20 mx-auto max-w-[1280px] pt-10 pb-10 text-center text-[clamp(44px,10.4vw,136px)] leading-none font-bold tracking-[-0.045em] whitespace-nowrap select-none before:block before:content-['Animation_Academy'] md:pt-14 md:pb-16"
       />
     </footer>
   );
