@@ -719,6 +719,11 @@ Pages under `/admin/…`, in the same order as above: Dashboard → Enrollments 
 
 ---
 
+> **28 Sep 2026: one-page public site.** The public website is now a single page: hero, a latest-updates strip, numbers, all courses (category filter; cards expand in place to show the syllabus), about, admission steps with the message form, contact, and footer.
+> - The message form asks for name and mobile (required), plus an optional course and message. "Enquire" on a card pre-fills the course.
+> - The old /courses, /courses/<slug>, /updates, /contact, /about and /admission addresses redirect (307, temporary) to their sections.
+> - `/verify` and the login stay as pages. The dark header is nearly solid.
+
 ## Phase 10 — Deployment 🟡 prepared (27 Sep 2026); goes live once the hosting accounts exist
 
 Hosting chosen by the user: first **Vercel** + **Render**; then (27 Sep) **everything on Render's free plans** for a trial, since Render wanted a card for paid services. No domain yet. ⚠ On the free plan there is no Shell, pre-deploy step or cron: `manage.py bootstrap` runs on every container start (migrate, flush expired tokens, seed and create the admin on the first start only). `frontend/vercel.json` is kept for a later move to Vercel. ⚠ **One container (27 Sep, evening):** on the free plan a sleeping service isn't woken by another Render service, so the website's calls to the sleeping API returned 502 and login failed. The root `Dockerfile` + `start.sh` now run Next.js (standalone, on `$PORT`) and Django (on `127.0.0.1:8000`) in one service, with `/api/v1`, `/django-admin`, `/static` and `/healthz` passed through. All 25 browser tests passed against that container locally. The step-by-step guide is [`DEPLOY.md`](DEPLOY.md).

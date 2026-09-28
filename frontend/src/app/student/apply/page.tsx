@@ -61,7 +61,7 @@ export default async function ApplyPage({
                   Call {site.phones[0]}
                 </ButtonLink>
               ) : (
-                <ButtonLink href="/contact">Contact Us</ButtonLink>
+                <ButtonLink href="/#contact">Contact Us</ButtonLink>
               )
             }
           />

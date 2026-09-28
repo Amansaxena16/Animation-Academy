@@ -21,11 +21,12 @@ export const INSTITUTE = {
   runByFull: "Institute of Computer Science & Graphics' Technology",
 } as const;
 
+/** The public site is one page; these are its sections (ids on the home page). */
 export const PUBLIC_NAV = [
-  { label: "Home", href: "/" },
-  { label: "Courses", href: "/courses" },
-  { label: "Updates", href: "/updates" },
-  { label: "Contact", href: "/contact" },
+  { label: "Courses", href: "/#courses" },
+  { label: "About", href: "/#about" },
+  { label: "Admission", href: "/#admission" },
+  { label: "Contact", href: "/#contact" },
 ] as const;
 
 /** "Why Animation Academy", verbatim from PROJECT_GUIDE §4. */

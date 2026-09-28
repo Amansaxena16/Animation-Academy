@@ -94,7 +94,7 @@ export function LoginForm({ next }: { next: string | null }) {
       </form>
       <p className="text-ink-muted mt-6 mb-0 text-center text-sm">
         New here? Admissions are made at the institute office.{" "}
-        <Link href="/contact" className="text-navy-ink font-semibold">
+        <Link href="/#contact" className="text-navy-ink font-semibold">
           Talk to a counsellor
         </Link>
       </p>

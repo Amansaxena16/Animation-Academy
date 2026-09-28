@@ -53,7 +53,7 @@ test("office admission to verified certificate", async ({ page, newPage }) => {
   // The website itself no longer takes admissions.
   const visitor = await newPage();
   await visitor.goto("/admission");
-  await expect(visitor).toHaveURL(/\/contact$/);
+  await expect(visitor).toHaveURL(/\/#admission$/);
 
   // 3. The office completes Desk Top Publishing, which issues the certificate.
   await office.goto(`/admin/enrollments?q=${studentCode}`);

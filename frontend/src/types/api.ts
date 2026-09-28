@@ -663,9 +663,10 @@ export interface components {
         AdminContactMessage: {
             readonly id: number;
             readonly name: string;
+            readonly phone: string;
             /** Format: email */
             readonly email: string;
-            readonly phone: string;
+            readonly course: string;
             readonly message: string;
             handled?: boolean;
             /** Format: date-time */
@@ -973,12 +974,15 @@ export interface components {
             old_password: string;
             new_password: string;
         };
+        /**
+         * @description The website's message form: name and phone (the office calls back), plus an optional
+         *     course and message.
+         */
         ContactRequest: {
             name: string;
-            /** Format: email */
-            email: string;
-            phone?: string;
-            message: string;
+            phone: string;
+            course?: string | null;
+            message?: string;
             website?: string;
         };
         ContactSent: {

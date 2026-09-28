@@ -38,6 +38,11 @@ export function PublicFooter({ site }: { site: Site }) {
                     Verify a Certificate
                   </Link>
                 </li>
+                <li>
+                  <Link href="/login" className={linkClass}>
+                    Login
+                  </Link>
+                </li>
               </ul>
             </nav>
             <address className="[&_svg]:text-brand-ink flex flex-col gap-3 text-sm not-italic [&_svg]:mt-0.5 [&_svg]:size-4 [&_svg]:shrink-0">
@@ -70,7 +75,8 @@ export function PublicFooter({ site }: { site: Site }) {
             </address>
           </div>
           <p className="border-line text-ink-muted mt-10 mb-0 border-t pt-5 text-[13px]">
-            © {new Date().getFullYear()} {INSTITUTE.runBy}. All rights reserved.
+            © {new Date().getFullYear()} Animation Academy · {INSTITUTE.runBy},
+            Kanpur
           </p>
         </div>
       </div>

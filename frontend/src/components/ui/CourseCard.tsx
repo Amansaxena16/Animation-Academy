@@ -77,7 +77,7 @@ export function CourseCard({
   registrationFee,
   enrollHref,
 }: CourseCardProps) {
-  const href = `/courses/${course.slug}`;
+  const href = `/#course-${course.slug}`;
   return (
     <Card hover className="group relative flex h-full flex-col overflow-hidden">
       <div className="bg-surface-sunken border-line relative aspect-[16/10] overflow-hidden border-b">

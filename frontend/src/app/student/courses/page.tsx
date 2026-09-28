@@ -90,7 +90,7 @@ export default function MyCoursesPage() {
               icon={<BookOpen />}
               title="Nothing here"
               text={EMPTY[filter]}
-              action={<ButtonLink href="/courses">Browse Courses</ButtonLink>}
+              action={<ButtonLink href="/#courses">Browse Courses</ButtonLink>}
             />
           </Card>
         )

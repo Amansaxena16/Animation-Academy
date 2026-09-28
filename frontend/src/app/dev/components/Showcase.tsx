@@ -381,7 +381,7 @@ export function Showcase() {
           <Breadcrumbs
             items={[
               { label: "Home", href: "/" },
-              { label: "Courses", href: "/courses" },
+              { label: "Courses", href: "/#courses" },
               { label: "DCA — Accounting" },
             ]}
           />

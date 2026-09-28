@@ -89,7 +89,18 @@ export default function MessagesPage() {
                   </Badge>
                 )}
               </div>
-              <p className="text-ink m-0 whitespace-pre-line">{m.message}</p>
+              {m.course && (
+                <p className="text-ink-muted m-0 text-sm">
+                  Interested in <b className="text-ink">{m.course}</b>
+                </p>
+              )}
+              {m.message ? (
+                <p className="text-ink m-0 whitespace-pre-line">{m.message}</p>
+              ) : (
+                <p className="text-ink-muted m-0 text-sm italic">
+                  No message — asked for a call back.
+                </p>
+              )}
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 {m.phone && (
                   <a
@@ -99,12 +110,14 @@ export default function MessagesPage() {
                     Call {m.phone}
                   </a>
                 )}
-                <a
-                  href={`mailto:${m.email}`}
-                  className="text-navy-ink font-semibold"
-                >
-                  {m.email}
-                </a>
+                {m.email && (
+                  <a
+                    href={`mailto:${m.email}`}
+                    className="text-navy-ink font-semibold"
+                  >
+                    {m.email}
+                  </a>
+                )}
                 <Button
                   size="sm"
                   variant={m.handled ? "ghost" : "secondary"}

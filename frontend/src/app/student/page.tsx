@@ -115,7 +115,7 @@ export default function StudentDashboard() {
                       title="No current courses"
                       text="When you apply for a course, its admission status and batch timings show here."
                       action={
-                        <ButtonLink href="/courses">Browse Courses</ButtonLink>
+                        <ButtonLink href="/#courses">Browse Courses</ButtonLink>
                       }
                     />
                   </Card>

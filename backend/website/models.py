@@ -222,10 +222,20 @@ class Announcement(models.Model):
 
 
 class ContactMessage(models.Model):
+    """A visitor's enquiry from the website. The office calls back, so the phone is required."""
+
     name = models.CharField(max_length=80, validators=[MinLengthValidator(2)])
-    email = models.EmailField()
-    phone = models.CharField(max_length=20, blank=True)
-    message = models.TextField(max_length=2000)
+    phone = models.CharField(max_length=20)
+    email = models.EmailField(blank=True)
+    course = models.ForeignKey(
+        "Course",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="enquiries",
+        help_text="The course they asked about, if any.",
+    )
+    message = models.TextField(max_length=2000, blank=True)
     handled = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -233,4 +243,4 @@ class ContactMessage(models.Model):
         ordering = ["handled", "-created_at"]
 
     def __str__(self):
-        return f"{self.name} <{self.email}>"
+        return f"{self.name} ({self.phone})"

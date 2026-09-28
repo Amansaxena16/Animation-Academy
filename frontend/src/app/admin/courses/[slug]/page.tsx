@@ -139,7 +139,7 @@ function EditCourse({ course }: { course: AdminCourse }) {
           actions={
             course.status === "Published" && (
               <ButtonLink
-                href={`/courses/${slug}`}
+                href={`/#course-${slug}`}
                 variant="secondary"
                 target="_blank"
               >

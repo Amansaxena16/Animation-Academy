@@ -31,7 +31,10 @@ def add_rows(n, start=0):
         Enrollment.objects.create(student=student, course=courses[(i + 1) % len(courses)])
         Announcement.objects.create(title=f"Notice {i}", text="t", date="2026-10-01")
         ContactMessage.objects.create(
-            name=f"Visitor {i}", email=f"v{i}@example.in", message="A question here"
+            name=f"Visitor {i}",
+            phone="9015177420",
+            course=courses[i % len(courses)],
+            message="A question here",
         )
 
 

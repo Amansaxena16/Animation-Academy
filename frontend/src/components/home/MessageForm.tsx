@@ -1,44 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { CircleCheck } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
-import { Field, Input, Textarea } from "@/components/ui/Form";
-import { useToast } from "@/components/ui/Toast";
+import { Field, Input, Select, Textarea } from "@/components/ui/Form";
 import { api, ApiError } from "@/lib/api";
-import type { ContactRequest } from "@/types/content";
+import { onEnquire } from "@/lib/enquire";
 
-type Values = Required<
-  Pick<ContactRequest, "name" | "email" | "phone" | "message">
->;
-const EMPTY: Values = { name: "", email: "", phone: "", message: "" };
+type Values = { name: string; phone: string; course: string; message: string };
+const EMPTY: Values = { name: "", phone: "", course: "", message: "" };
 
 /** Same rules as the API, checked on blur so people see problems before sending. */
 function check(field: keyof Values, value: string): string | null {
   const v = value.trim();
-  switch (field) {
-    case "name":
-      return v.length < 2 ? "Tell us your name so we know who to call." : null;
-    case "email":
-      return /^\S+@\S+\.\S+$/.test(v)
-        ? null
-        : "Enter a valid email, e.g. name@example.com";
-    case "phone": {
-      const digits = v.replace(/\D/g, "").replace(/^91(?=\d{10}$)/, "");
-      return v && digits.length !== 10
-        ? "Enter a 10-digit mobile number, e.g. 98110 45236."
-        : null;
-    }
-    case "message":
-      return v.length < 10
-        ? "Write a little more so we can help, at least 10 characters."
-        : null;
+  if (field === "name")
+    return v.length < 2 ? "Tell us your name so we know who to call." : null;
+  if (field === "phone") {
+    const digits = v.replace(/\D/g, "").replace(/^91(?=\d{10}$)/, "");
+    return /^[6-9]\d{9}$/.test(digits)
+      ? null
+      : "Enter a 10-digit mobile number, e.g. 98110 45236.";
   }
+  return null; // course and message are optional
 }
 
-export function ContactForm() {
-  const toast = useToast();
+/** "Send us a message": the office calls back. Name and phone are required; the course is
+ *  pre-filled when a visitor presses Enquire on a course card. */
+export function MessageForm({
+  courses,
+}: {
+  courses: { slug: string; name: string }[];
+}) {
   const [values, setValues] = useState<Values>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof Values, string>>>(
     {},
@@ -46,10 +40,27 @@ export function ContactForm() {
   const [website, setWebsite] = useState(""); // honeypot
   const [failure, setFailure] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const nameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(
+    () =>
+      onEnquire((slug) => {
+        setSent(false);
+        setValues((v) => ({ ...v, course: slug }));
+        // After the jump to #admission, put the cursor in the first field.
+        setTimeout(() => nameRef.current?.focus({ preventScroll: true }), 400);
+      }),
+    [],
+  );
 
   const set =
     (field: keyof Values) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => {
       setValues((v) => ({ ...v, [field]: e.target.value }));
       if (errors[field]) setErrors((er) => ({ ...er, [field]: undefined }));
     };
@@ -61,28 +72,29 @@ export function ContactForm() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const found = Object.fromEntries(
-      (Object.keys(values) as (keyof Values)[]).map((f) => [
-        f,
-        check(f, values[f]) ?? undefined,
-      ]),
-    );
+    const found = {
+      name: check("name", values.name) ?? undefined,
+      phone: check("phone", values.phone) ?? undefined,
+    };
     setErrors(found);
-    if (Object.values(found).some(Boolean)) return;
+    if (found.name || found.phone) return;
 
     setSending(true);
     setFailure(null);
     try {
-      const res = await api<{ detail: string }>("/contact/", {
+      await api("/contact/", {
         method: "POST",
         auth: false,
-        body: { ...values, website },
-      });
-      toast({
-        title: "Message sent",
-        text: res.detail.replace(/^Message sent\.\s*/, ""),
+        body: {
+          name: values.name,
+          phone: values.phone,
+          course: values.course || null,
+          message: values.message,
+          website,
+        },
       });
       setValues(EMPTY);
+      setSent(true);
     } catch (err) {
       if (err instanceof ApiError && Object.keys(err.errors).length) {
         setErrors(
@@ -104,6 +116,25 @@ export function ContactForm() {
     }
   };
 
+  if (sent) {
+    return (
+      <div role="status" className="flex flex-col items-start gap-4 py-6">
+        <span className="bg-success-soft text-success-ink grid size-12 place-items-center rounded-full">
+          <CircleCheck className="size-6" aria-hidden />
+        </span>
+        <div>
+          <h3 className="type-h3 m-0">Message sent</h3>
+          <p className="text-ink-muted mt-1 mb-0">
+            Thanks — the office will call you back within a working day.
+          </p>
+        </div>
+        <Button variant="secondary" onClick={() => setSent(false)}>
+          Send another message
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-4">
       {failure && <Alert tone="danger">{failure}</Alert>}
@@ -112,6 +143,7 @@ export function ContactForm() {
           {(p) => (
             <Input
               {...p}
+              ref={nameRef}
               autoComplete="name"
               value={values.name}
               onChange={set("name")}
@@ -121,7 +153,8 @@ export function ContactForm() {
         </Field>
         <Field
           label="Mobile"
-          help="So our counsellor can call you."
+          required
+          help="The office calls you back on this number."
           error={errors.phone}
         >
           {(p) => (
@@ -133,32 +166,31 @@ export function ContactForm() {
               value={values.phone}
               onChange={set("phone")}
               onBlur={blur("phone")}
+              placeholder="98110 45236"
             />
           )}
         </Field>
       </div>
-      <Field label="Email" required error={errors.email}>
+      <Field label="Course you're interested in" error={errors.course}>
         {(p) => (
-          <Input
-            {...p}
-            type="email"
-            autoComplete="email"
-            value={values.email}
-            onChange={set("email")}
-            onBlur={blur("email")}
-            placeholder="name@example.com"
-          />
+          <Select {...p} value={values.course} onChange={set("course")}>
+            <option value="">Not sure yet</option>
+            {courses.map((c) => (
+              <option key={c.slug} value={c.slug}>
+                {c.name}
+              </option>
+            ))}
+          </Select>
         )}
       </Field>
-      <Field label="Message" required error={errors.message}>
+      <Field label="Message" error={errors.message}>
         {(p) => (
           <Textarea
             {...p}
-            rows={5}
+            rows={4}
             value={values.message}
             onChange={set("message")}
-            onBlur={blur("message")}
-            placeholder="e.g. Which DTP batch starts next month?"
+            placeholder="e.g. When does the next batch start?"
           />
         )}
       </Field>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { Menu, Phone, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -9,22 +9,30 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/cn";
+import { telHref } from "@/lib/content";
 import { PUBLIC_NAV } from "@/lib/site";
 
 const DASHBOARD = { student: "/student", admin: "/admin" } as const;
 
-/** Merged with the hero: no bar at the top of the page, a solid one (background, hairline,
- *  blur) once the page scrolls or the menu is open. `role` comes from the aa_session cookie
- *  (read by the layout): signed-in visitors see "My Dashboard" instead of Login. There is no
- *  Register — admissions are made by the institute office. */
-export function PublicHeader({ role }: { role?: string }) {
+/** Merged with the hero: no bar at the top of the page, a solid one once the page scrolls or
+ *  the menu is open. The links are sections of the one-page site; the one in view is marked.
+ *  `role` comes from the aa_session cookie (read by the layout): signed-in visitors get a
+ *  "My Dashboard" link instead of Login. There is no Register — the office admits students. */
+export function PublicHeader({
+  role,
+  phone,
+}: {
+  role?: string;
+  phone?: string;
+}) {
   const dashboard =
     role === "student" || role === "admin" ? DASHBOARD[role] : null;
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [section, setSection] = useState<string | null>(null);
   const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+    pathname === "/" && href === `/#${section}`;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -32,6 +40,24 @@ export function PublicHeader({ role }: { role?: string }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Which section is in view (home page only).
+  useEffect(() => {
+    if (pathname !== "/") return;
+    const ids = PUBLIC_NAV.map((item) => item.href.slice(2));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.find((e) => e.isIntersecting);
+        if (visible) setSection(visible.target.id);
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [pathname]);
 
   const solid = scrolled || open;
 
@@ -70,14 +96,22 @@ export function PublicHeader({ role }: { role?: string }) {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2 lg:ml-2">
-          <ThemeToggle />
-          <ButtonLink
+          <Link
             href={dashboard ?? "/login"}
-            variant="primary"
-            className="max-sm:hidden"
+            className="text-ink-muted hover:text-ink rounded-md px-2 py-2 text-sm font-medium no-underline max-sm:hidden"
           >
             {dashboard ? "My Dashboard" : "Login"}
-          </ButtonLink>
+          </Link>
+          <ThemeToggle />
+          {phone && (
+            <ButtonLink
+              href={telHref(phone)}
+              variant="primary"
+              className="max-sm:hidden"
+            >
+              <Phone aria-hidden /> Call
+            </ButtonLink>
+          )}
           <button
             type="button"
             className="text-ink hover:bg-surface-sunken grid size-10 place-items-center rounded-md lg:hidden"
@@ -112,15 +146,23 @@ export function PublicHeader({ role }: { role?: string }) {
               {item.label}
             </Link>
           ))}
-          <ButtonLink
+          {phone && (
+            <ButtonLink
+              href={telHref(phone)}
+              variant="primary"
+              block
+              className="mt-3"
+            >
+              <Phone aria-hidden /> Call {phone}
+            </ButtonLink>
+          )}
+          <Link
             href={dashboard ?? "/login"}
-            variant="primary"
-            block
-            className="mt-3"
             onClick={() => setOpen(false)}
+            className="text-ink-muted mt-2 block rounded-md px-3 py-3 text-center font-semibold no-underline"
           >
             {dashboard ? "My Dashboard" : "Login"}
-          </ButtonLink>
+          </Link>
         </nav>
       )}
     </header>

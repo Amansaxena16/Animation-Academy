@@ -105,13 +105,22 @@ class AnnouncementSerializer(serializers.ModelSerializer):
 
 
 class ContactSerializer(serializers.ModelSerializer):
+    """The website's message form: name and phone (the office calls back), plus an optional
+    course and message."""
+
     # Hidden form field that people never see; bots fill it in.
     website = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    course = serializers.SlugRelatedField(
+        slug_field="slug",
+        queryset=Course.objects.filter(status=Course.Status.PUBLISHED),
+        required=False,
+        allow_null=True,
+    )
 
     class Meta:
         model = ContactMessage
-        fields = ["name", "email", "phone", "message", "website"]
-        extra_kwargs = {"phone": {"required": False}}
+        fields = ["name", "phone", "course", "message", "website"]
+        extra_kwargs = {"message": {"required": False}}
 
     def validate_name(self, value):
         value = " ".join(value.split())
@@ -123,14 +132,9 @@ class ContactSerializer(serializers.ModelSerializer):
         digits = re.sub(r"\D", "", value)
         if digits.startswith("91") and len(digits) == 12:
             digits = digits[2:]
-        if value and len(digits) != 10:
+        if len(digits) != 10 or digits[0] not in "6789":
             raise serializers.ValidationError("Enter a 10-digit mobile number, e.g. 98110 45236.")
         return digits
 
     def validate_message(self, value):
-        value = value.strip()
-        if len(value) < 10:
-            raise serializers.ValidationError(
-                "Write a little more so we can help, at least 10 characters."
-            )
-        return value
+        return value.strip()

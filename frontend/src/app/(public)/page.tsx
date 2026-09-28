@@ -1,41 +1,41 @@
 import { connection } from "next/server";
-import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
-import Link from "next/link";
+import {
+  ArrowRight,
+  Mail,
+  MapPin,
+  Megaphone,
+  MessageCircle,
+  Phone,
+} from "lucide-react";
 
-import { JsonLd } from "@/components/seo/JsonLd";
+import { CourseSection } from "@/components/courses/CourseSection";
+import { MessageForm } from "@/components/home/MessageForm";
 import { StatsBand } from "@/components/home/StatsBand";
 import { WhyGrid } from "@/components/home/WhyGrid";
-import { Announcement } from "@/components/ui/Announcement";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { ButtonLink } from "@/components/ui/Button";
-import { Card, CardBody } from "@/components/ui/Card";
-import { applyHref, CourseCard } from "@/components/ui/CourseCard";
+import { Card } from "@/components/ui/Card";
 import { getAnnouncements, getSite, telHref } from "@/lib/content";
 import { getCategories, getCourse, getCourses } from "@/lib/courses";
-import { inr } from "@/lib/format";
-import { organizationLd } from "@/lib/seo";
+import { formatDateShort, inr } from "@/lib/format";
+import { courseLd, organizationLd } from "@/lib/seo";
 import { INSTITUTE } from "@/lib/site";
+import type { CourseDetail } from "@/types/course";
 
 function SectionHead({
   overline,
   title,
   text,
-  action,
 }: {
   overline: string;
   title: string;
   text?: string;
-  action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div className="max-w-[640px]">
-        <span className="type-overline text-brand-ink">{overline}</span>
-        <h2 className="type-display mt-2 mb-0">{title}</h2>
-        {text && (
-          <p className="type-body-lg text-ink-muted mt-3 mb-0">{text}</p>
-        )}
-      </div>
-      {action}
+    <div className="max-w-[640px]">
+      <span className="type-overline text-brand-ink">{overline}</span>
+      <h2 className="type-display mt-2 mb-0">{title}</h2>
+      {text && <p className="type-body-lg text-ink-muted mt-3 mb-0">{text}</p>}
     </div>
   );
 }
@@ -46,32 +46,48 @@ function splitHeadline(text: string): [string, string] {
   return i > 0 ? [text.slice(0, i + 1), text.slice(i + 2)] : [text, ""];
 }
 
+const whatsappHref = (phone: string) =>
+  `https://wa.me/91${phone.replace(/\D/g, "").slice(-10)}`;
+
+const STEPS = [
+  "Call us, or send a message with the form.",
+  "Visit the institute with a passport-size photo and your marksheets.",
+  "Pay the registration and the first month's fee at the office.",
+  "The office enrolls you and gives you your student login.",
+];
+
+/** The whole public website on one page: courses, about, admission with the message form,
+ *  and contact. Section ids are the header's anchors. */
 export default async function HomePage() {
   await connection(); // request-time: don't fetch the API during the build
-  const [site, courses, notices, categories] = await Promise.all([
+  const [site, list, notices, categories] = await Promise.all([
     getSite(),
     getCourses(),
-    getAnnouncements({ limit: 4 }), // upcoming first, then the most recent
+    getAnnouncements({ limit: 2 }), // upcoming first, then the most recent
     getCategories(),
   ]);
+  // Syllabus for every card; each course is cached, and the API sits in the same container.
+  const courses = (
+    await Promise.all(list.map((c) => getCourse(c.slug)))
+  ).filter((c): c is CourseDetail => c !== null);
 
-  const featured = courses.filter((c) => c.featured).slice(0, 6);
-  const flagshipCard = courses.find((c) => c.tag === "Flagship");
-  const flagship = flagshipCard ? await getCourse(flagshipCard.slug) : null;
   const lowestFee = courses.length
     ? Math.min(...courses.map((c) => c.monthly_fee))
     : null;
   const phone = site.phones[0];
-  const street = site.address.split(",")[0];
-  const taught = categories.filter((c) => c.count > 0);
   const [lead, rest] = splitHeadline(site.hero_headline);
+  const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(site.address)}`;
 
   return (
     <>
       <JsonLd data={organizationLd(site)} />
+      {courses.map((c) => (
+        <JsonLd key={c.slug} data={courseLd(c)} />
+      ))}
+
       {/* Hero: pulled up under the transparent header so the glow runs behind it. */}
       <section className="-mt-[73px] bg-[radial-gradient(ellipse_55%_60%_at_50%_40%,var(--glow),transparent_72%)] lg:-mt-[81px]">
-        <div className="mx-auto flex max-w-[1200px] flex-col items-center px-4 pt-[calc(73px+56px)] pb-16 text-center md:px-6 md:pb-20 lg:pt-[calc(81px+104px)]">
+        <div className="mx-auto flex max-w-[1200px] flex-col items-center px-4 pt-[calc(73px+48px)] pb-12 text-center md:px-6 md:pb-16 lg:pt-[calc(81px+80px)]">
           <span className="type-overline text-brand-ink">
             ISO 9001:2000 certified · Nehru Nagar, Kanpur
           </span>
@@ -85,269 +101,187 @@ export default async function HomePage() {
               <span className="text-ink">{lead}</span>
             )}
           </h1>
-          <p className="text-ink-muted mt-6 mb-0 max-w-[720px] text-lg leading-[30px] md:text-xl md:leading-8">
+          <p className="text-ink-muted mt-6 mb-0 max-w-[680px] text-lg leading-[30px]">
             {site.hero_sub}
           </p>
-          <div className="mt-9 flex flex-wrap justify-center gap-3">
-            <ButtonLink href="/courses" size="lg">
-              Explore Courses <ArrowRight aria-hidden />
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <ButtonLink href="#courses" size="lg">
+              View Courses <ArrowRight aria-hidden />
             </ButtonLink>
-            <ButtonLink href="/contact" variant="secondary" size="lg">
-              Talk to a Counsellor
-            </ButtonLink>
+            {phone && (
+              <ButtonLink href={telHref(phone)} variant="secondary" size="lg">
+                <Phone aria-hidden /> Call {phone}
+              </ButtonLink>
+            )}
           </div>
-          <p className="text-ink-muted mt-7 mb-0 text-sm">
+          <p className="text-ink-muted mt-6 mb-0 text-sm">
             <b className="text-ink">Monthly fees</b>
             {lowestFee !== null && <> from {inr(lowestFee)}</>} · one-time
             registration {inr(site.registration_fee)}
           </p>
-          {featured.length > 0 && (
-            <nav
-              aria-label="Popular courses"
-              className="mt-9 flex flex-wrap justify-center gap-x-7 gap-y-2"
-            >
-              {featured.map((c) => (
-                <Link
-                  key={c.slug}
-                  href={`/courses/${c.slug}`}
-                  className="text-brand-ink font-medium no-underline hover:underline"
-                >
-                  {c.name}
-                </Link>
-              ))}
-            </nav>
-          )}
         </div>
       </section>
+
+      {/* Latest updates: a slim strip, newest first. */}
+      {notices.length > 0 && (
+        <section
+          id="updates"
+          aria-label="Latest updates"
+          className="mx-auto max-w-[1200px] px-4 md:px-6"
+        >
+          <ul className="border-line bg-surface-raised m-0 flex list-none flex-col divide-y divide-[var(--line)] rounded-lg border p-0">
+            {notices.map((a) => (
+              <li
+                key={a.id}
+                className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-sm md:px-5"
+              >
+                <Megaphone
+                  className="text-accent-ink size-4 shrink-0"
+                  aria-hidden
+                />
+                <b className="text-ink">{a.title}</b>
+                <span className="text-ink-muted">{a.text}</span>
+                <span className="text-ink-muted ml-auto text-[13px] whitespace-nowrap">
+                  {formatDateShort(a.date)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {site.stats.length > 0 && <StatsBand stats={site.stats} />}
 
-      {/* Featured courses */}
-      {featured.length > 0 && (
-        <section className="mx-auto flex max-w-[1200px] flex-col gap-10 px-4 py-16 md:px-6 md:py-24">
+      {/* Courses */}
+      <section id="courses" className="scroll-mt-20">
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-10 px-4 py-16 md:px-6 md:py-20">
           <SectionHead
             overline="Courses and fees"
-            title="Popular courses"
-            text="From computer fundamentals and Tally to an eighteen-month multimedia diploma."
-            action={
-              <ButtonLink href="/courses" variant="secondary">
-                View All {courses.length} Courses <ArrowRight aria-hidden />
-              </ButtonLink>
-            }
+            title={`All ${courses.length} courses`}
+            text="Fees are paid month by month. Open a course to see its syllabus."
           />
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((c) => (
-              <CourseCard
-                key={c.slug}
-                course={c}
-                registrationFee={site.registration_fee}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* The blue banner */}
-      <section className="mx-auto max-w-[1200px] px-4 md:px-6">
-        <div className="bg-banner text-on-brand flex flex-col items-start gap-6 rounded-xl px-6 py-10 md:flex-row md:items-center md:justify-between md:px-14 md:py-16">
-          <div>
-            <h2 className="type-display m-0">
-              Start with a {inr(site.registration_fee)} registration
-            </h2>
-            <p className="type-body-lg mt-3 mb-0 max-w-[560px] text-white/85">
-              Admissions are made at the institute office. Visit us at {street}{" "}
-              to see the lab first, or talk to our counsellor.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <ButtonLink href="/contact" variant="light" size="lg">
-              Talk to a Counsellor
-            </ButtonLink>
-            {phone && (
-              <ButtonLink href={telHref(phone)} variant="inverse" size="lg">
-                <Phone aria-hidden /> {phone}
-              </ButtonLink>
-            )}
-          </div>
+          <CourseSection
+            courses={courses}
+            categories={categories}
+            registrationFee={site.registration_fee}
+          />
         </div>
       </section>
 
-      {/* Flagship: the Professional Diploma in Multimedia */}
-      {flagship && (
-        <section className="mx-auto max-w-[1200px] px-4 py-16 md:px-6 md:py-24">
-          <div className="border-line bg-surface-raised grid overflow-hidden rounded-xl border lg:grid-cols-[1fr_1.1fr]">
-            <div className="bg-banner text-on-brand flex flex-col gap-4 p-6 md:p-10">
-              <span className="type-overline text-white/85">
-                Flagship · {flagship.duration_label}
-              </span>
-              <h2 className="type-display m-0">{flagship.name}</h2>
-              <p className="type-body-lg m-0 text-white/85">
-                {flagship.description}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-3">
-                <ButtonLink
-                  href={applyHref(flagship.slug)}
-                  variant="accent"
-                  size="lg"
-                >
-                  Enroll Now
-                </ButtonLink>
-                <ButtonLink
-                  href={`/courses/${flagship.slug}`}
-                  variant="inverse"
-                  size="lg"
-                >
-                  See the Syllabus
-                </ButtonLink>
-              </div>
-            </div>
-            <ol className="m-0 grid list-none content-center gap-3 p-6 md:p-10">
-              {flagship.syllabus.map((sem, i) => (
-                <li
-                  key={sem.title}
-                  className="bg-surface-sunken flex items-center gap-4 rounded-md px-4 py-3"
-                >
-                  <span className="bg-brand-soft font-display text-brand-ink grid size-9 shrink-0 place-items-center rounded-full text-sm font-bold">
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <b className="font-display block">
-                      {sem.title.replace(/^Sem-[IVX]+ — /, "")}
-                    </b>
-                    <span className="text-ink-muted text-[13px]">
-                      {sem.tools}
-                    </span>
-                  </div>
-                  <span className="text-brand-ink shrink-0 text-[13px] font-semibold">
-                    {sem.duration}
-                  </span>
-                </li>
-              ))}
-            </ol>
+      {/* About */}
+      <section id="about" className="border-line scroll-mt-20 border-t">
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-10 px-4 py-16 md:px-6 md:py-20">
+          <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:items-end">
+            <SectionHead overline="About us" title={INSTITUTE.tagline} />
+            <p className="type-body-lg text-ink-muted m-0">{site.about}</p>
           </div>
-        </section>
-      )}
-
-      {/* Why */}
-      <section className="border-line border-t">
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-10 px-4 py-16 md:px-6 md:py-24">
-          <SectionHead
-            overline="Why Animation Academy"
-            title="A real lab, a real certificate"
-          />
           <WhyGrid />
         </div>
       </section>
 
-      {/* About: what used to be the About page */}
-      <section id="about" className="border-line border-t">
-        <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-16 md:px-6 md:py-24 lg:grid-cols-[1.4fr_1fr]">
-          <div className="flex flex-col gap-4">
-            <span className="type-overline text-brand-ink">About us</span>
-            <h2 className="type-display m-0">{INSTITUTE.tagline}</h2>
-            <p className="type-body-lg text-ink-muted m-0">{site.about}</p>
-            <p className="text-ink m-0 text-[17px] leading-7">
-              Our courses start at computer fundamentals, typing and MS Office,
-              and go through accounting with Tally Prime and GST, print design,
-              web design and programming, to an eighteen-month Professional
-              Diploma in Multimedia covering 2D animation, video editing, 3D
-              modeling in Maya and ZBrush, and compositing.
-            </p>
-            {taught.length > 0 && (
-              <ul className="m-0 mt-2 flex flex-wrap gap-2 p-0">
-                {taught.map((c) => (
-                  <li key={c.value} className="list-none">
-                    <ButtonLink
-                      href={`/courses?category=${encodeURIComponent(c.value)}`}
-                      variant="secondary"
-                      size="sm"
-                    >
-                      {c.label} · {c.count}
-                    </ButtonLink>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <Card pad className="flex flex-col gap-4 self-start">
-            <h3 className="type-h3 m-0">Visit the institute</h3>
-            <address className="[&_svg]:text-brand-ink flex flex-col gap-3 text-[15px] not-italic [&_svg]:mt-1 [&_svg]:size-[18px] [&_svg]:shrink-0">
-              <span className="flex gap-3">
-                <MapPin aria-hidden />
-                {site.address}
-              </span>
-              {site.phones.map((p) => (
-                <a
-                  key={p}
-                  href={telHref(p)}
-                  className="text-ink hover:text-brand-ink flex gap-3 no-underline"
-                >
-                  <Phone aria-hidden />
-                  {p}
-                </a>
+      {/* Admission: the steps, and the message form */}
+      <section id="admission" className="border-line scroll-mt-20 border-t">
+        <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-16 md:px-6 md:py-20 lg:grid-cols-[1fr_1.1fr]">
+          <div className="flex flex-col gap-6">
+            <SectionHead
+              overline="Admission"
+              title="How to join"
+              text="Admissions are made at the institute office."
+            />
+            <ol className="m-0 flex list-none flex-col gap-4 p-0">
+              {STEPS.map((step, i) => (
+                <li key={step} className="flex gap-4">
+                  <span className="bg-brand-soft font-display text-brand-ink grid size-9 shrink-0 place-items-center rounded-full text-sm font-bold">
+                    {i + 1}
+                  </span>
+                  <span className="text-ink pt-1.5">
+                    {i === 2
+                      ? `Pay the ${inr(site.registration_fee)} registration and the first month's fee at the office.`
+                      : step}
+                  </span>
+                </li>
               ))}
-              <a
-                href={`mailto:${site.email}`}
-                className="text-ink hover:text-brand-ink flex gap-3 no-underline"
-              >
-                <Mail aria-hidden />
-                {site.email}
-              </a>
-            </address>
-            <ButtonLink href="/contact" variant="secondary">
-              Send Us a Message
-            </ButtonLink>
+            </ol>
+            <p className="text-ink-muted m-0 text-sm">
+              No refund after admission is confirmed.
+            </p>
+          </div>
+          <Card pad className="self-start">
+            <h3 className="type-h3 mt-0 mb-1">Send us a message</h3>
+            <p className="text-ink-muted mt-0 mb-5 text-sm">
+              Ask about fees, batches or which course suits you.
+            </p>
+            <MessageForm
+              courses={courses.map((c) => ({ slug: c.slug, name: c.name }))}
+            />
           </Card>
         </div>
       </section>
 
-      {/* Updates */}
-      {notices.length > 0 && (
-        <section className="border-line border-t">
-          <div className="mx-auto flex max-w-[1200px] flex-col gap-10 px-4 py-16 md:px-6 md:py-24">
-            <SectionHead
-              overline="Updates"
-              title="What's happening"
-              action={
-                <ButtonLink href="/updates" variant="secondary">
-                  All Updates <ArrowRight aria-hidden />
-                </ButtonLink>
-              }
-            />
-            <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-              <Card>
-                <CardBody>
-                  {notices.map((a) => (
-                    <Announcement key={a.id} item={a} />
-                  ))}
-                </CardBody>
-              </Card>
-              <Card pad className="flex flex-col gap-4 self-start">
-                <h3 className="type-h3 m-0">Choosing a course?</h3>
-                <p className="text-ink-muted m-0 text-[15px]">
-                  Visit the lab at {street} or call our counsellor. We&apos;ll
-                  suggest where to start based on what you already know.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {phone && (
-                    <ButtonLink
-                      href={telHref(phone)}
-                      variant="secondary"
-                      size="sm"
+      {/* Contact */}
+      <section id="contact" className="border-line scroll-mt-20 border-t">
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-10 px-4 py-16 md:px-6 md:py-20">
+          <SectionHead overline="Contact" title="Visit or call us" />
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card pad className="flex flex-col gap-3">
+              <MapPin className="text-brand-ink size-6" aria-hidden />
+              <h3 className="type-h3 m-0">Visit</h3>
+              <p className="text-ink-muted m-0">{site.address}</p>
+              <a
+                href={mapsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-ink mt-auto font-semibold"
+              >
+                Open in Google Maps
+              </a>
+            </Card>
+            <Card pad className="flex flex-col gap-3">
+              <Phone className="text-brand-ink size-6" aria-hidden />
+              <h3 className="type-h3 m-0">Call</h3>
+              <ul className="m-0 flex list-none flex-col gap-1 p-0">
+                {site.phones.map((p) => (
+                  <li key={p}>
+                    <a
+                      href={telHref(p)}
+                      className="text-ink text-lg font-semibold no-underline hover:underline"
                     >
-                      <Phone aria-hidden /> {phone}
-                    </ButtonLink>
-                  )}
-                  <ButtonLink href="/contact" variant="ghost" size="sm">
-                    Send a Message
-                  </ButtonLink>
-                </div>
-              </Card>
-            </div>
+                      {p}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              {phone && (
+                <a
+                  href={whatsappHref(phone)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-ink mt-auto inline-flex items-center gap-2 font-semibold"
+                >
+                  <MessageCircle className="size-4" aria-hidden /> Message on
+                  WhatsApp
+                </a>
+              )}
+            </Card>
+            <Card pad className="flex flex-col gap-3">
+              <Mail className="text-brand-ink size-6" aria-hidden />
+              <h3 className="type-h3 m-0">Email</h3>
+              <a
+                href={`mailto:${site.email}`}
+                className="text-ink font-semibold break-all no-underline hover:underline"
+              >
+                {site.email}
+              </a>
+              <a
+                href="#admission"
+                className="text-brand-ink mt-auto font-semibold"
+              >
+                Or send a message
+              </a>
+            </Card>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
     </>
   );
 }
