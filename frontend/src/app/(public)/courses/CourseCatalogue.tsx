@@ -87,7 +87,7 @@ export function CourseCatalogue({
     cn(
       "inline-flex h-9 items-center gap-1.5 rounded-pill border px-3.5 text-[13px] font-semibold transition-colors",
       selected
-        ? "border-navy bg-navy text-on-navy"
+        ? "border-brand bg-brand text-on-brand"
         : "border-line bg-surface-raised text-ink hover:border-line-strong",
     );
 

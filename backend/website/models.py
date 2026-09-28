@@ -157,7 +157,8 @@ class SiteSettings(models.Model):
     )
 
     allow_registration = models.BooleanField(
-        default=True, help_text="Off: the admission form says registration is closed."
+        default=True,
+        help_text="Off: students can't request new courses from their portal.",
     )
     maintenance_mode = models.BooleanField(
         default=False, help_text="On: the public site shows a maintenance page."

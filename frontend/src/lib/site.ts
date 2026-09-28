@@ -24,8 +24,6 @@ export const INSTITUTE = {
 export const PUBLIC_NAV = [
   { label: "Home", href: "/" },
   { label: "Courses", href: "/courses" },
-  { label: "Admission", href: "/admission" },
-  { label: "About", href: "/about" },
   { label: "Updates", href: "/updates" },
   { label: "Contact", href: "/contact" },
 ] as const;

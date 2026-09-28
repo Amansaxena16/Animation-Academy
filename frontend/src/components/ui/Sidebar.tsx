@@ -27,7 +27,8 @@ export function isActive(pathname: string, href: string, rootHref: string) {
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-/** Dashboard navigation ≥1024px (a drawer below): navy ground, ivory logo, amber bar on the active item. */
+/** Dashboard navigation ≥1024px (a drawer below): a quiet panel that follows the theme, with an
+ *  azure tint and an amber bar on the active item. */
 export function Sidebar({
   items,
   rootHref,
@@ -41,17 +42,17 @@ export function Sidebar({
   return (
     <nav
       aria-label="Dashboard"
-      className="bg-navy text-on-navy flex h-full w-[260px] flex-col gap-1 px-3.5 py-5"
+      className="bg-sidebar text-ink border-line flex h-full w-[260px] flex-col gap-1 border-r px-3.5 py-5"
     >
       <div className="px-2.5 pt-1 pb-5">
-        <Logo size="sm" tone="inverse" href={rootHref} />
+        <Logo size="sm" href={rootHref} />
       </div>
       {items.map((item) => {
         const active = isActive(pathname, item.href, rootHref);
         return (
           <div key={item.href}>
             {item.group && (
-              <div className="px-3 pt-4 pb-1.5 text-[11px] leading-4 font-bold tracking-[0.1em] text-white/55 uppercase">
+              <div className="text-ink-muted px-3 pt-4 pb-1.5 text-[11px] leading-4 font-bold tracking-[0.1em] uppercase">
                 {item.group}
               </div>
             )}
@@ -62,8 +63,8 @@ export function Sidebar({
               className={cn(
                 "flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm leading-5 font-medium no-underline",
                 active
-                  ? "bg-white/12 text-white shadow-[inset_3px_0_0_var(--accent)]"
-                  : "text-white/78 hover:bg-white/7 hover:text-white",
+                  ? "bg-brand-soft text-brand-ink shadow-[inset_3px_0_0_var(--accent)]"
+                  : "text-ink-muted hover:bg-surface-sunken hover:text-ink",
               )}
             >
               <item.icon

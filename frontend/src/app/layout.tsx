@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
+import { THEME_SCRIPT } from "@/lib/theme-script";
+
 import { fontVariables } from "./fonts";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -32,12 +34,22 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1e3a6b",
+  themeColor: "#0a0c10",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en-IN" className={fontVariables}>
+    // data-theme is dark on the server; THEME_SCRIPT switches it to the visitor's saved choice
+    // before paint, hence suppressHydrationWarning on this one element.
+    <html
+      lang="en-IN"
+      className={fontVariables}
+      data-theme="dark"
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="min-h-screen">
         <Providers>{children}</Providers>
       </body>

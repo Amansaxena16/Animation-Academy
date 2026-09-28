@@ -6,16 +6,22 @@ import { cn } from "@/lib/cn";
 // Each variant sets its own border colour: a shared border-transparent would override them.
 const VARIANTS = {
   /** Azure. One per view: the main action. */
-  primary: "border-transparent bg-brand text-on-brand hover:bg-brand-deep",
+  primary:
+    "border-transparent bg-brand text-on-brand shadow-sm hover:bg-brand-deep",
   /** Navy. An equally strong alternative, e.g. Download Prospectus. */
   navy: "border-transparent bg-navy text-on-navy hover:bg-navy-deep",
   /** Orange. Only Enroll Now and fee payment. */
-  accent: "border-transparent bg-accent text-on-accent hover:shadow-md",
-  secondary: "bg-surface-raised text-ink border-line-strong hover:border-ink",
-  ghost: "border-transparent bg-transparent text-navy-ink hover:bg-navy-soft",
+  accent:
+    "border-transparent bg-accent text-on-accent shadow-sm hover:brightness-95 hover:shadow-md",
+  /** Quiet grey fill (light grey on dark): View Details, Talk to a Counsellor. */
+  secondary: "bg-alt text-on-alt border-alt-line hover:bg-alt-hover",
+  ghost:
+    "border-transparent bg-transparent text-navy-ink hover:bg-surface-sunken",
   /** Always behind a confirmation Modal. */
   danger: "border-transparent bg-danger text-white hover:brightness-90",
-  /** On navy bands. */
+  /** White, on the blue banner (fixed colours: 8.4:1 in both themes). */
+  light: "border-transparent bg-white text-[#0a4f8a] hover:bg-[#eaf2fb]",
+  /** On the blue banner and other solid colour bands. */
   inverse:
     "bg-transparent text-on-navy border-white/50 hover:bg-white/10 hover:border-white",
 } as const;

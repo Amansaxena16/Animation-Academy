@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from common.permissions import IsAdmin, IsStudent
 
-# Anyone may call these (the website and the admission form).
+# Anyone may call these (the public website).
 PUBLIC = {
     "api/v1/auth/login/",
     "api/v1/auth/refresh/",
@@ -17,8 +17,6 @@ PUBLIC = {
     "api/v1/site/",
     "api/v1/announcements/",
     "api/v1/contact/",
-    "api/v1/admissions/",
-    "api/v1/admissions/validate/",
     "api/v1/verify/<str:code>/",
     "api/v1/schema/",  # staff-only in production (SPECTACULAR_SETTINGS)
     "api/v1/docs/",

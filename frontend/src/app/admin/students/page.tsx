@@ -37,6 +37,7 @@ export default function StudentsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        back={{ href: "/admin", label: "Dashboard" }}
         title="Students"
         text="Everyone who has applied online or been added at the office."
         actions={

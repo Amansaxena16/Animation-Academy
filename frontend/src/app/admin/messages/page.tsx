@@ -36,6 +36,7 @@ export default function MessagesPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        back={{ href: "/admin", label: "Dashboard" }}
         title="Messages"
         text="Sent from the Contact page. Call back, then mark the message as handled."
       />

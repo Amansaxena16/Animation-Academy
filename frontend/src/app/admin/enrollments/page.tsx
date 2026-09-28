@@ -55,6 +55,7 @@ function EnrollmentsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        back={{ href: "/admin", label: "Dashboard" }}
         title="Enrollments"
         text="Applications and enrolled courses. Approve new admissions, and complete a course to issue its certificate."
       />

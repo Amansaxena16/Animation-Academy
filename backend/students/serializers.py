@@ -1,18 +1,15 @@
-"""The online admission form, following the paper IOCSGT form (PROJECT_GUIDE §8).
+"""Student details as on the paper IOCSGT admission form (PROJECT_GUIDE §8).
 
-Four steps (account, personal, education, course), each a serializer the form can check on
-its own; AdmissionSerializer combines them for the final submit."""
+Admissions are made by the office in the admin console; the rules below are shared by the
+console's student form and the student's own profile."""
 
 import json
 import re
 
-from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils import timezone
 from rest_framework import serializers
 
-from accounts.models import User
-from accounts.serializers import UserSerializer
 from common.images import reencode_image
 from website.models import Course
 from website.serializers import AnnouncementSerializer
@@ -42,32 +39,6 @@ class JSONStringField(serializers.JSONField):
             except ValueError:
                 self.fail("invalid")
         return super().to_internal_value(data)
-
-
-class AccountStep(serializers.Serializer):
-    email = serializers.EmailField(
-        error_messages={"invalid": "Enter a valid email, e.g. name@example.com"}
-    )
-    password = serializers.CharField(
-        write_only=True, trim_whitespace=False, style={"input_type": "password"}
-    )
-
-    def validate_email(self, value):
-        value = value.strip().lower()
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError(
-                "An account with this email already exists. Log in instead."
-            )
-        return value
-
-    def validate(self, attrs):
-        # Checked against the email here; the final submit also checks it against the name.
-        user = User(email=attrs["email"], full_name=self.initial_data.get("name", ""))
-        try:
-            password_validation.validate_password(attrs["password"], user)
-        except DjangoValidationError as e:
-            raise serializers.ValidationError({"password": list(e.messages)}) from e
-        return attrs
 
 
 class PersonalStep(serializers.Serializer):
@@ -153,57 +124,15 @@ class EducationStep(serializers.Serializer):
         return value
 
 
-class CourseStep(serializers.Serializer):
-    course = serializers.SlugRelatedField(
-        slug_field="slug",
-        queryset=Course.objects.filter(status=Course.Status.PUBLISHED),
-        error_messages={"does_not_exist": "Choose a course from the list."},
-    )
-    employment = serializers.ChoiceField(choices=Student.Employment.choices)
-    accept_no_refund = serializers.BooleanField()
-
-    def validate_accept_no_refund(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                "Please confirm you understand that no refund is allowed after confirmation."
-            )
-        return value
-
-
-STEPS = {
-    "account": AccountStep,
-    "personal": PersonalStep,
-    "education": EducationStep,
-    "course": CourseStep,
-}
-
-
-class AdmissionSerializer(AccountStep, PersonalStep, EducationStep, CourseStep):
-    """All four steps plus an optional photo (JPEG or PNG, up to 2 MB)."""
-
-    photo = serializers.ImageField(required=False, allow_null=True)
-
-    def validate_photo(self, photo):
-        if photo is None:
-            return None
-        return reencode_image(photo, max_bytes=MAX_PHOTO_BYTES, max_size=PHOTO_SIZE)
-
-
-class CourseRefSerializer(serializers.Serializer):
-    slug = serializers.CharField()
-    name = serializers.CharField()
-
-
-class AdmissionResultSerializer(serializers.Serializer):
-    student_code = serializers.CharField()
-    enrollment_code = serializers.CharField()
-    course = CourseRefSerializer()
-    access = serializers.CharField()
-    user = UserSerializer()
+def validate_photo(photo):
+    """An optional photo: JPEG or PNG, up to 2 MB, re-encoded and scaled down."""
+    if photo is None:
+        return None
+    return reencode_image(photo, max_bytes=MAX_PHOTO_BYTES, max_size=PHOTO_SIZE)
 
 
 # ---------------------------------------------------------------------------------------------
-# Student portal (/me/...). Validation is shared with the admission form above.
+# Student portal (/me/...). Validation is shared with the admin console's student form.
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -248,7 +177,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     validate_address = PersonalStep.validate_address
     validate_city = PersonalStep.validate_city
     validate_qualifications = EducationStep.validate_qualifications
-    validate_photo = AdmissionSerializer.validate_photo
+
+    def validate_photo(self, photo):
+        return validate_photo(photo)
 
     def validate_state(self, value):
         return " ".join(value.split()) or "Uttar Pradesh"
@@ -313,7 +244,13 @@ class ApplySerializer(serializers.Serializer):
         error_messages={"does_not_exist": "Choose a course from the list."},
     )
     accept_no_refund = serializers.BooleanField()
-    validate_accept_no_refund = CourseStep.validate_accept_no_refund
+
+    def validate_accept_no_refund(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                "Please confirm you understand that no refund is allowed after confirmation."
+            )
+        return value
 
 
 class DashboardCountsSerializer(serializers.Serializer):

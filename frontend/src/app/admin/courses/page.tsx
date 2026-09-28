@@ -26,6 +26,7 @@ export default function CoursesPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        back={{ href: "/admin", label: "Dashboard" }}
         title="Courses"
         text="What the website shows, with fees and syllabus. Changes appear on the website straight away."
         actions={

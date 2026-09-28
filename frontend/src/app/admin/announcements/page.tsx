@@ -110,6 +110,7 @@ export default function AnnouncementsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        back={{ href: "/admin", label: "Dashboard" }}
         title="Announcements"
         text="Holidays, new batches, exams and events on the Updates page, the home page and student dashboards."
         actions={

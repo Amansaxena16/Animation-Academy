@@ -58,6 +58,7 @@ export default function CertificatesPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        back={{ href: "/admin", label: "Dashboard" }}
         title="Certificates"
         text={
           <>

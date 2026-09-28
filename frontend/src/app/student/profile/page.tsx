@@ -7,6 +7,7 @@ import {
   QualificationsTable,
   type Qualification,
 } from "@/components/student/QualificationsTable";
+import { BackButton } from "@/components/ui/BackButton";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -157,7 +158,8 @@ function ProfileForm({ profile }: { profile: Profile }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
+      <BackButton href="/student" label="Dashboard" />
+      <div className="-mt-3">
         <h1 className="type-h1 m-0">My profile</h1>
         <p className="text-ink-muted mt-1 mb-0">
           The details the institute has on record for you.

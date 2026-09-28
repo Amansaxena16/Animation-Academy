@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 
+import { PublicPageHead } from "@/components/layout/PublicPageHead";
 import { getCategories, getCourses } from "@/lib/courses";
 import { getSite } from "@/lib/content";
 
@@ -35,19 +36,11 @@ export default async function CoursesPage({
 
   return (
     <>
-      <section className="border-line bg-surface-raised border-b">
-        <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-6 md:py-16">
-          <span className="type-overline text-accent-ink">
-            Courses and fees
-          </span>
-          <h1 className="type-display mt-3 mb-0">Our courses</h1>
-          <p className="type-body-lg text-ink-muted mt-4 mb-0 max-w-[620px]">
-            {courses.length} courses, from computer fundamentals to an
-            eighteen-month multimedia diploma. Fees are paid month by month
-            after a one-time ₹{site.registration_fee} registration.
-          </p>
-        </div>
-      </section>
+      <PublicPageHead overline="Courses and fees" title="Our courses">
+        {courses.length} courses, from computer fundamentals to an
+        eighteen-month multimedia diploma. Fees are paid month by month after a
+        one-time ₹{site.registration_fee} registration.
+      </PublicPageHead>
       <CourseCatalogue
         registrationFee={site.registration_fee}
         courses={courses}

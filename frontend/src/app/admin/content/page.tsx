@@ -52,6 +52,7 @@ function ContentForm({ site }: { site: AdminSite }) {
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-6">
       <PageHeader
+        back={{ href: "/admin", label: "Dashboard" }}
         title="Website content"
         text="The home page headline, the numbers band and the About text."
         actions={

@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  ArrowLeft,
-  Copy,
-  KeyRound,
-  Plus,
-  UserCheck,
-  UserX,
-} from "lucide-react";
+import { Copy, KeyRound, Plus, UserCheck, UserX } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -20,6 +13,7 @@ import {
 } from "@/components/admin/StudentForm";
 import { type Qualification } from "@/components/student/QualificationsTable";
 import { Alert } from "@/components/ui/Alert";
+import { BackButton } from "@/components/ui/BackButton";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -141,12 +135,7 @@ function StudentRecord({ student }: { student: AdminStudent }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <Link
-        href="/admin/students"
-        className="text-ink-muted hover:text-navy-ink inline-flex items-center gap-1.5 text-sm no-underline"
-      >
-        <ArrowLeft className="size-4" aria-hidden /> Students
-      </Link>
+      <BackButton href="/admin/students" label="Students" />
 
       <Card pad className="flex flex-wrap items-center gap-5">
         <Avatar name={name} src={student.photo} size="lg" />

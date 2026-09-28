@@ -1,12 +1,17 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
 
-/* Dark mode follows data-theme (set on the dashboard shell), not the OS setting. */
+/* Dark mode follows data-theme on <html> (dark by default; see lib/theme.ts), not the OS setting. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
+    background: var(--surface);
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
   }
 
   body {

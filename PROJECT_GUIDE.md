@@ -49,7 +49,7 @@ Suggested layout: `backend/` (Django project), `frontend/` (Next.js), and `docke
 
 The system has **two roles**: **Student** and **Admin**. There is no teacher role (see §13). Public visitors are unauthenticated.
 
-**Scope:** the website **presents the courses and takes enrollments**. All teaching happens in person at the institute: there are no online lessons, no course content and no progress tracking. A student logs in only to see their profile, the courses they are enrolled in (with admission status) and their certificates.
+**Scope:** the website **presents the courses**; **admissions are made by the office** in the admin console (Students → Add a student), never on the public site. A signed-in student can ask for another course from their portal, and the office confirms it. All teaching happens in person at the institute: there are no online lessons, no course content and no progress tracking. A student logs in only to see their profile, the courses they are enrolled in (with admission status) and their certificates.
 
 | Role | Sidebar navigation |
 |---|---|
@@ -63,15 +63,13 @@ The system has **two roles**: **Student** and **Admin**. There is no teacher rol
 ## 4. Pages and screens
 
 ### Public site (1200px max width)
-Top navigation: **Home · Courses · Admission · About · Updates · Contact**, plus the Login and Register buttons.
+Top navigation: **Home · Courses · Updates · Contact**, the theme toggle and **Login** (My Dashboard when signed in). There is no Register button. The header has no bar at the top of the page, so it reads as part of the hero; it turns solid (background, hairline, blur) once the page scrolls. Every inner page starts with a **Back to …** pill that goes up to its parent.
 
 | Route | Content |
 |---|---|
-| `/` Home | Hero (overline "ISO 9001:2000 certified · Nehru Nagar, Kanpur", headline, sub, **Explore Courses** + **Join Animation Academy**, "Monthly fees from ₹700 · one-time registration ₹250") → stats band (count-up: Students trained 500+, Courses offered 20+, Years of teaching 9+, Certificates issued 1000+; admin-editable and can be hidden) → featured courses → flagship (Professional Diploma in Multimedia) → "Why Animation Academy" (6 points, below) → latest updates → CTA |
+| `/` Home | Centred hero (overline "ISO 9001:2000 certified · Nehru Nagar, Kanpur", headline with its first sentence in azure, sub, **Explore Courses** + **Talk to a Counsellor**, "Monthly fees from ₹700 · one-time registration ₹250", then a row of featured course links) → stats row (count-up: Students trained 500+, Courses offered 20+, Years of teaching 9+, Certificates issued 1000+; admin-editable and can be hidden) → featured courses → the blue banner ("Start with a ₹250 registration", admissions at the office) → flagship (Professional Diploma in Multimedia) → "Why Animation Academy" (6 points, below) → About us (what was the About page: the office-edited About text, what we teach, the visit card) → latest updates → footer card with the faded wordmark |
 | `/courses` | Search (e.g. "Try 'Tally' or 'CorelDraw'"), category chips (All, Programming, Accounting, Design, Web Designing, Computer Basics, Multimedia), level and price filters, and a course card grid |
 | `/courses/[slug]` | Breadcrumbs, hero, tabs (Overview / Syllabus), the syllabus as information only (a topic list shown in units of 4, or the 5 semesters for PDM), fee box, schedule, next batch start, **Enroll Now** |
-| `/admission` (register) | The online admission form, a 4-step stepper: **Account → Personal → Education → Course** (§8) |
-| `/about` | About the institute and IOCSGT |
 | `/updates` | Published announcements, filterable by category |
 | `/verify` (+ `/verify/[id]`) | Certificate verification by ID (`AA-2026-000123`). Shareable link format: `animationacademy.in/verify/<ID>` |
 | `/contact` | Address, phones, email, and a form (name, email, message). On success: "Our counsellor will call you within one working day." |
@@ -87,6 +85,7 @@ Top navigation: **Home · Courses · Admission · About · Updates · Contact**,
 
 ### Student dashboard (`/student/...`)
 - **Dashboard:** greeting, enrolled courses with their status, certificates, upcoming holidays and events.
+- **Apply for a course** (`/student/apply?course=…`): choose a course and confirm; it creates a Pending enrollment for the office. **Enroll Now** on the public site leads here (via Login when signed out).
 - **My Courses:** tabs All / Pending / Active / Completed. Each row shows the course, its batch schedule, the fee and the admission status. There are no lessons and no progress bars.
 - **Certificates:** list, then view, print or download, and copy the verification link.
 - **Profile:** name, father's name, email, phone, DOB, gender, address, pincode, city, state, country, qualification, board, employment.
@@ -110,51 +109,61 @@ Copies: `design-system/tokens.json` (source of truth) and `design-system/bundle.
 ### Colour (light / dark)
 | Token | Light | Dark | Use |
 |---|---|---|---|
-| `brand` | `#0a63a8` | `#1470b8` | Azure from the logo sphere. **Leads.** Primary buttons, fee figures, eyebrows, active tabs, the stepper |
-| `brand-deep` | `#07497e` | `#0a5c9c` | Hover/pressed on brand |
-| `brand-soft` | `#e1f0fb` | `#0e2740` | Fee wells, selected rows, icon wells |
-| `on-brand` | `#ffffff` | `#ffffff` | Text on brand |
-| `brand-ink` | `#0a5c9c` | `#7dbcea` | Azure text on light grounds |
-| `navy` | `#1e3a6b` | `#24457f` | Structure: sidebars, hero bands, footer, course pills |
-| `navy-deep` | `#142949` | `#17325c` | Navy hover, footer band |
-| `navy-soft` | `#e3e9f4` | `#17203a` | Info badges, selected nav |
+| `brand` | `#0a63a8` | `#2468c8` | Azure from the logo sphere. **Leads.** Primary buttons, links, active tabs, the stepper |
+| `brand-deep` | `#07497e` | `#3677d6` | Hover/pressed on brand |
+| `brand-soft` | `#eaf2fb` | `#0f1d33` | Fee wells, selected rows, icon wells |
+| `on-brand` | `#ffffff` | `#ffffff` | Text on brand and `banner` |
+| `brand-ink` | `#0a5c9c` | `#6aa5ee` | Azure text: fees, eyebrows, links, the first line of the hero headline |
+| `banner` | `#0a63a8` | `#2a62c4` | The one solid blue band: the home banner, the flagship panel, the dashboard welcome |
+| `glow` | `rgba(10,99,168,0.08)` | `rgba(45,100,210,0.16)` | Soft azure glow behind the home hero and page heads |
+| `navy` | `#1e3a6b` | `#1b2638` | Course pills, the Table pager's active page |
+| `navy-deep` | `#142949` | `#121a28` | Navy hover |
+| `navy-soft` | `#e8edf5` | `#161e2c` | Info badges |
 | `on-navy` | `#ffffff` | `#ffffff` | Text on navy |
-| `accent-on-navy` | `#f7ab63` | `#fbbf85` | Orange text on navy bands (plain `accent` fails contrast there) |
-| `navy-ink` | `#1e3a6b` | `#a3bae4` | Links, tab labels |
+| `accent-on-navy` | `#f7ab63` | `#f7ab63` | Orange text on navy (plain `accent` fails contrast there) |
+| `navy-ink` | `#1e3a6b` | `#a9bbd9` | Links, tab labels |
 | `accent` | `#f08030` | `#f08030` | Orange. **Only** for Enroll/pay, ribbons, ratings, the active-nav bar |
 | `on-accent` | `#111c2b` | `#111c2b` | Text on accent: **never white** |
-| `accent-ink` | `#a8480d` | `#f7ab63` | Amber text (overlines, meta), never body copy |
-| `accent-soft` | `#fdeedd` | `#3a230e` | Highlight and holiday badge grounds |
-| `surface` | `#f8fafc` | `#0c1119` | Page background |
-| `surface-raised` | `#ffffff` | `#141b26` | Cards, modals, inputs |
-| `surface-sunken` | `#eef2f7` | `#1b2432` | Table headers, filter bars, skeletons |
-| `line` | `#dde5ee` | `#27303e` | Hairline borders |
-| `line-strong` | `#7d8ca1` | `#70809a` | Input borders |
-| `ink` | `#111c2b` | `#e8edf3` | Primary text |
-| `ink-muted` | `#55647a` | `#9aa8bb` | Secondary text |
-| `success` / `-ink` / `-soft` | `#15803d` / `#11602e` / `#e2f4e8` | `#2fa757` / `#58d98a` / `#0b2a18` | Always paired with a word |
-| `danger` / `-ink` / `-soft` | `#b42318` / `#b42318` / `#fdeae8` | `#e5544a` / `#f78b80` / `#38130f` | Always paired with a word and an icon |
-| `focus` | `#0a63a8` | `#7dbcea` | 2px ring, 2px offset |
+| `accent-ink` | `#a8480d` | `#f7ab63` | Amber meta text (warning badges), never body copy |
+| `accent-soft` | `#fdefe1` | `#2b1d10` | Highlight and holiday badge grounds |
+| `surface` | `#ffffff` | `#0a0c10` | Page background: white, or near-black (not pure black) in dark |
+| `surface-raised` | `#ffffff` | `#111419` | Cards, modals, inputs: one step lighter in dark |
+| `surface-sunken` | `#f3f5f8` | `#171a21` | Table headers, filter bars, skeletons, icon wells |
+| `header-bg` | `rgba(255,255,255,0.85)` | `rgba(10,12,16,0.85)` | Public header once scrolled; dashboard top bar (with blur) |
+| `sidebar` | `#fafbfc` | `#0d0f13` | Dashboard sidebar ground |
+| `line` | `#e5e8ee` | `#22262e` | Hairline borders — these do most of the separating |
+| `line-hover` | `#b8c7da` | `#3a4454` | Borders of hovered cards, chips and inputs |
+| `line-strong` | `#7d8ca1` | `#69748a` | Input borders |
+| `ink` | `#0d1117` | `#eef1f5` | Primary text |
+| `ink-muted` | `#5a6475` | `#9aa2af` | Secondary text |
+| `alt` | `#f1f3f6` | `#e6e8ec` | Secondary buttons: a quiet grey fill (light grey on dark) |
+| `on-alt` | `#0d1117` | `#0d1117` | Text on `alt` |
+| `alt-hover` | `#e6e9ee` | `#ffffff` | Hovered secondary buttons |
+| `alt-line` | `#e1e5eb` | `#e6e8ec` | Secondary button border |
+| `success` / `-ink` / `-soft` | `#15803d` / `#11602e` / `#e2f4e8` | `#2fa757` / `#5fdc8f` / `#0c2519` | Always paired with a word |
+| `danger` / `-ink` / `-soft` | `#b42318` / `#b42318` / `#fdeae8` | `#cf3a30` / `#f7938a` / `#35140f` | Always paired with a word and an icon |
+| `focus` | `#0a63a8` | `#6aa5ee` | 2px ring, 2px offset |
+| `focus-ring` | `rgba(10,99,168,0.2)` | `rgba(106,165,238,0.3)` | Soft halo around a focused input |
 
 - **Maroon (`#903028`) is NOT a UI colour.** It exists only inside the wordmark image and the certificate's printed lettering.
-- Light is the primary theme. Dark exists mainly for dashboards. **The certificate always stays light** (it prints).
-- No gradients except inside artwork. No blue-purple gradients, emoji cards or left-border cards.
+- **Dark is the default theme** on every page, public and dashboard; a sun/moon toggle in the header switches to light and is remembered per browser (set on `<html data-theme>` before paint). **The certificate always stays light** (it prints).
+- No gradients except inside artwork and the one soft `glow` behind the hero and page heads. No blue-purple gradients, emoji cards or left-border cards.
 
 ### Typography
 | Style | Family | Size / line | Weight | Use |
 |---|---|---|---|---|
-| `display-xl` | Archivo | 54/58 (38px < 720px), -0.02em | 700 | Home hero only |
-| `display` | Archivo | 38/46, -0.015em | 700 | Page heroes, CTA bands |
-| `h1` | Archivo | 29/36, -0.01em | 700 | Page titles, greetings |
-| `h2` | Archivo | 22/30 | 600 | Section titles |
+| `display-xl` | Archivo | 64/66 (40px < 720px), -0.035em | 700 | Home hero only: two centred lines, the first in `brand-ink` |
+| `display` | Archivo | 40/46, -0.025em | 700 | Page heads, section titles, the banner |
+| `h1` | Archivo | 30/38, -0.02em | 700 | Page titles, greetings |
+| `h2` | Archivo | 22/30, -0.01em | 600 | Section titles |
 | `h3` | Archivo | 17/24 | 600 | Card titles |
 | `pill` | Archivo | 13/18, 0.03em, UPPERCASE | 700 | Prospectus course-header pill on navy |
 | `stat` | Archivo | 32/36, -0.02em | 700 | Stat numbers |
-| `body-lg` | Source Sans 3 | 17/28 | 400 | Intros |
+| `body-lg` | Source Sans 3 | 18/30 | 400 | Intros |
 | `body` | Source Sans 3 | 15/24 | 400 | Default |
 | `label` | Source Sans 3 | 14/20 | 600 | Labels, buttons, nav |
 | `small` | Source Sans 3 | 13/20 | 400 | Meta, helper text |
-| `overline` | Source Sans 3 | 12/16, 0.08em, UPPERCASE | 700 | Eyebrows in `accent-ink` or `brand-ink` |
+| `overline` | Source Sans 3 | 12/16, 0.1em, UPPERCASE | 700 | Eyebrows in `brand-ink` |
 | `certificate-name` | EB Garamond italic | 46/54 | 600 | Certificate recipient only |
 | `mono` | JetBrains Mono | 13/20 | 500 | IDs (certificates, students, enrollments, receipts) |
 
@@ -162,12 +171,12 @@ Font stacks: display `Archivo, "Arial Narrow", "Segoe UI", system-ui, sans-serif
 
 ### Spacing, radius and shadow
 - **Spacing (4px base):** `space-1` 4 · `2` 8 · `3` 12 · `4` 16 · `6` 24 · `8` 32 · `12` 48 · `16` 64 · `24` 96.
-- **Radius:** `sm` 5 (badges) · `md` 8 (buttons, inputs) · `lg` 14 (cards, modals) · `xl` 22 (hero media, CTA bands, certificate) · `pill` 999.
+- **Radius:** `sm` 6 (badges) · `md` 8 (buttons, inputs) · `lg` 12 (cards, modals) · `xl` 16 (banners, the footer card, hero media, certificate) · `pill` 999.
 - **Shadow:**
-  - `shadow-sm` `0 1px 2px rgba(17,28,43,.07)`: resting cards.
-  - `shadow-md` `0 8px 22px -8px rgba(17,28,43,.16)`: hover, dropdowns.
-  - `shadow-lg` `0 22px 46px -16px rgba(10,99,168,.28)`: modals, hero media, certificate.
-  - Dark theme shadows use `rgba(0,0,0,…)` (see tokens.json). Borders (`line`) do most of the separating.
+  - `shadow-sm` `0 1px 2px rgba(13,17,23,.04)`: resting cards (none in dark).
+  - `shadow-md` `0 10px 24px -12px rgba(13,17,23,.18)`: hover, dropdowns.
+  - `shadow-lg` `0 24px 48px -20px rgba(13,17,23,.28)`: modals, hero media, certificate.
+  - Dark theme shadows use `rgba(0,0,0,…)` (see tokens.json). The look is flat: borders (`line`) do the separating.
 
 ### Layout and breakpoints
 - Public pages: max width **1200px**. Sections are `space-24` apart on desktop and `space-12` on mobile.
@@ -200,21 +209,22 @@ The reference implementation is `design-system/bundle.css` (`aa-` prefix, wrap s
 | Component | Key rules |
 |---|---|
 | **Logo** | Two separate images side by side: `aa-mark.png` (sphere) + `aa-wordmark.png`. Swap to `aa-wordmark-reversed.png` on navy and in dark mode (the sphere stays in colour). `--fixed` pins the colour wordmark (used on the certificate). Below ~200px wide use the sphere alone. Never set a width, recolour, rotate or redraw it. Clear space = sphere height. Mark 42px / type 34px (sm 32/25, lg 64). |
-| **Button** | `primary` (azure; **one per view**), `navy` (strong alternative, e.g. Download Prospectus), `accent` (orange; **only** Enroll Now and fee payment), `secondary` (outline), `ghost`, `danger` (always behind a confirmation Modal), `inverse` (on navy). Sizes: sm 34px, default 42px, lg 50px; `block`, `icon`. Labels are Title Case verbs. 18px icons; a trailing arrow only for forward navigation. |
+| **Button** | `primary` (azure; **one per view**), `navy` (strong alternative, e.g. Download Prospectus), `accent` (orange; **only** Enroll Now and fee payment), `secondary` (quiet grey fill), `ghost`, `danger` (always behind a confirmation Modal), `light` (white, on the blue banner), `inverse` (outline, on the banner). Sizes: sm 34px, default 42px, lg 50px; `block`, `icon`. Labels are Title Case verbs. 18px icons; a trailing arrow only for forward navigation. |
 | **Badge** | Always a word, never colour alone. Levels: Beginner = neutral, Intermediate = info, Advanced = brand. Enrollment: Active = info, Pending = warning, Completed = success, Cancelled = danger. Student: Active = info, Inactive = neutral, Graduated = success, Pending = warning. Course: Published = success, Draft = neutral. Announcement: Holiday = warning, Course Update = info, Exam = brand, Event = success, Important Notice = danger, General = neutral. `--dot` for live statuses. `--navy` solid = prospectus pill. |
-| **CourseCard** | 16:10 artwork (+ optional tag badge such as "Most enrolled", "Flagship", "CCC"), "Diploma · 6 Months", level badge, title, 2-line description, meta, fee (`₹800/month` + "₹4,800 total · ₹250 registration"), rating, then **View Details** (secondary) and **Enroll Now** (accent). |
+| **CourseCard** | 16:10 artwork (+ optional tag badge such as "Most enrolled", "Flagship", "CCC"), "Diploma · 6 Months" in `brand-ink`, level as an outline pill, title, 2-line description, meta, fee (`₹800/month` + "₹4,800 total · ₹250 registration"), rating, then **View Details** (secondary) and **Enroll Now** (accent). |
 | **FeeBox** | Standalone fee panel on the course page. |
 | **StatCard** | Icon well (blue/amber/green) + optional delta, value in `stat` style, label. Rows of 4–6 on desktop, 2 per row on mobile. |
 | **FormField** | Label (+ `*` for required), control (44px), helper text, 6px gap; `is-error` / `is-valid`. Extras: input with icon, radio-card, checkbox, photo upload drop zone. **Validate on blur**; error copy says how to fix it. |
-| **Stepper** | Account → Personal → Education → Course; one-word labels; done steps show a check. |
+| **Stepper** | One-word labels; done steps show a check. (It was built for the public admission form, which has been retired.) |
 | **Tabs / Seg** | Tabs for page sections (horizontal scroll on mobile); a segmented control for in-place filters (All / Active / Completed). |
 | **Table** | Card → table; the first column is the entity (avatar, name, ID); row actions are right-aligned icon buttons with `aria-label`; delete opens the Modal; stacks into labelled cards below 720px (`data-label`); paginate 10–25 rows with "Showing a–b of n". |
 | **Breadcrumbs** | Course detail and admin detail/edit pages; the last item is not a link. |
+| **BackButton** | "← Back to [parent]" pill at the top of every inner page (public and dashboard). A plain link to the page's parent, so its label always says where it goes. |
 | **Announcement** | Date tile (day + month), category badge, title, one-line summary. |
 | **Alert / Toast** | info / success / warning / danger, icon first. Success toasts auto-dismiss after 4s; errors stay until closed. |
 | **Modal** | Required before every destructive action. Icon, a title naming the object, text naming the consequence, then Cancel (secondary, **focused on open**) and a danger verb repeating the object ("Remove student"). Esc or an overlay click cancels. |
 | **EmptyState** | Icon, title, one helpful sentence, one action. |
-| **Sidebar** | Navy ground, inverse logo, amber inset bar on the active item, group labels, counts, sub-links. It becomes a drawer below 1024px. |
+| **Sidebar** | `sidebar` ground with a hairline edge, the logo following the theme, an azure tint and amber inset bar on the active item, group labels, counts, sub-links. It becomes a drawer below 1024px. |
 | **BottomNav** | Mobile (<720px), 4–5 icon+label items, 48px targets, safe-area padding. |
 | **Avatar** | 32 / 40 / 64 / 120px; photo or two initials; tints rotate brand-soft / accent-soft / navy-soft / success-soft. |
 | **Certificate** | See §9. |
@@ -243,6 +253,8 @@ The reference implementation is `design-system/bundle.css` (`aa-` prefix, wrap s
 ---
 
 ## 8. Admission form (mirrors the paper IOCSGT form)
+
+The office fills this in the admin console (Students → Add a student; the console creates the login with a temporary password, so there is no account step there). The public website no longer has an admission form.
 
 Ask for the same fields in the same order as the paper form:
 
@@ -343,8 +355,8 @@ Submitting creates a **Student (Pending)** and an **Enrollment (Pending)**. The 
 
 ## 11. Business rules and flows
 
-1. **Public admission (new user)** → Student `Pending` + Enrollment `Pending`. The toast reads "Admission requested — [course] is awaiting confirmation."
-2. **Logged-in student taps Enroll Now:**
+1. **New students are admitted by the office** in the admin console (Students → Add a student, optionally enrolled in a course as Active). The website has no public admission form, and `/admission` redirects to `/contact`.
+2. **Signed-in student taps Enroll Now** (a signed-out visitor is sent to Login first):
    - If they are already enrolled in that course: "Already enrolled — Find it under My Courses."
    - Otherwise a confirmation modal shows: "Apply for [course]?", then "[fee] per month for [dur], plus a one-time registration fee of ₹250. The next batch starts [date]. The office confirms your seat within one working day. No refund is allowed after confirmation of admission." The button is **Confirm Admission**, and it creates a Pending enrollment.
 3. **Admin Approve:** Enrollment → `Active`, and the Student → `Active` if they were Pending. Toast: "Admission confirmed."
@@ -354,7 +366,7 @@ Submitting creates a **Student (Pending)** and an **Enrollment (Pending)**. The 
 7. **Certificate IDs** are the issue year plus the enrollment number: `AA-2026-000057`. They are unique but not consecutive (see §10).
 8. **Verify:** a public lookup by ID returns the student name, course, duration and date, or a "not found" state.
 9. **Settings:**
-   - `allow_registration = false` hides or disables admission.
+   - `allow_registration = false` stops students requesting new courses from their portal (they're asked to call).
    - `maintenance_mode` shows a maintenance page to the public.
    - `show_stats` toggles the home stats band.
 10. **Announcements:** only `published` ones appear on the public site and dashboards. Home shows the latest 4; "upcoming" shows Holiday and Event items.
@@ -462,7 +474,7 @@ The prototype also has 14 sample students (`AA-STU-1038`…`1121`), 21 enrollmen
 - [ ] Indian number formatting helper (`₹` + `en-IN`) and fee helpers (monthly, total, PDM special)
 - [ ] Django models, migrations and a seed command with the prospectus courses
 - [ ] JWT auth with role-based permissions (student sees only their own data)
-- [ ] Public pages → admission flow → student portal (profile, enrollments, certificates) → admin console
+- [ ] Public pages → office admission in the console → student portal (profile, enrollments, course requests, certificates) → admin console
 - [ ] Certificate: print CSS, PDF, and a public verify endpoint
 - [ ] Responsive at 1024 / 720 / 640; `prefers-reduced-motion` respected; 4.5:1 contrast in both themes
 - [ ] No emoji; Title Case buttons; prospectus names verbatim

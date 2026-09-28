@@ -2,6 +2,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 
+import { PublicPageHead } from "@/components/layout/PublicPageHead";
 import { Card } from "@/components/ui/Card";
 import { getSite, telHref } from "@/lib/content";
 
@@ -20,16 +21,10 @@ export default async function ContactPage() {
 
   return (
     <>
-      <section className="border-line bg-surface-raised border-b">
-        <div className="mx-auto max-w-[1200px] px-4 py-12 md:px-6 md:py-16">
-          <span className="type-overline text-accent-ink">Contact</span>
-          <h1 className="type-display mt-3 mb-0">Talk to us</h1>
-          <p className="type-body-lg text-ink-muted mt-4 mb-0 max-w-[620px]">
-            Not sure which course fits? Call, visit the lab, or send a message
-            and our counsellor will call you back.
-          </p>
-        </div>
-      </section>
+      <PublicPageHead overline="Contact" title="Talk to us">
+        Not sure which course fits? Call, visit the lab, or send a message and
+        our counsellor will call you back.
+      </PublicPageHead>
 
       <section className="mx-auto grid max-w-[1200px] gap-8 px-4 py-10 md:px-6 md:py-14 lg:grid-cols-[1fr_1.3fr]">
         <div className="flex flex-col gap-4">

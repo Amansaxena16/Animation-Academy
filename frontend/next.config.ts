@@ -66,6 +66,9 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Admissions are made by the office now, and About lives on the home page.
+      { source: "/admission", destination: "/contact", permanent: true },
+      { source: "/about", destination: "/", permanent: true },
       {
         source: "/:path((?!api/|django-admin).+)/",
         destination: "/:path",

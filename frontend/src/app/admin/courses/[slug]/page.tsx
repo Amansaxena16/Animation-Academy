@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- course images come from the API's media host */
 "use client";
 
-import { ArrowLeft, ExternalLink, ImagePlus, Trash2 } from "lucide-react";
+import { ExternalLink, ImagePlus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -132,13 +132,8 @@ function EditCourse({ course }: { course: AdminCourse }) {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <Link
-          href="/admin/courses"
-          className="text-ink-muted hover:text-navy-ink inline-flex items-center gap-1.5 text-sm no-underline"
-        >
-          <ArrowLeft className="size-4" aria-hidden /> Courses
-        </Link>
         <PageHeader
+          back={{ href: "/admin/courses", label: "Courses" }}
           title={course.name}
           text={`${course.enrollment_count} enrollment${course.enrollment_count === 1 ? "" : "s"} · ${course.status}`}
           actions={

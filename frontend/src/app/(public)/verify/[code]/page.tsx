@@ -2,6 +2,7 @@ import { BadgeCheck, SearchX } from "lucide-react";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 
+import { BackButton } from "@/components/ui/BackButton";
 import { Card } from "@/components/ui/Card";
 import { API_URL } from "@/lib/api";
 import { formatDateLong } from "@/lib/format";
@@ -37,9 +38,12 @@ export default async function VerifyResultPage({
 
   return (
     <section className="mx-auto flex max-w-[760px] flex-col gap-6 px-4 py-10 md:px-6 md:py-14">
-      <span className="type-overline text-accent-ink">
-        Certificate verification
-      </span>
+      <div className="flex flex-col items-start gap-4">
+        <BackButton href="/verify" label="Verify a certificate" />
+        <span className="type-overline text-brand-ink">
+          Certificate verification
+        </span>
+      </div>
 
       {result === "error" ? (
         <Card pad className="flex flex-col gap-2">

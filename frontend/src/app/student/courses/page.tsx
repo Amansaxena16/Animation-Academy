@@ -4,6 +4,7 @@ import { BookOpen, Plus } from "lucide-react";
 import { useState } from "react";
 
 import { EnrollmentCard } from "@/components/student/EnrollmentCard";
+import { BackButton } from "@/components/ui/BackButton";
 import { Alert } from "@/components/ui/Alert";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -38,14 +39,15 @@ export default function MyCoursesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <BackButton href="/student" label="Dashboard" />
+      <div className="-mt-3 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="type-h1 m-0">My courses</h1>
           <p className="text-ink-muted mt-1 mb-0">
             Every course you&apos;ve applied for, and where it stands.
           </p>
         </div>
-        <ButtonLink href="/admission">
+        <ButtonLink href="/student/apply">
           <Plus aria-hidden /> Apply for a Course
         </ButtonLink>
       </div>

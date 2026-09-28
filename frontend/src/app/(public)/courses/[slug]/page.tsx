@@ -10,12 +10,13 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
 
+import { BackButton } from "@/components/ui/BackButton";
 import { Badge } from "@/components/ui/Badge";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CourseArt } from "@/components/ui/CourseArt";
-import { CourseCard, FeeBox } from "@/components/ui/CourseCard";
+import { applyHref, CourseCard, FeeBox } from "@/components/ui/CourseCard";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getCourse, getCourses } from "@/lib/courses";
 import { courseTotal, feeLong, inr } from "@/lib/format";
@@ -85,7 +86,7 @@ export default async function CoursePage({
   if (!course) notFound();
 
   const topics = course.syllabus.reduce((n, g) => n + g.items.length, 0);
-  const enrollHref = `/admission?course=${course.slug}`;
+  const enrollHref = applyHref(course.slug);
   const more = related(all, course);
 
   const overview = (
@@ -153,74 +154,78 @@ export default async function CoursePage({
     <>
       <JsonLd data={courseLd(course)} />
       {/* DOM order header → fees → tabs suits phones; on desktop the fee card is a sticky right column. */}
-      <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-10 md:px-6 lg:grid-cols-[1fr_380px] lg:grid-rows-[auto_1fr] lg:py-14">
-        <header className="flex min-w-0 flex-col gap-4 lg:col-start-1">
-          <Breadcrumbs
-            items={[
-              { label: "Home", href: "/" },
-              { label: "Courses", href: "/courses" },
-              { label: course.name },
-            ]}
-          />
-          <span className="type-overline text-accent-ink">
-            {course.kind} · {course.duration_label}
-          </span>
-          <h1 className="type-display m-0">{course.name}</h1>
-          <p className="type-body-lg text-ink-muted m-0 max-w-[620px]">
-            {course.description}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Badge tone={levelTone[course.level]}>{course.level}</Badge>
-            <Badge tone="info">{course.category}</Badge>
-            {course.tag && <Badge tone="accent">{course.tag}</Badge>}
+      {/* Pulled up under the transparent header so the glow runs behind it. */}
+      <div className="-mt-[73px] bg-[radial-gradient(ellipse_55%_40%_at_18%_0%,var(--glow),transparent_72%)] lg:-mt-[81px]">
+        <div className="mx-auto grid max-w-[1200px] gap-10 px-4 pt-[calc(73px+24px)] pb-10 md:px-6 md:pt-[calc(73px+32px)] lg:grid-cols-[1fr_380px] lg:grid-rows-[auto_1fr] lg:pt-[calc(81px+32px)] lg:pb-14">
+          <header className="flex min-w-0 flex-col items-start gap-4 lg:col-start-1">
+            <BackButton href="/courses" label="Courses" />
+            <Breadcrumbs
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Courses", href: "/courses" },
+                { label: course.name },
+              ]}
+            />
+            <span className="type-overline text-brand-ink">
+              {course.kind} · {course.duration_label}
+            </span>
+            <h1 className="type-display m-0">{course.name}</h1>
+            <p className="type-body-lg text-ink-muted m-0 max-w-[620px]">
+              {course.description}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Badge tone={levelTone[course.level]}>{course.level}</Badge>
+              <Badge tone="info">{course.category}</Badge>
+              {course.tag && <Badge tone="accent">{course.tag}</Badge>}
+            </div>
+          </header>
+          <Card className="flex flex-col gap-4 self-start overflow-hidden lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+            <div className="bg-surface-sunken border-line aspect-[16/9] overflow-hidden border-b">
+              {course.image ? (
+                // eslint-disable-next-line @next/next/no-img-element -- course images come from the API's media host
+                <img
+                  src={course.image}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              ) : (
+                <CourseArt
+                  category={course.category}
+                  className="block size-full"
+                />
+              )}
+            </div>
+            <div className="flex flex-col gap-4 px-5 pb-5">
+              <FeeBox fee={course} registrationFee={site.registration_fee} />
+              {course.next_batch_start && (
+                <p className="text-ink-muted m-0 text-sm">
+                  Next batch:{" "}
+                  <b className="text-ink">{course.next_batch_start}</b>
+                  {course.schedule && <> · {course.schedule}</>}
+                </p>
+              )}
+              <ButtonLink href={enrollHref} variant="accent" size="lg" block>
+                Enroll Now
+              </ButtonLink>
+              {site.phones[0] && (
+                <p className="text-ink-muted m-0 text-center text-[13px]">
+                  Questions? Call{" "}
+                  <a
+                    href={telHref(site.phones[0])}
+                    className="text-navy-ink font-semibold"
+                  >
+                    {site.phones[0]}
+                  </a>
+                </p>
+              )}
+            </div>
+          </Card>
+          <div className="min-w-0 lg:col-start-1">
+            <CourseTabs
+              overview={overview}
+              syllabus={<Syllabus groups={course.syllabus} />}
+            />
           </div>
-        </header>
-        <Card className="flex flex-col gap-4 self-start overflow-hidden lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-          <div className="bg-navy aspect-[16/9] overflow-hidden">
-            {course.image ? (
-              // eslint-disable-next-line @next/next/no-img-element -- course images come from the API's media host
-              <img
-                src={course.image}
-                alt=""
-                className="size-full object-cover"
-              />
-            ) : (
-              <CourseArt
-                category={course.category}
-                className="block size-full"
-              />
-            )}
-          </div>
-          <div className="flex flex-col gap-4 px-5 pb-5">
-            <FeeBox fee={course} registrationFee={site.registration_fee} />
-            {course.next_batch_start && (
-              <p className="text-ink-muted m-0 text-sm">
-                Next batch:{" "}
-                <b className="text-ink">{course.next_batch_start}</b>
-                {course.schedule && <> · {course.schedule}</>}
-              </p>
-            )}
-            <ButtonLink href={enrollHref} variant="accent" size="lg" block>
-              Enroll Now
-            </ButtonLink>
-            {site.phones[0] && (
-              <p className="text-ink-muted m-0 text-center text-[13px]">
-                Questions? Call{" "}
-                <a
-                  href={telHref(site.phones[0])}
-                  className="text-navy-ink font-semibold"
-                >
-                  {site.phones[0]}
-                </a>
-              </p>
-            )}
-          </div>
-        </Card>
-        <div className="min-w-0 lg:col-start-1">
-          <CourseTabs
-            overview={overview}
-            syllabus={<Syllabus groups={course.syllabus} />}
-          />
         </div>
       </div>
 

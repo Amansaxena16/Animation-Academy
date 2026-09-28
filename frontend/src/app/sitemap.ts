@@ -7,8 +7,6 @@ import { SITE_URL } from "@/lib/seo";
 const PAGES = [
   { path: "", priority: 1, changeFrequency: "weekly" },
   { path: "/courses", priority: 0.9, changeFrequency: "weekly" },
-  { path: "/admission", priority: 0.9, changeFrequency: "monthly" },
-  { path: "/about", priority: 0.6, changeFrequency: "yearly" },
   { path: "/updates", priority: 0.6, changeFrequency: "weekly" },
   { path: "/contact", priority: 0.7, changeFrequency: "yearly" },
   { path: "/verify", priority: 0.4, changeFrequency: "yearly" },

@@ -364,6 +364,8 @@ Seed: `seed_content` loads the settings defaults and the 7 sample announcements.
 
 ## Phase 5 — Admission (registration) ✅ done (26 Sep 2026)
 
+> **Retired (28 Sep 2026):** the public admission form and its API (`POST /admissions/`, `POST /admissions/validate/`) were removed; admissions are made by the office in the console (Students → Add a student), and `/admission` redirects to `/contact`. Signed-in students still ask for further courses, now at `/student/apply`. The section below is kept as the record of what was built.
+
 **How it was built** (differences from the plan below are marked ⚠):
 - **Models (`students`):**
   - `Student`: 1:1 with User. The name is stored in capitals; the code `AA-STU-…` comes from the pk. ⚠ `gender` is optional (the paper form has no gender). `qualifications` is JSON checked by `validate_qualifications`: exactly the 4 exams in order, a 4-digit year from 1950 to now, a percentage from 0 to 100, and High School year and board required.

@@ -9,6 +9,8 @@ const TYPE = { w: 1184, h: 227 };
 const HEIGHTS = {
   sm: { mark: 32, type: 25, gap: "gap-2" },
   md: { mark: 42, type: 34, gap: "gap-2.5" },
+  /** The public header: big enough to read the ISO tagline under the name. */
+  header: { mark: 50, type: 42, gap: "gap-3" },
   lg: { mark: 64, type: 50, gap: "gap-3.5" },
 } as const;
 

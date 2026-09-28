@@ -4,8 +4,6 @@ const PUBLIC = [
   "/",
   "/courses",
   "/courses/pdm",
-  "/admission",
-  "/about",
   "/updates",
   "/contact",
   "/verify",

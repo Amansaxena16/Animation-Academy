@@ -6,7 +6,7 @@ export function WhyGrid() {
       {WHY.map(({ title, text, icon: Icon }) => (
         <div
           key={title}
-          className="border-line bg-surface-raised flex flex-col gap-3 rounded-lg border p-6"
+          className="border-line bg-surface-raised hover:border-line-hover flex flex-col gap-3 rounded-lg border p-6 transition-[border-color,transform] duration-200 hover:-translate-y-0.5"
         >
           <span className="bg-brand-soft text-brand-ink grid size-11 place-items-center rounded-md">
             <Icon className="size-[22px]" aria-hidden />

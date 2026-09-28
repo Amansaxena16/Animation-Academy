@@ -39,7 +39,7 @@ const family = (stack) => {
 };
 
 // Responsive overrides the design system states in prose (PROJECT_GUIDE §5).
-const mobile = { "display-xl": { fontSize: "38px", lineHeight: "44px" } };
+const mobile = { "display-xl": { fontSize: "40px", lineHeight: "44px" } };
 
 const typeUtilities = tokens.type.groups.flatMap((group) =>
   group.styles.map((style) => {
