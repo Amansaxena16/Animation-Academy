@@ -276,7 +276,7 @@ export default function AnnouncementsPage() {
                   render: (a) => (
                     <div className="min-w-[220px]">
                       <b className="block">{a.title}</b>
-                      <small className="text-ink-muted line-clamp-1">
+                      <small className="text-ink-muted line-clamp-1 text-xs">
                         {a.text}
                       </small>
                     </div>

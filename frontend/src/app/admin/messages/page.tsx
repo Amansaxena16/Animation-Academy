@@ -105,7 +105,7 @@ export default function MessagesPage() {
                 {m.phone && (
                   <a
                     href={`tel:+91${m.phone}`}
-                    className="text-navy-ink font-semibold"
+                    className="text-navy-ink touch:min-h-11 inline-flex items-center font-semibold"
                   >
                     Call {m.phone}
                   </a>
@@ -113,7 +113,7 @@ export default function MessagesPage() {
                 {m.email && (
                   <a
                     href={`mailto:${m.email}`}
-                    className="text-navy-ink font-semibold"
+                    className="text-navy-ink touch:min-h-11 inline-flex items-center font-semibold"
                   >
                     {m.email}
                   </a>

@@ -17,7 +17,7 @@ import { Syllabus } from "./Syllabus";
 
 const chip = (on: boolean) =>
   cn(
-    "rounded-pill border px-4 py-2 text-sm font-semibold transition-colors",
+    "touch:min-h-11 rounded-pill border px-4 py-2 text-sm font-semibold transition-colors",
     on
       ? "border-brand bg-brand text-on-brand"
       : "border-line text-ink-muted hover:border-line-hover hover:text-ink",
@@ -152,7 +152,7 @@ function CourseTile({
         </div>
         <div className="flex flex-1 flex-col gap-3 p-5">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-brand-ink text-[11px] leading-4 font-bold tracking-[0.1em] uppercase">
+            <span className="text-brand-ink text-xs leading-4 font-bold tracking-[0.1em] uppercase">
               {course.kind} · {course.duration_label}
             </span>
             <Badge tone="outline" pill>

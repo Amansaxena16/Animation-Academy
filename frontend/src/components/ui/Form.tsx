@@ -8,7 +8,7 @@ import { useEffect, useId, useState } from "react";
 import { cn } from "@/lib/cn";
 
 const control =
-  "w-full rounded-md border border-line-strong bg-surface-raised text-[15px] leading-6 text-ink transition-[border-color,box-shadow] duration-150 " +
+  "w-full rounded-md border border-line-strong bg-surface-raised text-base md:text-[15px] leading-6 text-ink transition-[border-color,box-shadow] duration-150 " +
   "placeholder:text-ink-muted placeholder:opacity-80 hover:border-ink-muted " +
   "focus:border-focus focus:shadow-[0_0_0_3px_var(--navy-soft)] focus:outline-none " +
   "aria-invalid:border-danger aria-invalid:focus:shadow-[0_0_0_3px_var(--danger-soft)] " +

@@ -63,20 +63,20 @@ export function StatsBand({ stats }: { stats: Stat[] }) {
     >
       <div
         ref={ref}
-        className="border-line grid grid-cols-2 gap-6 rounded-lg border px-6 py-7 md:px-8 lg:grid-cols-4 lg:[&>div+div]:border-l lg:[&>div+div]:pl-6"
+        className="border-line grid grid-cols-2 gap-5 rounded-lg border px-5 py-6 sm:gap-6 sm:px-6 sm:py-7 md:px-8 lg:grid-cols-4 lg:[&>div+div]:border-l lg:[&>div+div]:pl-6"
       >
         {stats.map((stat, i) => {
           const Icon = ICONS[i % ICONS.length];
           return (
             <div
               key={stat.label}
-              className="border-line flex items-center gap-4"
+              className="border-line flex min-w-0 items-center gap-4 max-sm:flex-col max-sm:items-start max-sm:gap-2.5"
             >
               <span className="bg-brand-soft text-brand-ink grid size-12 shrink-0 place-items-center rounded-md">
                 <Icon className="size-6" aria-hidden />
               </span>
               <div>
-                <div className="type-stat tabular-nums">
+                <div className="type-stat tabular-nums max-sm:text-[26px] max-sm:leading-[30px]">
                   {display(stat.value, t)}
                 </div>
                 <div className="text-ink-muted text-sm">{stat.label}</div>

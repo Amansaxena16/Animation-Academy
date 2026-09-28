@@ -6,7 +6,8 @@ import { telHref } from "@/lib/content";
 import { INSTITUTE, PUBLIC_NAV } from "@/lib/site";
 import type { Site } from "@/types/content";
 
-const linkClass = "text-ink-muted no-underline hover:text-ink hover:underline";
+const linkClass =
+  "text-ink-muted no-underline hover:text-ink hover:underline touch:inline-flex touch:min-h-11 touch:min-w-11 touch:items-center";
 
 /** A bordered card on the page ground, then the name as a large faded wordmark. */
 export function PublicFooter({ site }: { site: Site }) {
@@ -25,7 +26,7 @@ export function PublicFooter({ site }: { site: Site }) {
             </div>
             <nav aria-label="Footer">
               <h2 className="type-label text-ink m-0 mb-3">Explore</h2>
-              <ul className="m-0 grid list-none gap-2 p-0 text-sm">
+              <ul className="touch:gap-0 m-0 grid list-none gap-2 p-0 text-sm">
                 {PUBLIC_NAV.map((item) => (
                   <li key={item.href}>
                     <Link href={item.href} className={linkClass}>

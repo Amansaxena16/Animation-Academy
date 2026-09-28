@@ -85,7 +85,7 @@ export function PublicHeader({
               href={item.href}
               aria-current={isActive(item.href) ? "page" : undefined}
               className={cn(
-                "rounded-md px-3 py-2 text-[15px] font-medium no-underline transition-colors",
+                "touch:min-h-11 inline-flex items-center rounded-md px-3 py-2 text-[15px] font-medium no-underline transition-colors",
                 isActive(item.href)
                   ? "text-ink font-semibold"
                   : "text-ink-muted hover:bg-surface-sunken hover:text-ink",
@@ -98,7 +98,7 @@ export function PublicHeader({
         <div className="ml-auto flex items-center gap-2 lg:ml-2">
           <Link
             href={dashboard ?? "/login"}
-            className="text-ink-muted hover:text-ink rounded-md px-2 py-2 text-sm font-medium no-underline max-sm:hidden"
+            className="text-ink-muted hover:text-ink touch:min-h-11 inline-flex items-center rounded-md px-2 py-2 text-sm font-medium no-underline max-sm:hidden"
           >
             {dashboard ? "My Dashboard" : "Login"}
           </Link>
@@ -114,7 +114,7 @@ export function PublicHeader({
           )}
           <button
             type="button"
-            className="text-ink hover:bg-surface-sunken grid size-10 place-items-center rounded-md lg:hidden"
+            className="text-ink hover:bg-surface-sunken touch:size-11 grid size-10 place-items-center rounded-md lg:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-menu"

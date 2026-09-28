@@ -186,6 +186,13 @@ Font stacks: display `Archivo, "Arial Narrow", "Segoe UI", system-ui, sans-serif
   - **720px:** the BottomNav appears and tables stack into cards.
   - **640px:** forms and grids go to a single column.
 - Course grid: 3 columns ≥1024px, 2 columns ≥640px, 1 column below.
+- **Responsive rules** (checked by `e2e/responsive.spec.ts` at 390px and 820px on touch):
+  - Nothing scrolls sideways at any width from 320px up.
+  - On touch screens (`touch:` variant = `pointer: coarse`) every tap target is at least **44 × 44px**; links inside running text and breadcrumbs are exempt.
+  - Inputs are **16px** under 720px, so iPhones don't zoom in on focus. No text is smaller than 12px.
+  - Tables: under 720px each row is a labelled card; between 720px and 1279px columns marked `optional` step aside so a row fits.
+  - Tabs scroll sideways with a fade at the edge on phones; the "Why" points become compact rows and the stats stack their icons under 640px.
+  - Dialogs become bottom sheets with full-width buttons on phones.
 
 ### Motion and states
 - **Motion:**

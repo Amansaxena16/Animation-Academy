@@ -79,7 +79,7 @@ export function Logo({
     <Link
       href={href}
       aria-label="Animation Academy home"
-      className="inline-flex"
+      className="inline-flex min-h-11 min-w-11 items-center"
     >
       {content}
     </Link>

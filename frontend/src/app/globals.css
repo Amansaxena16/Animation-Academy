@@ -4,6 +4,9 @@
 /* Dark mode follows data-theme on <html> (dark by default; see lib/theme.ts), not the OS setting. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* Touch screens (phones, tablets): every tap target grows to at least 44 × 44px. */
+@custom-variant touch (@media (pointer: coarse));
+
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;

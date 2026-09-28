@@ -227,7 +227,7 @@ function StudentRecord({ student }: { student: AdminStudent }) {
               >
                 <div>
                   <b className="block text-sm">{e.course.name}</b>
-                  <small className="text-ink-muted">
+                  <small className="text-ink-muted text-xs">
                     <span className="type-mono">{e.code}</span> · applied{" "}
                     {formatDateShort(e.applied_at)}
                     {e.certificate_code && (

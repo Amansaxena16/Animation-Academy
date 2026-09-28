@@ -88,7 +88,7 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
               type="button"
               aria-label="Close menu"
               onClick={() => setDrawer(false)}
-              className="bg-surface-raised text-ink absolute top-4 -right-12 grid size-10 place-items-center rounded-md"
+              className="bg-surface-raised text-ink touch:size-11 absolute top-4 -right-12 grid size-10 place-items-center rounded-md"
             >
               <X className="size-5" />
             </button>
@@ -102,7 +102,7 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
             type="button"
             aria-label="Open menu"
             onClick={() => setDrawer(true)}
-            className="text-ink hover:bg-surface-sunken grid size-10 place-items-center rounded-md lg:hidden"
+            className="text-ink hover:bg-surface-sunken touch:size-11 grid size-10 place-items-center rounded-md lg:hidden"
           >
             <Menu className="size-5" />
           </button>
@@ -128,7 +128,7 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
             <button
               type="button"
               onClick={signOut}
-              className="text-ink-muted hover:bg-surface-sunken hover:text-ink ml-1 inline-flex h-10 items-center gap-2 rounded-md px-3 text-sm font-semibold"
+              className="text-ink-muted hover:bg-surface-sunken hover:text-ink touch:h-11 touch:min-w-11 ml-1 inline-flex h-10 items-center justify-center gap-2 rounded-md px-3 text-sm font-semibold"
             >
               <LogOut className="size-[18px]" />
               <span className="max-sm:sr-only">Log Out</span>

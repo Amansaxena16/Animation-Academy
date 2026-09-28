@@ -18,7 +18,7 @@ export function BackButton({
     <Link
       href={href}
       className={cn(
-        "group border-line bg-surface-raised text-ink-muted rounded-pill inline-flex h-[34px] items-center gap-1.5 self-start border pr-3.5 pl-2.5 text-sm font-medium no-underline transition-colors",
+        "group border-line bg-surface-raised text-ink-muted rounded-pill touch:h-11 inline-flex h-[34px] items-center gap-1.5 self-start border pr-3.5 pl-2.5 text-sm font-medium no-underline transition-colors",
         "hover:border-line-hover hover:bg-surface-sunken hover:text-ink print:hidden",
         className,
       )}

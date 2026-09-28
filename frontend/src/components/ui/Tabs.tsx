@@ -14,7 +14,7 @@ export interface TabItem<K extends string = string> {
 
 const tabClass = (active: boolean) =>
   cn(
-    "-mb-px whitespace-nowrap border-b-2 px-3.5 py-3 text-sm leading-5 font-semibold no-underline",
+    "touch:min-w-11 -mb-px shrink-0 snap-start whitespace-nowrap border-b-2 px-3.5 py-3 text-sm leading-5 font-semibold no-underline",
     active
       ? "border-brand text-brand-ink"
       : "border-transparent text-ink-muted hover:text-ink",
@@ -37,6 +37,8 @@ export function Tabs<K extends string>({
       role="tablist"
       className={cn(
         "border-line flex [scrollbar-width:none] gap-1 overflow-x-auto border-b",
+        // Phones: tabs scroll sideways; the fade at the edge says there are more.
+        "max-md:snap-x max-md:[mask-image:linear-gradient(90deg,#000_calc(100%-40px),transparent)] max-md:pr-8",
         className,
       )}
     >
@@ -93,7 +95,7 @@ export function SegmentedControl<K extends string>({
     <div
       role="group"
       aria-label={label}
-      className="bg-surface-sunken inline-flex w-fit gap-1 self-start rounded-md p-1"
+      className="bg-surface-sunken inline-flex w-fit max-w-full [scrollbar-width:none] gap-1 self-start overflow-x-auto rounded-md p-1"
     >
       {items.map((t) => (
         <button
@@ -102,7 +104,7 @@ export function SegmentedControl<K extends string>({
           aria-pressed={active === t.key}
           onClick={() => onChange(t.key)}
           className={cn(
-            "rounded-[7px] px-3 py-1.5 text-[13px] leading-5 font-semibold",
+            "touch:min-h-11 touch:min-w-11 shrink-0 rounded-[7px] px-3 py-1.5 text-[13px] leading-5 font-semibold",
             active === t.key
               ? "bg-surface-raised text-ink shadow-sm"
               : "text-ink-muted hover:text-ink",

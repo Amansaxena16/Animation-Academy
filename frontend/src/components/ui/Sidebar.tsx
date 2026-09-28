@@ -52,7 +52,7 @@ export function Sidebar({
         return (
           <div key={item.href}>
             {item.group && (
-              <div className="text-ink-muted px-3 pt-4 pb-1.5 text-[11px] leading-4 font-bold tracking-[0.1em] uppercase">
+              <div className="text-ink-muted px-3 pt-4 pb-1.5 text-xs leading-4 font-bold tracking-[0.1em] uppercase">
                 {item.group}
               </div>
             )}
@@ -61,7 +61,7 @@ export function Sidebar({
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm leading-5 font-medium no-underline",
+                "touch:min-h-12 flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm leading-5 font-medium no-underline",
                 active
                   ? "bg-brand-soft text-brand-ink shadow-[inset_3px_0_0_var(--accent)]"
                   : "text-ink-muted hover:bg-surface-sunken hover:text-ink",
@@ -73,7 +73,7 @@ export function Sidebar({
               />
               {item.label}
               {item.count ? (
-                <span className="rounded-pill bg-accent text-on-accent ml-auto px-[7px] py-px text-[11px] font-bold">
+                <span className="rounded-pill bg-accent text-on-accent ml-auto px-[7px] py-px text-xs font-bold">
                   {item.count}
                   <span className="sr-only"> pending</span>
                 </span>
@@ -109,7 +109,7 @@ export function BottomNav({
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex min-h-12 flex-1 flex-col items-center justify-center gap-[3px] rounded-md px-0.5 py-1.5 text-[11px] font-semibold no-underline",
+              "flex min-h-12 flex-1 flex-col items-center justify-center gap-[3px] rounded-md px-0.5 py-1.5 text-xs font-semibold no-underline",
               active ? "text-navy-ink" : "text-ink-muted",
             )}
           >

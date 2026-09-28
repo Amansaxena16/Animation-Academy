@@ -101,7 +101,7 @@ export function CourseCard({
       </div>
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-brand-ink text-[11px] leading-4 font-bold tracking-[0.1em] uppercase">
+          <span className="text-brand-ink text-xs leading-4 font-bold tracking-[0.1em] uppercase">
             {course.kind} · {course.duration_label}
           </span>
           <Badge tone="outline" pill>

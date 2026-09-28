@@ -231,7 +231,7 @@ export default async function HomePage() {
                 href={mapsHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-brand-ink mt-auto font-semibold"
+                className="text-brand-ink touch:min-h-11 mt-auto inline-flex items-center font-semibold"
               >
                 Open in Google Maps
               </a>
@@ -244,7 +244,7 @@ export default async function HomePage() {
                   <li key={p}>
                     <a
                       href={telHref(p)}
-                      className="text-ink text-lg font-semibold no-underline hover:underline"
+                      className="text-ink touch:min-h-11 inline-flex items-center text-lg font-semibold no-underline hover:underline"
                     >
                       {p}
                     </a>
@@ -256,7 +256,7 @@ export default async function HomePage() {
                   href={whatsappHref(phone)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-brand-ink mt-auto inline-flex items-center gap-2 font-semibold"
+                  className="text-brand-ink touch:min-h-11 mt-auto inline-flex items-center gap-2 font-semibold"
                 >
                   <MessageCircle className="size-4" aria-hidden /> Message on
                   WhatsApp
@@ -268,13 +268,13 @@ export default async function HomePage() {
               <h3 className="type-h3 m-0">Email</h3>
               <a
                 href={`mailto:${site.email}`}
-                className="text-ink font-semibold break-all no-underline hover:underline"
+                className="text-ink touch:min-h-11 inline-flex items-center font-semibold break-all no-underline hover:underline"
               >
                 {site.email}
               </a>
               <a
                 href="#admission"
-                className="text-brand-ink mt-auto font-semibold"
+                className="text-brand-ink touch:min-h-11 mt-auto inline-flex items-center font-semibold"
               >
                 Or send a message
               </a>

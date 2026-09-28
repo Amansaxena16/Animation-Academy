@@ -27,10 +27,10 @@ const VARIANTS = {
 } as const;
 
 const SIZES = {
-  sm: "h-[34px] px-3 text-[13px]",
-  md: "h-[42px] px-[18px] text-sm",
+  sm: "h-[34px] px-3 text-[13px] touch:h-11",
+  md: "h-[42px] px-[18px] text-sm touch:h-11",
   lg: "h-[50px] px-6 text-[15px]",
-  icon: "size-[38px] p-0",
+  icon: "size-[38px] p-0 touch:size-11",
 } as const;
 
 export type ButtonVariant = keyof typeof VARIANTS;
@@ -50,7 +50,7 @@ export function buttonClasses({
   loading,
 }: StyleProps = {}) {
   return cn(
-    "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border",
+    "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border touch:min-w-11",
     "font-sans font-semibold leading-5 no-underline transition-[background,border-color,color,transform,box-shadow,filter] duration-150",
     "active:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
     "[&_svg]:size-[18px] [&_svg]:shrink-0",

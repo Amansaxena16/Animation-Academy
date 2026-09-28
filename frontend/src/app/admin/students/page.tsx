@@ -104,7 +104,7 @@ export default function StudentsPage() {
                   render: (s) => (
                     <Link
                       href={`/admin/students/${s.code}`}
-                      className="text-ink no-underline"
+                      className="text-ink touch:min-h-11 flex items-center no-underline"
                     >
                       <CellUser
                         avatar={
@@ -125,14 +125,24 @@ export default function StudentsPage() {
                   header: "Contact",
                   render: (s) => (
                     <div className="min-w-[160px]">
-                      <a href={`tel:+91${s.mobile}`} className="block">
+                      <a
+                        href={`tel:+91${s.mobile}`}
+                        className="touch:min-h-11 flex items-center"
+                      >
                         {s.mobile}
                       </a>
-                      <small className="text-ink-muted">{s.email}</small>
+                      <small className="text-ink-muted text-xs">
+                        {s.email}
+                      </small>
                     </div>
                   ),
                 },
-                { key: "city", header: "City", render: (s) => s.city },
+                {
+                  key: "city",
+                  optional: true,
+                  header: "City",
+                  render: (s) => s.city,
+                },
                 {
                   key: "courses",
                   header: "Courses",
@@ -149,6 +159,7 @@ export default function StudentsPage() {
                 },
                 {
                   key: "joined",
+                  optional: true,
                   header: "Joined",
                   render: (s) => formatDateShort(s.joined_at),
                 },

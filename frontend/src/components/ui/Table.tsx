@@ -12,6 +12,9 @@ export interface Column<T> {
   className?: string;
   /** Right-aligned action buttons; no label on mobile. */
   actions?: boolean;
+  /** A secondary column that steps aside on tablets and small laptops (720–1279px) so a row
+   *  fits without scrolling sideways. Phones still show it: each row is a labelled card. */
+  optional?: boolean;
 }
 
 interface TableProps<T> {
@@ -46,6 +49,7 @@ export function Table<T>({
                 className={cn(
                   "bg-surface-sunken text-ink-muted px-4 py-3 text-left text-xs leading-4 font-semibold tracking-[0.04em] whitespace-nowrap uppercase",
                   c.actions && "text-right",
+                  c.optional && "md:max-xl:hidden",
                 )}
               >
                 {c.actions ? (
@@ -73,6 +77,7 @@ export function Table<T>({
                     i > 0 &&
                       !c.actions &&
                       "max-md:before:text-ink-muted max-md:before:text-xs max-md:before:font-semibold max-md:before:tracking-[0.04em] max-md:before:uppercase max-md:before:content-[attr(data-label)]",
+                    c.optional && "md:max-xl:hidden",
                     c.className,
                   )}
                 >
@@ -152,7 +157,7 @@ export function Pager({ page, pageSize, count, onPage }: PagerProps) {
               onClick={() => onPage(p)}
               aria-current={p === page ? "page" : undefined}
               className={cn(
-                "h-[34px] min-w-[34px] rounded-sm border text-[13px] font-semibold",
+                "touch:h-11 touch:min-w-11 h-[34px] min-w-[34px] rounded-sm border text-[13px] font-semibold",
                 p === page
                   ? "border-navy bg-navy text-on-navy"
                   : "border-line bg-surface-raised text-ink hover:border-line-strong",

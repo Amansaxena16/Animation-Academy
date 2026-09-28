@@ -79,7 +79,7 @@ export function ConfirmModal({
 
   return createPortal(
     <div
-      className="animate-fade fixed inset-0 z-80 grid place-items-center bg-[rgba(15,23,42,0.55)] p-5"
+      className="animate-fade fixed inset-0 z-80 grid place-items-center bg-[rgba(15,23,42,0.55)] p-5 max-md:place-items-end max-md:p-3"
       onMouseDown={(e) =>
         e.target === e.currentTarget && !loading && onCancel()
       }
@@ -111,7 +111,7 @@ export function ConfirmModal({
         <div id={textId} className="text-ink-muted m-0 text-sm leading-[22px]">
           {text}
         </div>
-        <div className="mt-6 flex flex-wrap justify-end gap-2.5">
+        <div className="mt-6 flex flex-wrap justify-end gap-2.5 max-md:flex-col-reverse max-md:[&>*]:w-full">
           <Button
             ref={cancel}
             variant="secondary"
