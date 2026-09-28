@@ -364,6 +364,8 @@ Seed: `seed_content` loads the settings defaults and the 7 sample announcements.
 
 ## Phase 5 — Admission (registration) ✅ done (26 Sep 2026)
 
+> **Retired (28 Sep 2026):** the public admission form and its API (`POST /admissions/`, `POST /admissions/validate/`) were removed; admissions are made by the office in the console (Students → Add a student), and `/admission` redirects to `/contact`. Signed-in students still ask for further courses, now at `/student/apply`. The section below is kept as the record of what was built.
+
 **How it was built** (differences from the plan below are marked ⚠):
 - **Models (`students`):**
   - `Student`: 1:1 with User. The name is stored in capitals; the code `AA-STU-…` comes from the pk. ⚠ `gender` is optional (the paper form has no gender). `qualifications` is JSON checked by `validate_qualifications`: exactly the 4 exams in order, a 4-digit year from 1950 to now, a percentage from 0 to 100, and High School year and board required.
@@ -716,6 +718,11 @@ Pages under `/admin/…`, in the same order as above: Dashboard → Enrollments 
 7. **SEO:** metadata per page, `sitemap.xml`, `robots.txt`, OG image (`aa-social.png`), JSON-LD `EducationalOrganization` + `Course`.
 
 ---
+
+> **28 Sep 2026: one-page public site.** The public website is now a single page: hero, a latest-updates strip, numbers, all courses (category filter; cards expand in place to show the syllabus), about, admission steps with the message form, contact, and footer.
+> - The message form asks for name and mobile (required), plus an optional course and message. "Enquire" on a card pre-fills the course.
+> - The old /courses, /courses/<slug>, /updates, /contact, /about and /admission addresses redirect (307, temporary) to their sections.
+> - `/verify` and the login stay as pages. The dark header is nearly solid.
 
 ## Phase 10 — Deployment 🟡 prepared (27 Sep 2026); goes live once the hosting accounts exist
 

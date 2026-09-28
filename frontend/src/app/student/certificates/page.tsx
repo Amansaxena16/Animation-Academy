@@ -3,6 +3,7 @@
 import { Award, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
+import { BackButton } from "@/components/ui/BackButton";
 import { Alert } from "@/components/ui/Alert";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -15,7 +16,8 @@ export default function CertificatesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
+      <BackButton href="/student" label="Dashboard" />
+      <div className="-mt-3">
         <h1 className="type-h1 m-0">Certificates</h1>
         <p className="text-ink-muted mt-1 mb-0">
           Download or print your certificates, and share a link anyone can use

@@ -118,7 +118,7 @@ export default function AdminDashboard() {
                   render: (e) => (
                     <Link
                       href={`/admin/students/${e.student.code}`}
-                      className="text-ink no-underline"
+                      className="text-ink touch:min-h-11 flex items-center no-underline"
                     >
                       <CellUser
                         avatar={
@@ -141,9 +141,13 @@ export default function AdminDashboard() {
                 },
                 {
                   key: "mobile",
+                  optional: true,
                   header: "Mobile",
                   render: (e) => (
-                    <a href={`tel:+91${e.student.mobile}`}>
+                    <a
+                      href={`tel:+91${e.student.mobile}`}
+                      className="touch:min-h-11 inline-flex items-center"
+                    >
                       {e.student.mobile}
                     </a>
                   ),
@@ -192,7 +196,7 @@ export default function AdminDashboard() {
                       {m.phone && (
                         <a
                           href={`tel:+91${m.phone}`}
-                          className="text-navy-ink text-[13px] font-semibold"
+                          className="text-navy-ink touch:min-h-11 inline-flex items-center self-start text-[13px] font-semibold"
                         >
                           Call {m.phone}
                         </a>

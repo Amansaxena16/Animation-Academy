@@ -93,9 +93,9 @@ export function LoginForm({ next }: { next: string | null }) {
         </Button>
       </form>
       <p className="text-ink-muted mt-6 mb-0 text-center text-sm">
-        New here?{" "}
-        <Link href="/admission" className="text-navy-ink font-semibold">
-          Apply for admission
+        New here? Admissions are made at the institute office.{" "}
+        <Link href="/#contact" className="text-navy-ink font-semibold">
+          Talk to a counsellor
         </Link>
       </p>
     </Card>

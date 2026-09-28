@@ -15,12 +15,22 @@ export function watch(page: Page, problems: string[]) {
   page.on("pageerror", (err) => problems.push(`Page error: ${err.message}`));
 }
 
+/** The site is dark unless the visitor picks light; each project ("light", "dark") saves its
+ *  theme before any page loads, so both themes are checked. */
+const themeFor = (project: string) => (project === "light" ? "light" : "dark");
+const saveTheme = (context: BrowserContext, theme: string) =>
+  context.addInitScript((t) => localStorage.setItem("aa-theme", t), theme);
+
 /** Every test fails if a watched page logs a CSP violation or throws. Extra pages opened with
  *  `newPage` (a separate login) are watched too. */
 export const test = base.extend<{
   problems: string[];
   newPage: () => Promise<Page>;
 }>({
+  context: async ({ context }, provide, testInfo) => {
+    await saveTheme(context, themeFor(testInfo.project.name));
+    await provide(context);
+  },
   problems: [
     async ({ page }, provide) => {
       const problems: string[] = [];
@@ -30,10 +40,11 @@ export const test = base.extend<{
     },
     { auto: true },
   ],
-  newPage: async ({ browser, problems }, provide) => {
+  newPage: async ({ browser, problems }, provide, testInfo) => {
     const contexts: BrowserContext[] = [];
     await provide(async () => {
       const context = await browser.newContext();
+      await saveTheme(context, themeFor(testInfo.project.name));
       contexts.push(context);
       const page = await context.newPage();
       watch(page, problems);

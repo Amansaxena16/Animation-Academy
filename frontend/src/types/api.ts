@@ -313,43 +313,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admissions/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * @description Apply online: creates the login, the student (Pending) and the enrollment (Pending),
-         *     then signs the new student in.
-         */
-        post: operations["admissions_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admissions/validate/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description Check one step of the form before moving on. Nothing is saved. */
-        post: operations["admissions_validate_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/announcements/": {
         parameters: {
             query?: never;
@@ -700,9 +663,10 @@ export interface components {
         AdminContactMessage: {
             readonly id: number;
             readonly name: string;
+            readonly phone: string;
             /** Format: email */
             readonly email: string;
-            readonly phone: string;
+            readonly course: string;
             readonly message: string;
             handled?: boolean;
             /** Format: date-time */
@@ -863,7 +827,7 @@ export interface components {
             registration_fee?: number;
             /** @description Signs the certificates (Phase 7). */
             director_name?: string;
-            /** @description Off: the admission form says registration is closed. */
+            /** @description Off: students can't request new courses from their portal. */
             allow_registration?: boolean;
             /** @description On: the public site shows a maintenance page. */
             maintenance_mode?: boolean;
@@ -952,46 +916,6 @@ export interface components {
             readonly photo: string | null;
             readonly status: components["schemas"]["StudentStatusEnum"];
         };
-        /** @description All four steps plus an optional photo (JPEG or PNG, up to 2 MB). */
-        AdmissionRequest: {
-            /** Format: email */
-            email: string;
-            password: string;
-            name: string;
-            father_name: string;
-            /** Format: date */
-            dob: string;
-            gender?: components["schemas"]["GenderEnum"] | components["schemas"]["BlankEnum"];
-            address: string;
-            pincode: string;
-            /** @default Kanpur */
-            city: string;
-            mobile: string;
-            /** @default  */
-            phone: string;
-            qualifications: unknown;
-            course: string;
-            employment: components["schemas"]["EmploymentEnum"];
-            accept_no_refund: boolean;
-            /** Format: binary */
-            photo?: string | null;
-        };
-        AdmissionResult: {
-            student_code: string;
-            enrollment_code: string;
-            course: components["schemas"]["CourseRef"];
-            access: string;
-            user: components["schemas"]["User"];
-        };
-        AdmissionStepRequest: {
-            step: components["schemas"]["StepEnum"];
-            data: {
-                [key: string]: unknown;
-            };
-        };
-        AdmissionStepValid: {
-            valid: boolean;
-        };
         Announcement: {
             readonly id: number;
             readonly title: string;
@@ -1050,12 +974,15 @@ export interface components {
             old_password: string;
             new_password: string;
         };
+        /**
+         * @description The website's message form: name and phone (the office calls back), plus an optional
+         *     course and message.
+         */
         ContactRequest: {
             name: string;
-            /** Format: email */
-            email: string;
-            phone?: string;
-            message: string;
+            phone: string;
+            course?: string | null;
+            message?: string;
             website?: string;
         };
         ContactSent: {
@@ -1133,10 +1060,6 @@ export interface components {
             readonly schedule: string;
             /** @description Text, so "Every Monday" works too. */
             readonly next_batch_start: string;
-        };
-        CourseRef: {
-            slug: string;
-            name: string;
         };
         /**
          * @description * `Published` - Published
@@ -1382,7 +1305,7 @@ export interface components {
             registration_fee?: number;
             /** @description Signs the certificates (Phase 7). */
             director_name?: string;
-            /** @description Off: the admission form says registration is closed. */
+            /** @description Off: students can't request new courses from their portal. */
             allow_registration?: boolean;
             /** @description On: the public site shows a maintenance page. */
             maintenance_mode?: boolean;
@@ -1490,7 +1413,7 @@ export interface components {
             readonly address: string;
             /** @description One-time, in rupees. */
             readonly registration_fee: number;
-            /** @description Off: the admission form says registration is closed. */
+            /** @description Off: students can't request new courses from their portal. */
             readonly allow_registration: boolean;
             /** @description On: the public site shows a maintenance page. */
             readonly maintenance_mode: boolean;
@@ -1500,14 +1423,6 @@ export interface components {
             value: string;
             label: string;
         };
-        /**
-         * @description * `account` - account
-         *     * `personal` - personal
-         *     * `education` - education
-         *     * `course` - course
-         * @enum {string}
-         */
-        StepEnum: "account" | "personal" | "education" | "course";
         StudentEnrollment: {
             code: string;
             status: string;
@@ -2319,62 +2234,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TemporaryPassword"];
-                };
-            };
-        };
-    };
-    admissions_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["AdmissionRequest"];
-                "application/json": components["schemas"]["AdmissionRequest"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdmissionResult"];
-                };
-            };
-            /** @description Registration is closed. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    admissions_validate_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AdmissionStepRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["AdmissionStepRequest"];
-                "multipart/form-data": components["schemas"]["AdmissionStepRequest"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdmissionStepValid"];
                 };
             };
         };

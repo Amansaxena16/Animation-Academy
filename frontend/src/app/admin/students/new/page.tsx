@@ -1,7 +1,6 @@
 "use client";
 
-import { ArrowLeft, Copy, UserCheck } from "lucide-react";
-import Link from "next/link";
+import { Copy, UserCheck } from "lucide-react";
 import { useState } from "react";
 
 import { PageHeader } from "@/components/admin/PageHeader";
@@ -123,13 +122,8 @@ export default function NewStudentPage() {
   return (
     <form onSubmit={save} noValidate className="flex flex-col gap-6">
       <div>
-        <Link
-          href="/admin/students"
-          className="text-ink-muted hover:text-navy-ink inline-flex items-center gap-1.5 text-sm no-underline"
-        >
-          <ArrowLeft className="size-4" aria-hidden /> Students
-        </Link>
         <PageHeader
+          back={{ href: "/admin/students", label: "Students" }}
           title="Add a student"
           text="For someone applying at the office. The record is active straight away, and a temporary password is created for their login."
         />

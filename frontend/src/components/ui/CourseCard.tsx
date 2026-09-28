@@ -4,7 +4,6 @@ import Link from "next/link";
 
 import { cn } from "@/lib/cn";
 import { feeHeadline, feeSubline, type CourseFee } from "@/lib/format";
-import { levelTone } from "@/lib/status";
 import type { Course } from "@/types/course";
 
 import { Badge } from "./Badge";
@@ -62,10 +61,14 @@ export function FeeBox({
   );
 }
 
+/** Enroll Now: the student portal's one-step course request. Visitors who aren't signed in are
+ *  sent to Login first and come back here; new students are admitted by the office. */
+export const applyHref = (slug: string) => `/student/apply?course=${slug}`;
+
 interface CourseCardProps {
   course: Course;
   registrationFee?: number;
-  /** Where Enroll Now goes; the admission form by default. */
+  /** Where Enroll Now goes; the student's course request by default. */
   enrollHref?: string;
 }
 
@@ -74,10 +77,10 @@ export function CourseCard({
   registrationFee,
   enrollHref,
 }: CourseCardProps) {
-  const href = `/courses/${course.slug}`;
+  const href = `/#course-${course.slug}`;
   return (
     <Card hover className="group relative flex h-full flex-col overflow-hidden">
-      <div className="bg-navy relative aspect-[16/10] overflow-hidden">
+      <div className="bg-surface-sunken border-line relative aspect-[16/10] overflow-hidden border-b">
         {course.image ? (
           <img
             src={course.image}
@@ -96,14 +99,16 @@ export function CourseCard({
           </Badge>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-2.5 px-5 pt-[18px] pb-5">
+      <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-accent-ink text-[11px] leading-4 font-bold tracking-[0.08em] uppercase">
+          <span className="text-brand-ink text-xs leading-4 font-bold tracking-[0.1em] uppercase">
             {course.kind} · {course.duration_label}
           </span>
-          <Badge tone={levelTone[course.level]}>{course.level}</Badge>
+          <Badge tone="outline" pill>
+            {course.level}
+          </Badge>
         </div>
-        <h3 className="font-display text-ink m-0 text-[17px] leading-6 font-semibold">
+        <h3 className="font-display text-ink m-0 text-xl leading-[27px] font-semibold tracking-[-0.015em]">
           <Link
             href={href}
             className="hover:text-brand-ink text-inherit no-underline after:absolute after:inset-0 focus-visible:outline-none"
@@ -124,7 +129,7 @@ export function CourseCard({
             {course.category}
           </span>
         </div>
-        <div className="border-line mt-auto border-t pt-3.5">
+        <div className="mt-auto pt-1.5">
           <Price fee={course} registrationFee={registrationFee} />
         </div>
         {/* relative + z-10 keeps the buttons above the card-wide title link */}
@@ -138,7 +143,7 @@ export function CourseCard({
             View Details
           </ButtonLink>
           <ButtonLink
-            href={enrollHref ?? `/admission?course=${course.slug}`}
+            href={enrollHref ?? applyHref(course.slug)}
             variant="accent"
             size="sm"
             className="flex-1"

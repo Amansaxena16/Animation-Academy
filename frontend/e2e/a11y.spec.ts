@@ -1,17 +1,6 @@
 import { admin, expect, expectAccessible, login, test } from "./fixtures";
 
-const PUBLIC = [
-  "/",
-  "/courses",
-  "/courses/pdm",
-  "/admission",
-  "/about",
-  "/updates",
-  "/contact",
-  "/verify",
-  "/login",
-  "/no-such-page",
-];
+const PUBLIC = ["/", "/verify", "/login", "/no-such-page"];
 
 const ADMIN = [
   "/admin",

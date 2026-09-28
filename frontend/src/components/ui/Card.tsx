@@ -3,7 +3,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 interface CardProps extends ComponentProps<"div"> {
-  /** Lift 2px with a stronger shadow on hover. */
+  /** Lift 2px, light up the border and deepen the shadow on hover. */
   hover?: boolean;
   /** space-6 padding (space-4 on mobile). */
   pad?: boolean;
@@ -15,7 +15,7 @@ export function Card({ hover, pad, className, ...rest }: CardProps) {
       className={cn(
         "border-line bg-surface-raised rounded-lg border shadow-sm",
         hover &&
-          "transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-md",
+          "hover:border-line-hover transition-[box-shadow,transform,border-color] duration-200 hover:-translate-y-0.5 hover:shadow-md",
         pad && "p-4 md:p-6",
         className,
       )}

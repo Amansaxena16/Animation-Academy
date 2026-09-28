@@ -2,7 +2,7 @@
 
 import { ArrowRight, BookOpen, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Alert } from "@/components/ui/Alert";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -18,35 +18,17 @@ import { feeLong, inr, titleCase } from "@/lib/format";
 import { useApply } from "@/lib/student";
 import type { Course } from "@/types/course";
 
-import { AdmissionForm } from "./AdmissionForm";
-
 interface Props {
   courses: Course[];
   initialCourse: string;
   registrationFee: number;
 }
 
-/** /admission for someone who is already signed in: a student applies for another course in
- *  one step; staff are pointed to the console. Falls back to the full form if the session
- *  turns out to have ended. */
-export function ApplyAsStudent(props: Props) {
-  const { status, user, ensureSession } = useAuth();
-
-  useEffect(() => {
-    void ensureSession();
-  }, [ensureSession]);
-
-  if (status === "idle" || status === "loading")
-    return <Skeleton className="h-72 rounded-lg" />;
-  if (!user) return <AdmissionForm {...props} />;
-  if (user.role === "admin") {
-    return (
-      <Alert title="You're signed in as institute staff">
-        Students apply here themselves. To add a student yourself, use the admin
-        console.
-      </Alert>
-    );
-  }
+/** A signed-in student applies for another course in one step: their details are already on
+ *  record. The office confirms the seat (admissions themselves are made in the admin console). */
+export function ApplyForCourse(props: Props) {
+  const { user } = useAuth();
+  if (!user) return <Skeleton className="h-72 rounded-lg" />;
   return <ApplyCard {...props} name={titleCase(user.name)} />;
 }
 
@@ -139,7 +121,7 @@ function ApplyCard({
       <aside className="flex flex-col gap-4 self-start">
         {course ? (
           <Card pad className="flex flex-col gap-4">
-            <span className="type-overline text-accent-ink">
+            <span className="type-overline text-brand-ink">
               You&apos;re applying for
             </span>
             <div>

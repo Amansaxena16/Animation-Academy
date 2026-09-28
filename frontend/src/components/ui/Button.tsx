@@ -6,25 +6,31 @@ import { cn } from "@/lib/cn";
 // Each variant sets its own border colour: a shared border-transparent would override them.
 const VARIANTS = {
   /** Azure. One per view: the main action. */
-  primary: "border-transparent bg-brand text-on-brand hover:bg-brand-deep",
+  primary:
+    "border-transparent bg-brand text-on-brand shadow-sm hover:bg-brand-deep",
   /** Navy. An equally strong alternative, e.g. Download Prospectus. */
   navy: "border-transparent bg-navy text-on-navy hover:bg-navy-deep",
   /** Orange. Only Enroll Now and fee payment. */
-  accent: "border-transparent bg-accent text-on-accent hover:shadow-md",
-  secondary: "bg-surface-raised text-ink border-line-strong hover:border-ink",
-  ghost: "border-transparent bg-transparent text-navy-ink hover:bg-navy-soft",
+  accent:
+    "border-transparent bg-accent text-on-accent shadow-sm hover:brightness-95 hover:shadow-md",
+  /** Quiet grey fill (light grey on dark): View Details, Talk to a Counsellor. */
+  secondary: "bg-alt text-on-alt border-alt-line hover:bg-alt-hover",
+  ghost:
+    "border-transparent bg-transparent text-navy-ink hover:bg-surface-sunken",
   /** Always behind a confirmation Modal. */
   danger: "border-transparent bg-danger text-white hover:brightness-90",
-  /** On navy bands. */
+  /** White, on the blue banner (fixed colours: 8.4:1 in both themes). */
+  light: "border-transparent bg-white text-[#0a4f8a] hover:bg-[#eaf2fb]",
+  /** On the blue banner and other solid colour bands. */
   inverse:
     "bg-transparent text-on-navy border-white/50 hover:bg-white/10 hover:border-white",
 } as const;
 
 const SIZES = {
-  sm: "h-[34px] px-3 text-[13px]",
-  md: "h-[42px] px-[18px] text-sm",
+  sm: "h-[34px] px-3 text-[13px] touch:h-11",
+  md: "h-[42px] px-[18px] text-sm touch:h-11",
   lg: "h-[50px] px-6 text-[15px]",
-  icon: "size-[38px] p-0",
+  icon: "size-[38px] p-0 touch:size-11",
 } as const;
 
 export type ButtonVariant = keyof typeof VARIANTS;
@@ -44,7 +50,7 @@ export function buttonClasses({
   loading,
 }: StyleProps = {}) {
   return cn(
-    "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border",
+    "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border touch:min-w-11",
     "font-sans font-semibold leading-5 no-underline transition-[background,border-color,color,transform,box-shadow,filter] duration-150",
     "active:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
     "[&_svg]:size-[18px] [&_svg]:shrink-0",

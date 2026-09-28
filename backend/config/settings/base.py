@@ -157,8 +157,6 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
     "DEFAULT_THROTTLE_RATES": {
         "login": "10/min",
-        "admission": "5/hour",
-        "admission_check": "30/min",
         "apply": "10/hour",
         "contact": "5/hour",
         "verify": "30/min",

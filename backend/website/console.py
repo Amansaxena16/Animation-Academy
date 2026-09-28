@@ -261,10 +261,12 @@ class AdminSiteView(AdminView, APIView):
 
 
 class AdminContactMessageSerializer(serializers.ModelSerializer):
+    course = serializers.CharField(source="course.name", read_only=True, default=None)
+
     class Meta:
         model = ContactMessage
-        fields = ["id", "name", "email", "phone", "message", "handled", "created_at"]
-        read_only_fields = ["id", "name", "email", "phone", "message", "created_at"]
+        fields = ["id", "name", "phone", "email", "course", "message", "handled", "created_at"]
+        read_only_fields = ["id", "name", "phone", "email", "course", "message", "created_at"]
 
 
 class AdminContactMessageListView(AdminView, generics.ListAPIView):
@@ -275,7 +277,7 @@ class AdminContactMessageListView(AdminView, generics.ListAPIView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        items = ContactMessage.objects.order_by("handled", "-created_at")
+        items = ContactMessage.objects.select_related("course").order_by("handled", "-created_at")
         handled = bool_param(self.request, "handled")
         return items if handled is None else items.filter(handled=handled)
 

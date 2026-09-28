@@ -156,7 +156,7 @@ class TestSiteSettings:
 class TestContactMessages:
     def test_list_and_mark_handled(self, office):
         m = ContactMessage.objects.create(
-            name="Meera", email="m@example.in", message="Which DTP batch?"
+            name="Meera", phone="9015177420", message="Which DTP batch?"
         )
         assert office.get(f"{A}/contact-messages/", {"handled": "false"}).data["count"] == 1
         res = office.patch(

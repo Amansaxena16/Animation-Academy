@@ -22,13 +22,13 @@ export function EnrollmentCard({
     <Card className={cn("flex flex-col gap-3", compact ? "p-4" : "p-5")}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <span className="text-accent-ink text-[11px] leading-4 font-bold tracking-[0.08em] uppercase">
+          <span className="text-brand-ink text-xs leading-4 font-bold tracking-[0.08em] uppercase">
             {course.kind} · {course.duration_label}
           </span>
           <h3 className="type-h3 m-0">
             <Link
-              href={`/courses/${course.slug}`}
-              className="text-ink hover:text-brand-ink no-underline"
+              href={`/#course-${course.slug}`}
+              className="text-ink hover:text-brand-ink touch:min-h-11 touch:inline-flex touch:items-center no-underline"
             >
               {course.name}
             </Link>
@@ -67,7 +67,7 @@ export function EnrollmentCard({
       {enrollment.certificate_code ? (
         <Link
           href={`/student/certificates/${enrollment.certificate_code}`}
-          className="bg-success-soft text-success-ink inline-flex items-center gap-2 self-start rounded-md px-3 py-2 text-sm font-semibold no-underline hover:underline"
+          className="bg-success-soft text-success-ink touch:min-h-11 inline-flex items-center gap-2 self-start rounded-md px-3 py-2 text-sm font-semibold no-underline hover:underline"
         >
           <Award className="size-4" aria-hidden />
           Certificate{" "}

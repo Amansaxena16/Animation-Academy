@@ -58,6 +58,7 @@ export default function CertificatesPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        back={{ href: "/admin", label: "Dashboard" }}
         title="Certificates"
         text={
           <>
@@ -128,10 +129,10 @@ export default function CertificatesPage() {
                   render: (c) => (
                     <Link
                       href={`/admin/students/${c.student.code}`}
-                      className="text-ink no-underline hover:underline"
+                      className="text-ink touch:min-h-11 flex flex-col justify-center no-underline hover:underline"
                     >
                       {titleCase(c.student.name)}
-                      <small className="type-mono text-ink-muted block">
+                      <small className="type-mono text-ink-muted block text-xs">
                         {c.student.code}
                       </small>
                     </Link>
@@ -144,12 +145,13 @@ export default function CertificatesPage() {
                 },
                 {
                   key: "issued",
+                  optional: true,
                   header: "Issued",
                   render: (c) => (
                     <span>
                       {formatDateLong(c.issued_on)}
                       {c.issued_by && (
-                        <small className="text-ink-muted block">
+                        <small className="text-ink-muted block text-xs">
                           by {titleCase(c.issued_by)}
                         </small>
                       )}

@@ -12,6 +12,8 @@ const TONES = {
   /** Solid navy: the prospectus course-header pill. */
   navy: "bg-navy text-on-navy",
   accent: "bg-accent text-on-accent",
+  /** Hairline outline, no fill: quiet facts on course cards (level). */
+  outline: "border border-line bg-transparent text-ink-muted",
 } as const;
 
 export type BadgeTone = keyof typeof TONES;
@@ -20,6 +22,8 @@ interface BadgeProps {
   tone?: BadgeTone;
   /** A leading dot for live statuses (Active, Pending…). */
   dot?: boolean;
+  /** Fully rounded instead of the 6px badge corner. */
+  pill?: boolean;
   className?: string;
   children: ReactNode;
 }
@@ -28,13 +32,15 @@ interface BadgeProps {
 export function Badge({
   tone = "neutral",
   dot,
+  pill,
   className,
   children,
 }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex h-6 items-center gap-1.5 rounded-sm px-[9px] text-xs leading-4 font-semibold whitespace-nowrap",
+        "inline-flex h-6 items-center gap-1.5 px-[9px] text-xs leading-4 font-semibold whitespace-nowrap",
+        pill ? "rounded-pill" : "rounded-sm",
         TONES[tone],
         className,
       )}

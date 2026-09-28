@@ -1,6 +1,7 @@
 export { Alert } from "./Alert";
 export { Announcement, type AnnouncementData } from "./Announcement";
 export { Avatar } from "./Avatar";
+export { BackButton } from "./BackButton";
 export { Badge, type BadgeTone } from "./Badge";
 export { Breadcrumbs } from "./Breadcrumbs";
 export { Button, ButtonLink, buttonClasses } from "./Button";
@@ -24,4 +25,5 @@ export { StatCard } from "./StatCard";
 export { Stepper } from "./Stepper";
 export { CellUser, Pager, Table, type Column } from "./Table";
 export { SegmentedControl, Tabs, type TabItem } from "./Tabs";
+export { ThemeToggle } from "./ThemeToggle";
 export { ToastProvider, useToast } from "./Toast";

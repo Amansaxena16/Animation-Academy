@@ -24,7 +24,7 @@ export function Announcement({ item }: { item: AnnouncementData }) {
         <b className="font-display text-ink text-xl leading-none font-bold">
           {day}
         </b>
-        <small className="text-ink-muted mt-1 text-[11px] font-bold tracking-[0.06em] uppercase">
+        <small className="text-ink-muted mt-1 text-xs font-bold tracking-[0.06em] uppercase">
           {month}
         </small>
       </time>

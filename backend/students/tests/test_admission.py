@@ -1,25 +1,20 @@
 import copy
-import io
 import json
-import re
 
 import pytest
-from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
-from PIL import Image
 
 from accounts.models import User
 from students.models import Enrollment, Student, blank_qualifications, validate_qualifications
-from website.models import Course, SiteSettings
+from students.serializers import EducationStep, PersonalStep
+from website.models import Course
 
 pytestmark = pytest.mark.django_db
 
 ADMIT = "/api/v1/admissions/"
 CHECK = "/api/v1/admissions/validate/"
-ME = "/api/v1/auth/me/"
 
 
 def quals():
@@ -60,64 +55,32 @@ def payload(**changes):
     return data
 
 
-def image_file(fmt="PNG", size=(1200, 1600), name="photo.png"):
-    buf = io.BytesIO()
-    Image.new("RGB", size, (30, 60, 110)).save(buf, format=fmt)
-    return SimpleUploadedFile(name, buf.getvalue(), content_type=f"image/{fmt.lower()}")
+class TestPublicAdmissionIsClosed:
+    """Admissions are made by the office in the admin console; the website takes none."""
+
+    @pytest.mark.parametrize("url", [ADMIT, CHECK])
+    def test_public_admission_endpoints_are_gone(self, api, url):
+        res = api.post(url, payload(), format="json")
+        assert res.status_code == 404
+        assert not User.objects.exists()
+        assert not Student.objects.exists()
 
 
-def multipart(**changes):
-    data = payload(**changes)
-    data["qualifications"] = json.dumps(data["qualifications"])
-    data["accept_no_refund"] = "true"
-    return data
+def personal(**changes):
+    return {k: v for k, v in payload(**changes).items() if k in PersonalStep().fields}
 
 
-class TestAdmission:
-    def test_creates_login_student_and_pending_enrollment_and_signs_in(self, api):
-        res = api.post(ADMIT, payload(), format="json")
-        assert res.status_code == 201, res.data
+class TestSharedValidation:
+    """The paper-form rules the console's student form and the student profile both use."""
 
-        assert re.fullmatch(r"AA-STU-\d{4}", res.data["student_code"])
-        assert re.fullmatch(r"EN-\d{4}", res.data["enrollment_code"])
-        assert res.data["course"] == {"slug": "pdm", "name": "Professional Diploma in Multimedia"}
-
-        user = User.objects.get(email="nisha.bhatt@gmail.com")
-        assert user.role == "student" and user.check_password(VALID["password"])
-        student = user.student
-        assert (student.name, student.father_name) == ("NISHA BHATT", "GIRISH BHATT")
-        assert student.mobile == "8826291458"
-        assert student.status == Student.Status.PENDING
-        assert student.qualifications[1]["percentage"] == "71.5"
-        enrollment = student.enrollments.get()
-        assert enrollment.status == Enrollment.Status.PENDING and enrollment.course.slug == "pdm"
-
-        # Signed in: the refresh cookie and role cookie are set, and the access token works.
-        cfg = django_settings.REFRESH_COOKIE
-        assert res.cookies[cfg["NAME"]]["httponly"]
-        assert res.cookies[cfg["SESSION_NAME"]].value == "student"
-        api.credentials(HTTP_AUTHORIZATION=f"Bearer {res.data['access']}")
-        me = api.get(ME).data
-        assert me["student_code"] == student.code and me["name"] == "NISHA BHATT"
-
-    def test_multipart_with_photo_is_reencoded(self, api):
-        res = api.post(ADMIT, {**multipart(), "photo": image_file()}, format="multipart")
-        assert res.status_code == 201, res.data
-        photo = Student.objects.get().photo
-        assert photo.name.endswith(".jpg")
-        with Image.open(photo.path) as img:
-            assert img.format == "JPEG"
-            assert max(img.size) <= 800
-
-    def test_photo_must_be_an_image(self, api):
-        bad = SimpleUploadedFile("photo.png", b"not an image", content_type="image/png")
-        res = api.post(ADMIT, {**multipart(), "photo": bad}, format="multipart")
-        assert res.status_code == 400 and "photo" in res.data["errors"]
-
-    def test_photo_size_limit(self, api):
-        big = SimpleUploadedFile("big.png", b"0" * (2 * 1024 * 1024 + 1), content_type="image/png")
-        res = api.post(ADMIT, {**multipart(), "photo": big}, format="multipart")
-        assert res.status_code == 400 and "photo" in res.data["errors"]
+    def test_valid_details_are_normalised(self):
+        s = PersonalStep(data=personal())
+        assert s.is_valid(), s.errors
+        assert (s.validated_data["name"], s.validated_data["father_name"]) == (
+            "NISHA BHATT",
+            "GIRISH BHATT",
+        )
+        assert s.validated_data["mobile"] == "8826291458"
 
     @pytest.mark.parametrize(
         "changes, field",
@@ -131,92 +94,24 @@ class TestAdmission:
             ({"mobile": "12345"}, "mobile"),
             ({"mobile": "5826291458"}, "mobile"),
             ({"dob": "2024-01-01"}, "dob"),
-            ({"email": "nope"}, "email"),
-            ({"password": "12345678"}, "password"),
-            ({"password": "nisha.bhatt"}, "password"),
-            ({"course": "no-such-course"}, "course"),
-            ({"employment": "Retired"}, "employment"),
-            ({"accept_no_refund": False}, "accept_no_refund"),
-            ({"qualifications": blank_qualifications()}, "qualifications"),
         ],
     )
-    def test_validation(self, api, changes, field):
-        res = api.post(ADMIT, payload(**changes), format="json")
-        assert res.status_code == 400
-        assert field in res.data["errors"], res.data
-        assert not User.objects.exists()
+    def test_personal_details(self, changes, field):
+        s = PersonalStep(data=personal(**changes))
+        assert not s.is_valid()
+        assert field in s.errors, s.errors
 
-    def test_high_school_row_message(self, api):
-        res = api.post(ADMIT, payload(qualifications=blank_qualifications()), format="json")
-        assert res.data["errors"]["qualifications"] == [
+    def test_high_school_row_is_required(self):
+        s = EducationStep(data={"qualifications": blank_qualifications()})
+        assert not s.is_valid()
+        assert s.errors["qualifications"] == [
             "Fill in at least the High School row — year and board."
         ]
 
-    def test_draft_course_cannot_be_chosen(self, api):
-        Course.objects.filter(slug="pdm").update(status=Course.Status.DRAFT)
-        res = api.post(ADMIT, payload(), format="json")
-        assert res.data["errors"]["course"] == ["Choose a course from the list."]
-
-    def test_email_already_registered(self, api):
-        User.objects.create_user(email="nisha.bhatt@gmail.com", password="x")
-        res = api.post(ADMIT, payload(), format="json")
-        assert res.status_code == 400
-        assert res.data["errors"]["email"] == [
-            "An account with this email already exists. Log in instead."
-        ]
-
-    def test_registration_closed(self, api):
-        s = SiteSettings.load()
-        s.allow_registration = False
-        s.save()
-        for url, body in [(ADMIT, payload()), (CHECK, {"step": "course", "data": {}})]:
-            res = api.post(url, body, format="json")
-            assert res.status_code == 403
-            assert res.data["detail"].startswith("Online registration is closed")
-
-    def test_is_throttled(self, api):
-        codes = [
-            api.post(ADMIT, payload(email=f"student{i}@example.in"), format="json").status_code
-            for i in range(6)
-        ]
-        assert codes == [201] * 5 + [429]
-
-
-class TestStepCheck:
-    def check(self, api, step, data):
-        return api.post(CHECK, {"step": step, "data": data}, format="json")
-
-    def test_each_valid_step(self, api):
-        v = VALID
-        steps = {
-            "account": {"email": v["email"], "password": v["password"], "name": v["name"]},
-            "personal": {
-                k: v[k] for k in ["name", "father_name", "dob", "address", "pincode", "mobile"]
-            },
-            "education": {"qualifications": v["qualifications"]},
-            "course": {k: v[k] for k in ["course", "employment", "accept_no_refund"]},
-        }
-        for step, data in steps.items():
-            res = self.check(api, step, data)
-            assert res.status_code == 200, (step, res.data)
-            assert res.data == {"valid": True}
-        assert not User.objects.exists()  # nothing is saved
-
-    def test_invalid_step_reports_only_that_steps_fields(self, api):
-        res = self.check(api, "personal", {"name": "A", "pincode": "1"})
-        assert res.status_code == 400
-        assert {"name", "pincode", "father_name", "mobile"} <= set(res.data["errors"])
-        assert "email" not in res.data["errors"]
-
-    def test_account_step_reports_a_taken_email(self, api):
-        User.objects.create_user(email="nisha.bhatt@gmail.com", password="x")
-        res = self.check(
-            api, "account", {"email": "NISHA.BHATT@gmail.com", "password": "Sketch#2026pass"}
-        )
-        assert "email" in res.data["errors"]
-
-    def test_unknown_step(self, api):
-        assert self.check(api, "payment", {}).status_code == 400
+    def test_qualifications_from_a_multipart_form(self):
+        s = EducationStep(data={"qualifications": json.dumps(quals())})
+        assert s.is_valid(), s.errors
+        assert s.validated_data["qualifications"][1]["percentage"] == "71.5"
 
 
 class TestModels:

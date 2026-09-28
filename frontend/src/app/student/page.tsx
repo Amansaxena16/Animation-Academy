@@ -35,7 +35,7 @@ export default function StudentDashboard() {
             <span className="type-mono text-ink">{user?.student_code}</span>
           </p>
         </div>
-        <ButtonLink href="/admission" variant="secondary">
+        <ButtonLink href="/student/apply" variant="secondary">
           <Plus aria-hidden /> Apply for a Course
         </ButtonLink>
       </div>
@@ -115,7 +115,7 @@ export default function StudentDashboard() {
                       title="No current courses"
                       text="When you apply for a course, its admission status and batch timings show here."
                       action={
-                        <ButtonLink href="/courses">Browse Courses</ButtonLink>
+                        <ButtonLink href="/#courses">Browse Courses</ButtonLink>
                       }
                     />
                   </Card>

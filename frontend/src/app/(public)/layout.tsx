@@ -56,7 +56,10 @@ export default async function PublicLayout({
       >
         Skip to content
       </a>
-      <PublicHeader role={jar.get("aa_session")?.value} />
+      <PublicHeader
+        role={jar.get("aa_session")?.value}
+        phone={site.phones[0]}
+      />
       <main id="main" className="flex-1">
         {children}
       </main>

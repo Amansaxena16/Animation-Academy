@@ -66,6 +66,18 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // The public site is one page now; the old pages point at their sections. Temporary
+      // (307) on purpose: browsers don't remember them, so a page can come back later.
+      { source: "/admission", destination: "/#admission", permanent: false },
+      { source: "/about", destination: "/#about", permanent: false },
+      { source: "/contact", destination: "/#contact", permanent: false },
+      { source: "/updates", destination: "/#updates", permanent: false },
+      { source: "/courses", destination: "/#courses", permanent: false },
+      {
+        source: "/courses/:slug",
+        destination: "/#course-:slug",
+        permanent: false,
+      },
       {
         source: "/:path((?!api/|django-admin).+)/",
         destination: "/:path",

@@ -1,7 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import {} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -58,13 +57,8 @@ export default function NewCoursePage() {
   return (
     <form onSubmit={save} noValidate className="flex flex-col gap-6">
       <div>
-        <Link
-          href="/admin/courses"
-          className="text-ink-muted hover:text-navy-ink inline-flex items-center gap-1.5 text-sm no-underline"
-        >
-          <ArrowLeft className="size-4" aria-hidden /> Courses
-        </Link>
         <PageHeader
+          back={{ href: "/admin/courses", label: "Courses" }}
           title="Add a course"
           text="Save as Draft to prepare it before it shows on the website."
         />

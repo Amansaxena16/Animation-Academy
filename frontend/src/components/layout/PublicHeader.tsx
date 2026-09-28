@@ -1,31 +1,80 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { Menu, Phone, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/cn";
+import { telHref } from "@/lib/content";
 import { PUBLIC_NAV } from "@/lib/site";
 
 const DASHBOARD = { student: "/student", admin: "/admin" } as const;
 
-/** `role` comes from the aa_session cookie (read by the layout): signed-in visitors see
- *  "My Dashboard" instead of Login and Register. */
-export function PublicHeader({ role }: { role?: string }) {
+/** Merged with the hero: no bar at the top of the page, a solid one once the page scrolls or
+ *  the menu is open. The links are sections of the one-page site; the one in view is marked.
+ *  `role` comes from the aa_session cookie (read by the layout): signed-in visitors get a
+ *  "My Dashboard" link instead of Login. There is no Register — the office admits students. */
+export function PublicHeader({
+  role,
+  phone,
+}: {
+  role?: string;
+  phone?: string;
+}) {
   const dashboard =
     role === "student" || role === "admin" ? DASHBOARD[role] : null;
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [section, setSection] = useState<string | null>(null);
   const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+    pathname === "/" && href === `/#${section}`;
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Which section is in view (home page only).
+  useEffect(() => {
+    if (pathname !== "/") return;
+    const ids = PUBLIC_NAV.map((item) => item.href.slice(2));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.find((e) => e.isIntersecting);
+        if (visible) setSection(visible.target.id);
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [pathname]);
+
+  const solid = scrolled || open;
 
   return (
-    <header className="border-line bg-surface-raised/95 sticky top-0 z-50 border-b backdrop-blur">
-      <div className="mx-auto flex h-[72px] max-w-[1200px] items-center gap-6 px-4 md:px-6">
-        <Logo size="sm" className="max-[380px]:[&_img+img]:hidden" />
+    <header
+      className={cn(
+        "sticky top-0 z-50 border-b transition-[background-color,border-color] duration-200",
+        solid
+          ? "border-line bg-header-bg backdrop-blur-md"
+          : "border-transparent bg-transparent",
+      )}
+    >
+      <div className="mx-auto flex h-[72px] max-w-[1280px] items-center gap-6 px-4 md:px-6 lg:h-20">
+        <Logo
+          size="header"
+          className="[&>img]:w-auto max-[380px]:[&>img+img]:hidden max-lg:[&>img:first-child]:h-[42px] max-lg:[&>img:not(:first-child)]:h-[34px]"
+        />
         <nav
           aria-label="Main"
           className="ml-auto hidden items-center gap-1 lg:flex"
@@ -36,9 +85,9 @@ export function PublicHeader({ role }: { role?: string }) {
               href={item.href}
               aria-current={isActive(item.href) ? "page" : undefined}
               className={cn(
-                "rounded-md px-3 py-2 text-sm font-semibold no-underline",
+                "touch:min-h-11 inline-flex items-center rounded-md px-3 py-2 text-[15px] font-medium no-underline transition-colors",
                 isActive(item.href)
-                  ? "text-brand-ink"
+                  ? "text-ink font-semibold"
                   : "text-ink-muted hover:bg-surface-sunken hover:text-ink",
               )}
             >
@@ -46,36 +95,26 @@ export function PublicHeader({ role }: { role?: string }) {
             </Link>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-2 lg:ml-0">
-          {dashboard ? (
+        <div className="ml-auto flex items-center gap-2 lg:ml-2">
+          <Link
+            href={dashboard ?? "/login"}
+            className="text-ink-muted hover:text-ink touch:min-h-11 inline-flex items-center rounded-md px-2 py-2 text-sm font-medium no-underline max-sm:hidden"
+          >
+            {dashboard ? "My Dashboard" : "Login"}
+          </Link>
+          <ThemeToggle />
+          {phone && (
             <ButtonLink
-              href={dashboard}
+              href={telHref(phone)}
               variant="primary"
               className="max-sm:hidden"
             >
-              My Dashboard
+              <Phone aria-hidden /> Call
             </ButtonLink>
-          ) : (
-            <>
-              <ButtonLink
-                href="/login"
-                variant="ghost"
-                className="max-sm:hidden"
-              >
-                Login
-              </ButtonLink>
-              <ButtonLink
-                href="/admission"
-                variant="primary"
-                className="max-sm:hidden"
-              >
-                Register
-              </ButtonLink>
-            </>
           )}
           <button
             type="button"
-            className="text-ink hover:bg-surface-sunken grid size-10 place-items-center rounded-md lg:hidden"
+            className="text-ink hover:bg-surface-sunken touch:size-11 grid size-10 place-items-center rounded-md lg:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-menu"
@@ -107,37 +146,23 @@ export function PublicHeader({ role }: { role?: string }) {
               {item.label}
             </Link>
           ))}
-          <div className="mt-3 flex gap-2">
-            {dashboard ? (
-              <ButtonLink
-                href={dashboard}
-                variant="primary"
-                className="flex-1"
-                onClick={() => setOpen(false)}
-              >
-                My Dashboard
-              </ButtonLink>
-            ) : (
-              <>
-                <ButtonLink
-                  href="/login"
-                  variant="secondary"
-                  className="flex-1"
-                  onClick={() => setOpen(false)}
-                >
-                  Login
-                </ButtonLink>
-                <ButtonLink
-                  href="/admission"
-                  variant="primary"
-                  className="flex-1"
-                  onClick={() => setOpen(false)}
-                >
-                  Register
-                </ButtonLink>
-              </>
-            )}
-          </div>
+          {phone && (
+            <ButtonLink
+              href={telHref(phone)}
+              variant="primary"
+              block
+              className="mt-3"
+            >
+              <Phone aria-hidden /> Call {phone}
+            </ButtonLink>
+          )}
+          <Link
+            href={dashboard ?? "/login"}
+            onClick={() => setOpen(false)}
+            className="text-ink-muted mt-2 block rounded-md px-3 py-3 text-center font-semibold no-underline"
+          >
+            {dashboard ? "My Dashboard" : "Login"}
+          </Link>
         </nav>
       )}
     </header>

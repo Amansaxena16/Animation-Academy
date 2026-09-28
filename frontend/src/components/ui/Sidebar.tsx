@@ -27,7 +27,8 @@ export function isActive(pathname: string, href: string, rootHref: string) {
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-/** Dashboard navigation ≥1024px (a drawer below): navy ground, ivory logo, amber bar on the active item. */
+/** Dashboard navigation ≥1024px (a drawer below): a quiet panel that follows the theme, with an
+ *  azure tint and an amber bar on the active item. */
 export function Sidebar({
   items,
   rootHref,
@@ -41,17 +42,17 @@ export function Sidebar({
   return (
     <nav
       aria-label="Dashboard"
-      className="bg-navy text-on-navy flex h-full w-[260px] flex-col gap-1 px-3.5 py-5"
+      className="bg-sidebar text-ink border-line flex h-full w-[260px] flex-col gap-1 border-r px-3.5 py-5"
     >
       <div className="px-2.5 pt-1 pb-5">
-        <Logo size="sm" tone="inverse" href={rootHref} />
+        <Logo size="sm" href={rootHref} />
       </div>
       {items.map((item) => {
         const active = isActive(pathname, item.href, rootHref);
         return (
           <div key={item.href}>
             {item.group && (
-              <div className="px-3 pt-4 pb-1.5 text-[11px] leading-4 font-bold tracking-[0.1em] text-white/55 uppercase">
+              <div className="text-ink-muted px-3 pt-4 pb-1.5 text-xs leading-4 font-bold tracking-[0.1em] uppercase">
                 {item.group}
               </div>
             )}
@@ -60,10 +61,10 @@ export function Sidebar({
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm leading-5 font-medium no-underline",
+                "touch:min-h-12 flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm leading-5 font-medium no-underline",
                 active
-                  ? "bg-white/12 text-white shadow-[inset_3px_0_0_var(--accent)]"
-                  : "text-white/78 hover:bg-white/7 hover:text-white",
+                  ? "bg-brand-soft text-brand-ink shadow-[inset_3px_0_0_var(--accent)]"
+                  : "text-ink-muted hover:bg-surface-sunken hover:text-ink",
               )}
             >
               <item.icon
@@ -72,7 +73,7 @@ export function Sidebar({
               />
               {item.label}
               {item.count ? (
-                <span className="rounded-pill bg-accent text-on-accent ml-auto px-[7px] py-px text-[11px] font-bold">
+                <span className="rounded-pill bg-accent text-on-accent ml-auto px-[7px] py-px text-xs font-bold">
                   {item.count}
                   <span className="sr-only"> pending</span>
                 </span>
@@ -108,7 +109,7 @@ export function BottomNav({
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex min-h-12 flex-1 flex-col items-center justify-center gap-[3px] rounded-md px-0.5 py-1.5 text-[11px] font-semibold no-underline",
+              "flex min-h-12 flex-1 flex-col items-center justify-center gap-[3px] rounded-md px-0.5 py-1.5 text-xs font-semibold no-underline",
               active ? "text-navy-ink" : "text-ink-muted",
             )}
           >

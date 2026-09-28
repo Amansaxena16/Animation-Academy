@@ -55,6 +55,7 @@ function EnrollmentsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        back={{ href: "/admin", label: "Dashboard" }}
         title="Enrollments"
         text="Applications and enrolled courses. Approve new admissions, and complete a course to issue its certificate."
       />
@@ -142,7 +143,7 @@ function EnrollmentsPage() {
                   render: (e) => (
                     <Link
                       href={`/admin/students/${e.student.code}`}
-                      className="text-ink no-underline"
+                      className="text-ink touch:min-h-11 flex items-center no-underline"
                     >
                       <CellUser
                         avatar={
@@ -179,13 +180,16 @@ function EnrollmentsPage() {
                         {e.status}
                       </Badge>
                       {e.status === "Cancelled" && e.note && (
-                        <small className="text-ink-muted">{e.note}</small>
+                        <small className="text-ink-muted text-xs">
+                          {e.note}
+                        </small>
                       )}
                     </div>
                   ),
                 },
                 {
                   key: "applied",
+                  optional: true,
                   header: "Applied",
                   render: (e) => formatDateShort(e.applied_at),
                 },

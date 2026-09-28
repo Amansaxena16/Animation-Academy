@@ -9,11 +9,11 @@ The website for **Animation Academy**, an ISO 9001:2000 certified multimedia ins
 
 The product has three parts:
 
-- **Public website:** courses with monthly fees and full syllabi, online admission that follows the institute's paper form, announcements, contact, and public certificate verification.
-- **Student portal:** profile, enrolled courses with their admission status, and certificates to print or download. Teaching happens at the institute, so there are no online lessons.
-- **Admin console:** approve admissions, manage students and courses, issue certificates, post announcements, and edit website content and settings.
+- **Public website:** courses with monthly fees and full syllabi, announcements, contact, and public certificate verification. Dark by default, with a light theme toggle. Admissions are made by the office, not on the website.
+- **Student portal:** profile, enrolled courses with their admission status, requests for further courses, and certificates to print or download. Teaching happens at the institute, so there are no online lessons.
+- **Admin console:** add (admit) students, approve course requests, manage students and courses, issue certificates, post announcements, and edit website content and settings.
 
-> **Status:** Phases 0–9 are complete: project setup, JWT auth, the frontend foundation, the course catalogue, site content, online admission, the student portal, certificates with public verification, the admin console at `/admin`, and hardening (security headers, SEO, accessibility checks, end-to-end tests), and deployment on Render's free plans (see [`DEPLOY.md`](DEPLOY.md)). See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
+> **Status:** Phases 0–9 are complete: project setup, JWT auth, the frontend foundation, the course catalogue, site content, admission (now office-only, in the console), the student portal, certificates with public verification, the admin console at `/admin`, and hardening (security headers, SEO, accessibility checks, end-to-end tests), and deployment on Render's free plans (see [`DEPLOY.md`](DEPLOY.md)). See [`BUILD_PLAN.md`](BUILD_PLAN.md) for the roadmap.
 
 ## Tech stack
 
@@ -100,7 +100,7 @@ npm run build       # production build
 npm run lint        # eslint
 npm run typecheck   # generate route types, then tsc
 npm test            # vitest (formatting helpers)
-npm run e2e         # Playwright in the system Chrome: accessibility on every page + the admission → certificate journey
+npm run e2e         # Playwright in the system Chrome: accessibility on every page + the office admission → certificate journey
 npm run tokens      # regenerate src/styles/tokens.css from design-system/tokens.json
 npm run api-types   # regenerate src/types/api.ts from the running API's OpenAPI schema
 ```

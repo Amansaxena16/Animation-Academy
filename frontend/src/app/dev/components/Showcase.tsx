@@ -159,7 +159,7 @@ export function Showcase() {
       <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-10 md:px-6">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <span className="type-overline text-accent-ink">
+            <span className="type-overline text-brand-ink">
               Development only
             </span>
             <h1 className="type-display m-0">Components</h1>
@@ -207,7 +207,7 @@ export function Showcase() {
             <span className="type-body">
               Tally Prime with GST, including GSTR1 and GSTR 3B return filing.
             </span>
-            <span className="type-overline text-accent-ink">
+            <span className="type-overline text-brand-ink">
               ISO 9001:2000 certified
             </span>
             <span className="type-mono">AA-2026-000123</span>
@@ -381,7 +381,7 @@ export function Showcase() {
           <Breadcrumbs
             items={[
               { label: "Home", href: "/" },
-              { label: "Courses", href: "/courses" },
+              { label: "Courses", href: "/#courses" },
               { label: "DCA — Accounting" },
             ]}
           />

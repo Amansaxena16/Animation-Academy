@@ -50,7 +50,7 @@ Open https://animation-academy.onrender.com in a private window. Allow a minute 
 1. The home page and courses show; `/sitemap.xml` lists the courses.
 2. `/login` → log in with the admin → you land in the admin console.
 3. In **Settings**, fill in the institute details. Change a course's fee, and its public page shows the new fee straight away (this proves instant refresh works).
-4. Apply for a course on `/admission` with a test email. In the console, **Approve** it, then **Complete** it, then download the PDF. Open the certificate code at `/verify`.
+4. In the console, **Students → Add a student** with a test email and a course. Under **Enrollments**, **Complete** it, then download the PDF. Open the certificate code at `/verify`.
 5. Delete the test student at `https://animation-academy.onrender.com/django-admin/` → Students.
 6. **Rate limits:** on `/login`, enter a wrong password 11 times in a minute. The 11th attempt must say to try again later. Then log in from a phone on mobile data; it must work. If the limit never triggers, or blocks everyone, set `TRUSTED_PROXY_COUNT` (try `2`) on the service and check again.
 

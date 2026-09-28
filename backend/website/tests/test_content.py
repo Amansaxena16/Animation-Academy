@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.utils import timezone
 
-from website.models import Announcement, ContactMessage, SiteSettings
+from website.models import Announcement, ContactMessage, Course, SiteSettings
 
 pytestmark = pytest.mark.django_db
 
@@ -111,7 +111,6 @@ class TestAnnouncements:
 class TestContact:
     VALID = {
         "name": "  Meera   Nair ",
-        "email": "meera.nair@gmail.com",
         "phone": "+91 90151 77420",
         "message": "Which batch of DTP starts next month?",
     }
@@ -122,17 +121,36 @@ class TestContact:
         assert res.data["detail"].startswith("Message sent.")
         msg = ContactMessage.objects.get()
         assert (msg.name, msg.phone, msg.handled) == ("Meera Nair", "9015177420", False)
+        assert msg.email == "" and msg.course is None
 
-    def test_phone_is_optional(self, api):
-        data = {**self.VALID, "phone": ""}
-        assert api.post(CONTACT, data, format="json").status_code == 201
+    def test_name_and_phone_are_enough(self, api):
+        res = api.post(CONTACT, {"name": "Meera", "phone": "9015177420"}, format="json")
+        assert res.status_code == 201
+        assert ContactMessage.objects.get().message == ""
+
+    def test_course_is_saved(self, api):
+        call_command("seed_courses", verbosity=0)
+        res = api.post(CONTACT, {**self.VALID, "course": "dtp"}, format="json")
+        assert res.status_code == 201
+        assert ContactMessage.objects.get().course.slug == "dtp"
+
+    def test_unknown_or_draft_course_is_rejected(self, api):
+        call_command("seed_courses", verbosity=0)
+        Course.objects.filter(slug="ccc").update(status=Course.Status.DRAFT)
+        for slug in ["no-such-course", "ccc"]:
+            res = api.post(CONTACT, {**self.VALID, "course": slug}, format="json")
+            assert res.status_code == 400 and "course" in res.data["errors"]
 
     def test_validation_messages(self, api):
-        bad = {"name": "A", "email": "nope", "phone": "12345", "message": "Hi"}
-        res = api.post(CONTACT, bad, format="json")
+        res = api.post(CONTACT, {"name": "A", "phone": "12345"}, format="json")
         assert res.status_code == 400
-        assert set(res.data["errors"]) == {"name", "email", "phone", "message"}
+        assert set(res.data["errors"]) == {"name", "phone"}
         assert res.data["errors"]["phone"] == ["Enter a 10-digit mobile number, e.g. 98110 45236."]
+
+    @pytest.mark.parametrize("phone", ["", "5123456789", "98110452"])
+    def test_phone_is_required_and_must_be_a_mobile(self, api, phone):
+        res = api.post(CONTACT, {**self.VALID, "phone": phone}, format="json")
+        assert res.status_code == 400 and "phone" in res.data["errors"]
 
     def test_honeypot_pretends_success_but_saves_nothing(self, api):
         res = api.post(CONTACT, {**self.VALID, "website": "http://spam.example"}, format="json")

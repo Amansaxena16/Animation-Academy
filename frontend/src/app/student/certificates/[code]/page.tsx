@@ -1,12 +1,12 @@
 "use client";
 
 import { ArrowLeft, Download, Link2, Printer } from "lucide-react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
 import { Certificate } from "@/components/certificate/Certificate";
 import { Alert } from "@/components/ui/Alert";
+import { BackButton } from "@/components/ui/BackButton";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/EmptyState";
 import { useToast } from "@/components/ui/Toast";
@@ -79,12 +79,7 @@ export default function CertificatePage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div>
-          <Link
-            href="/student/certificates"
-            className="text-ink-muted hover:text-navy-ink inline-flex items-center gap-1.5 text-sm no-underline"
-          >
-            <ArrowLeft className="size-4" aria-hidden /> Certificates
-          </Link>
+          <BackButton href="/student/certificates" label="Certificates" />
           <h1 className="type-h1 m-0">{data?.course_name ?? "Certificate"}</h1>
         </div>
         <div className="flex flex-wrap gap-2">

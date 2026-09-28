@@ -21,7 +21,7 @@ function display(value: string, t: number) {
   return Math.round(Number(match[1]) * t).toLocaleString("en-IN") + match[2];
 }
 
-/** The numbers band. Counts up once when it first scrolls into view; the server-rendered
+/** The numbers row: a flat, ruled strip under the hero. Counts up once when it first scrolls into view; the server-rendered
  *  HTML has the final numbers, and reduced motion skips the animation. */
 export function StatsBand({ stats }: { stats: Stat[] }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -59,24 +59,27 @@ export function StatsBand({ stats }: { stats: Stat[] }) {
   return (
     <section
       aria-label="Animation Academy in numbers"
-      className="bg-navy text-on-navy"
+      className="mx-auto max-w-[1200px] px-4 md:px-6"
     >
       <div
         ref={ref}
-        className="mx-auto grid max-w-[1200px] grid-cols-2 gap-6 px-4 py-10 md:px-6 lg:grid-cols-4"
+        className="border-line grid grid-cols-2 gap-5 rounded-lg border px-5 py-6 sm:gap-6 sm:px-6 sm:py-7 md:px-8 lg:grid-cols-4 lg:[&>div+div]:border-l lg:[&>div+div]:pl-6"
       >
         {stats.map((stat, i) => {
           const Icon = ICONS[i % ICONS.length];
           return (
-            <div key={stat.label} className="flex items-center gap-4">
-              <span className="text-accent grid size-12 shrink-0 place-items-center rounded-md bg-white/10">
+            <div
+              key={stat.label}
+              className="border-line flex min-w-0 items-center gap-4 max-sm:flex-col max-sm:items-start max-sm:gap-2.5"
+            >
+              <span className="bg-brand-soft text-brand-ink grid size-12 shrink-0 place-items-center rounded-md">
                 <Icon className="size-6" aria-hidden />
               </span>
               <div>
-                <div className="type-stat tabular-nums">
+                <div className="type-stat tabular-nums max-sm:text-[26px] max-sm:leading-[30px]">
                   {display(stat.value, t)}
                 </div>
-                <div className="text-sm text-white/75">{stat.label}</div>
+                <div className="text-ink-muted text-sm">{stat.label}</div>
               </div>
             </div>
           );

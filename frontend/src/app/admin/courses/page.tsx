@@ -26,6 +26,7 @@ export default function CoursesPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        back={{ href: "/admin", label: "Dashboard" }}
         title="Courses"
         text="What the website shows, with fees and syllabus. Changes appear on the website straight away."
         actions={
@@ -75,10 +76,10 @@ export default function CoursesPage() {
                 render: (c) => (
                   <Link
                     href={`/admin/courses/${c.slug}`}
-                    className="text-ink min-w-[200px] font-semibold no-underline hover:underline"
+                    className="text-ink touch:min-h-11 flex min-w-[200px] flex-col justify-center font-semibold no-underline hover:underline"
                   >
                     {c.name}
-                    <small className="text-ink-muted block font-normal">
+                    <small className="text-ink-muted block text-xs font-normal">
                       {c.kind} · {c.category}
                       {c.featured && " · featured"}
                     </small>

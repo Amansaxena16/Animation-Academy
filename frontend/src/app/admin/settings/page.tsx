@@ -34,6 +34,7 @@ function SettingsForm({ site }: { site: AdminSite }) {
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-6">
       <PageHeader
+        back={{ href: "/admin", label: "Dashboard" }}
         title="Settings"
         text="Contact details, fees, certificates and the website switches."
       />
@@ -132,12 +133,13 @@ function SettingsForm({ site }: { site: AdminSite }) {
         <CardHeader title="Website switches" />
         <CardBody className="flex flex-col gap-4">
           <Checkbox
-            label="Accept applications online"
+            label="Students can request new courses"
             checked={values.allow_registration ?? true}
             onChange={(e) => set("allow_registration", e.target.checked)}
           />
           <p className="text-ink-muted -mt-2 mb-0 ml-7 text-[13px]">
-            Off: the admission form says to call the institute instead.
+            Off: the student portal asks them to call the institute instead. New
+            students are always added here, under Students.
           </p>
           <Checkbox
             label="Maintenance mode"

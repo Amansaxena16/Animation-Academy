@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -9,11 +9,11 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Logo } from "@/components/ui/Logo";
 import { BottomNav, Sidebar } from "@/components/ui/Sidebar";
 import { Skeleton } from "@/components/ui/EmptyState";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import type { Role } from "@/lib/api";
 import { useAdminDashboard } from "@/lib/admin";
 import { useAuth } from "@/lib/auth";
 import { titleCase } from "@/lib/format";
-import { setTheme, useApplyTheme, useTheme } from "@/lib/theme";
 
 import { ADMIN_NAV, STUDENT_NAV } from "./nav";
 
@@ -26,15 +26,13 @@ interface DashboardShellProps {
   children: ReactNode;
 }
 
-/** Sidebar ≥1024px, a drawer below it, BottomNav under 720px. Light by default with a
- *  dark toggle remembered per browser. Restores the session and re-checks the role. */
+/** Sidebar ≥1024px, a drawer below it, BottomNav under 720px. Follows the site theme (dark by
+ *  default, toggle remembered per browser). Restores the session and re-checks the role. */
 export function DashboardShell({ role, children }: DashboardShellProps) {
   const { status, user, ensureSession, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [drawer, setDrawer] = useState(false);
-  const theme = useTheme();
-  useApplyTheme(theme);
   const home = HOME[role];
   const ready = status === "authenticated" && user?.role === role;
   // Staff see live counts on the menu (pending admissions, unread messages).
@@ -49,12 +47,14 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
 
   useEffect(() => {
     ensureSession().then((u) => {
-      if (!u) router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+      // Keep the query too: /student/apply?course=dtp comes back to the same course.
+      if (!u)
+        router.replace(
+          `/login?next=${encodeURIComponent(pathname + window.location.search)}`,
+        );
       else if (u.role !== role) router.replace(HOME[u.role]);
     });
   }, [ensureSession, role, router, pathname]);
-
-  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
   const signOut = async () => {
     await logout();
@@ -88,7 +88,7 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
               type="button"
               aria-label="Close menu"
               onClick={() => setDrawer(false)}
-              className="bg-surface-raised text-ink absolute top-4 -right-12 grid size-10 place-items-center rounded-md"
+              className="bg-surface-raised text-ink touch:size-11 absolute top-4 -right-12 grid size-10 place-items-center rounded-md"
             >
               <X className="size-5" />
             </button>
@@ -97,12 +97,12 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
       )}
 
       <div className="lg:pl-[260px] print:pl-0">
-        <header className="border-line bg-surface-raised sticky top-0 z-30 flex h-16 items-center gap-3 border-b px-4 md:px-6 print:hidden">
+        <header className="border-line bg-header-bg sticky top-0 z-30 flex h-16 items-center gap-3 border-b px-4 backdrop-blur md:px-6 print:hidden">
           <button
             type="button"
             aria-label="Open menu"
             onClick={() => setDrawer(true)}
-            className="text-ink hover:bg-surface-sunken grid size-10 place-items-center rounded-md lg:hidden"
+            className="text-ink hover:bg-surface-sunken touch:size-11 grid size-10 place-items-center rounded-md lg:hidden"
           >
             <Menu className="size-5" />
           </button>
@@ -110,22 +110,7 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
             <Logo size="sm" markOnly href={home} />
           </span>
           <div className="ml-auto flex items-center gap-2">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label={
-                theme === "dark"
-                  ? "Switch to light theme"
-                  : "Switch to dark theme"
-              }
-              className="text-ink-muted hover:bg-surface-sunken hover:text-ink grid size-10 place-items-center rounded-md"
-            >
-              {theme === "dark" ? (
-                <Sun className="size-5" />
-              ) : (
-                <Moon className="size-5" />
-              )}
-            </button>
+            <ThemeToggle className="border-transparent" />
             {user && (
               <span className="flex items-center gap-2.5 pl-1">
                 <Avatar name={titleCase(user.name)} size="sm" />
@@ -143,7 +128,7 @@ export function DashboardShell({ role, children }: DashboardShellProps) {
             <button
               type="button"
               onClick={signOut}
-              className="text-ink-muted hover:bg-surface-sunken hover:text-ink ml-1 inline-flex h-10 items-center gap-2 rounded-md px-3 text-sm font-semibold"
+              className="text-ink-muted hover:bg-surface-sunken hover:text-ink touch:h-11 touch:min-w-11 ml-1 inline-flex h-10 items-center justify-center gap-2 rounded-md px-3 text-sm font-semibold"
             >
               <LogOut className="size-[18px]" />
               <span className="max-sm:sr-only">Log Out</span>
