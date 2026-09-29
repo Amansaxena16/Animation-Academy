@@ -36,6 +36,11 @@ services:
         generateValue: true
       - key: WEB_CONCURRENCY # one Django worker fits the free instance's memory
         value: "1"
+      # Rate limits key on the visitor's address. On Render, X-Forwarded-For ends with
+      # "<visitor>, <Cloudflare>, <Render>" (measured 29 Sep 2026), so the visitor is 3rd from
+      # the right; anything a client adds itself sits further left and is ignored.
+      - key: TRUSTED_PROXY_COUNT
+        value: "3"
       # The public address. NEXT_PUBLIC_SITE_URL is also a Docker build argument.
       - key: NEXT_PUBLIC_SITE_URL
         value: https://animation-academy.onrender.com

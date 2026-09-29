@@ -76,6 +76,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Users and passwords
 
 AUTH_USER_MODEL = "accounts.User"
+# Counts wrong passwords per account and locks it for 15 minutes after 10 (accounts/lockout.py).
+AUTHENTICATION_BACKENDS = ["accounts.lockout.LockoutModelBackend"]
 
 AUTH_PASSWORD_VALIDATORS = [
     {

@@ -51,7 +51,6 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     MIDDLEWARE[0],  # SecurityMiddleware first
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "common.diagnostics.LogLoginClientAddress",  # TEMPORARY, see common/diagnostics.py
     *MIDDLEWARE[1:],
 ]
 

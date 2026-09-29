@@ -15,6 +15,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from .lockout import LOCKED_MESSAGE, is_locked
 from .models import User
 from .serializers import (
     AccessTokenSerializer,
@@ -71,6 +72,12 @@ class LoginView(PublicAuthView):
 
     @extend_schema(request=LoginSerializer, responses=AccessTokenSerializer)
     def post(self, request):
+        email = request.data.get("email") if isinstance(request.data, dict) else None
+        if isinstance(email, str) and is_locked(email):
+            return Response(
+                {"detail": LOCKED_MESSAGE, "errors": {}, "code": "account_locked"},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
