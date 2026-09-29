@@ -16,8 +16,10 @@ PORT="${PORT:-10000}" HOSTNAME=0.0.0.0 node /web/server.js &
 
 # Migrate, and on the very first start seed the data and create the admin.
 python manage.py bootstrap
+# --keep-alive 75: the website reuses its connections to Django; with gunicorn's default of 2s,
+# Django closed them while logins queued, and the website's requests failed ("socket hang up").
 gunicorn config.wsgi --bind 127.0.0.1:8000 --workers "${WEB_CONCURRENCY:-1}" --threads 4 \
-  --timeout 60 --access-logfile - &
+  --timeout 60 --keep-alive 75 --access-logfile - &
 
 wait -n
 exit $?
